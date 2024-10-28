@@ -13,5 +13,11 @@
     "cors": "^2.8.5",
     "express": "^4.21.1",
     "mongoose": "^8.7.2"
+  },
+  "devDependencies": {
+    "@eslint/compat": "^1.2.1",
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.13.0",
+    "eslint": "^9.13.0"
   }
 }
