@@ -5,7 +5,7 @@ const UserSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      trim: true,
+      trim: true
     },
     job: {
       type: String,
@@ -14,8 +14,8 @@ const UserSchema = new mongoose.Schema(
       validate(value) {
         if (value.length < 2)
           throw new Error("Invalid job, must be at least 2 characters.");
-      },
-    },
+      }
+    }
   },
   { collection: "users_list" }
 );
