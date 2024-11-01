@@ -2,20 +2,22 @@ import mongoose from "mongoose";
 
 const ReviewSchema = new mongoose.Schema(
   {
-    // name: {
-    //   type: String,
-    //   required: true,
-    //   trim: true
-    // },
-    // job: {
-    //   type: String,
-    //   required: true,
-    //   trim: true,
-    //   validate(value) {
-    //     if (value.length < 2)
-    //       throw new Error("Invalid job, must be at least 2 characters.");
-    //   }
-    // }
+    item: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    review: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    pictures: [
+      {
+        data: Buffer, //binary in MongoDB
+        contentType: String
+      }
+    ]
   },
   { collection: "reviews" }
 );
