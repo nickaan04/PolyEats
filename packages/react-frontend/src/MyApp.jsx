@@ -12,17 +12,17 @@ function MyApp() {
     fetch(`http://localhost:8000/users/${id}`, {
       method: "DELETE"
     })
-    .then((res) => {
-      if (res.status === 204) {
-        const updated = characters.filter((character, i) => i !== index);
-        setCharacters(updated);
-      } else {
-        console.log(`Expected status 204, instead got ${res.status}`);
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+      .then((res) => {
+        if (res.status === 204) {
+          const updated = characters.filter((character, i) => i !== index);
+          setCharacters(updated);
+        } else {
+          console.log(`Expected status 204, instead got ${res.status}`);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   function fetchUsers() {
@@ -47,14 +47,14 @@ function MyApp() {
       },
       body: JSON.stringify(person)
     });
-  
+
     return promise;
   }
 
   function updateList(person) {
     postUser(person)
       .then((res) => {
-        if(res.status === 201) {
+        if (res.status === 201) {
           return res.json();
         } else {
           console.log(`Expected status 201, instead got ${res.status}`);
@@ -68,10 +68,7 @@ function MyApp() {
 
   return (
     <div className="container">
-      <Table 
-        characterData={characters}
-        removeCharacter={removeOneCharacter}
-      />
+      <Table characterData={characters} removeCharacter={removeOneCharacter} />
       <Form handleSubmit={updateList} />
     </div>
   );

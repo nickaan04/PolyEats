@@ -3,15 +3,17 @@ import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import userService from "../express-backend/services/user-service.js";
+// import accountService from "../express-backend/services/account-service.js";
+import complexService from "../express-backend/services/complex-service.js";
+import restaurantService from "../express-backend/services/restaurant-service.js";
+// import reviewService from "../express-backend/services/review-service.js";
 
 dotenv.config();
 
 const { MONGO_CONNECTION_STRING } = process.env;
 
 mongoose.set("debug", true);
-mongoose
-  .connect(MONGO_CONNECTION_STRING)
-  .catch((error) => console.log(error));
+mongoose.connect(MONGO_CONNECTION_STRING).catch((error) => console.log(error));
 
 const app = express();
 const port = 8000;
@@ -20,72 +22,113 @@ app.use(cors());
 app.use(express.json());
 
 app.listen(port, () => {
-  console.log(
-    `Example app listening at http://localhost:${port}`
-  );
+  console.log(`Example app listening at http://localhost:${port}`);
 });
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
-//get list of users
-app.get("/users", (req, res) => {
+//get list of complexes
+app.get("/complexes", (req, res) => {
   const name = req.query.name;
-  const job = req.query.job;
 
-  userService.getUsers(name, job)
-  .then(users => {
-    res.status(200).send({users_list: users});
-  })
-  .catch((error) => {
-    res.status(500).send("Error fetching users.");
-  });
+  complexService
+    .getComplexes(name)
+    .then((complexes) => {
+      res.status(200).send({ complexes_list: complexes });
+    })
+    .catch((error) => {
+      res.status(500).send({ error: "Error fetching complexes" });
+    });
 });
 
-//get specific user by id
-app.get("/users/:id", (req, res) => {
-  const id = req.params["id"];
+//get all restaurants within a specific complex
+app.get("/complexes/:complexId/restaurants", (req, res) => {
+  const complexId = req.params.complexId;
 
-  userService.findUserById(id)
-  .then(user => {
-    if (!user) {
-      res.status(404).send("Resource not found")
-    } else {
-      res.send({user: user});
-    }
-  })
-  .catch((error) => {
-    res.status(500).send("Error fetching user by id.");
-  });
+  restaurantService
+    .getRestaurantsByComplex(complexId)
+    .then((restaurants) => {
+      res.status(200).send({ restaurants_list: restaurants });
+    })
+    .catch((error) => {
+      res.status(500).send({ error: "Error fetching restaurants in complex" });
+    });
 });
 
-//add user
-app.post("/users", (req, res) => {
-  const userToAdd = req.body;
+//get specific restaurant by id
+app.get("/restaurant/:id", (req, res) => {
+  const restaurantId = req.params.id;
 
-  userService.addUser(userToAdd)
-  .then(user => {
-    res.status(201).send(user);
-  })
-  .catch((error) => {
-    res.status(400).send("Failed to add user.");
-  });
-});
-
-//delete user by ID
-app.delete("/users/:id", (req, res) => {
-  const id = req.params["id"];
-
-  userService.deleteUser(id)
-    .then(user => {
-      if (!user) {
-        res.status(404).send("Resource not found.");
+  restaurantService
+    .getRestaurantById(restaurantId)
+    .then((restaurant) => {
+      if (restaurant) {
+        res.status(200).send({ restaurant: restaurant });
       } else {
-        res.status(204).send()
+        res.status(404).send("Restaurant not found");
       }
     })
     .catch((error) => {
-      res.status(500).send("Error deleting user.");
+      res.status(500).send({ error: "Error fetching restaurant" });
+    });
+});
+
+//get restaurants that satisfy specific filters
+app.get("/restaurants/filter", (req, res) => {
+  const { minRating, cuisine, delivery, accepted_payments, nutrition_types } =
+    req.query;
+
+  const filters = {};
+  if (minRating) {
+    filters.avg_rating = parseFloat(minRating);
+  }
+  if (cuisine) {
+    filters.cuisine = cuisine;
+  }
+  if (delivery) {
+    filters.delivery = delivery === "true";
+  }
+  if (accepted_payments) {
+    try {
+      //parse accepted_payments from query string to an object
+      filters.accepted_payments = JSON.parse(accepted_payments);
+    } catch (error) {
+      return res
+        .status(400)
+        .send({ error: "Invalid format for accepted_payments" });
+    }
+  }
+  if (nutrition_types) {
+    try {
+      //parse nutrition_types from query string to an object
+      filters.nutrition_types = JSON.parse(nutrition_types);
+    } catch (error) {
+      return res
+        .status(400)
+        .send({ error: "Invalid format for nutrition_types" });
+    }
+  }
+
+  restaurantService
+    .filterRestaurants(filters)
+    .then((restaurants) => {
+      res.status(200).send({ restaurants_list: restaurants });
+    })
+    .catch((error) => {
+      res
+        .status(500)
+        .send({ error: "Error fetching restaurants with specified filters" });
+    });
+});
+
+//get restaurants sorted by a specific parameter
+app.get("/restaurants/sort", (req, res) => {
+  const { sortField, sortOrder } = req.query;
+
+  restaurantService
+    .getSortedRestaurants(sortField, sortOrder || "asc")
+    .then((restaurants) => {
+      res.status(200).send({ restaurants_list: restaurants });
+    })
+    .catch((error) => {
+      res.status(500).send({ error: "Error sorting restaurants" });
     });
 });
