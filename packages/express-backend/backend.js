@@ -39,19 +39,93 @@ app.get("/complexes", (req, res) => {
     });
 });
 
-//get all restaurants within a specific complex
+//get all restaurants within a specific complex (with filters/sorting if desired)
 app.get("/complexes/:complexId/restaurants", (req, res) => {
   const complexId = req.params.complexId;
+  const {
+    name,
+    minRating,
+    cuisine,
+    delivery,
+    price,
+    accepted_payments,
+    nutrition_types,
+    hours,
+    sortField,
+    sortOrder
+  } = req.query;
+
+  const filters = {};
+  if (name) {
+    //e.g. ?name=Hearth or ?name=hearth (not case sensitive)
+    filters.name = name;
+  }
+  if (minRating) {
+    //e.g. ?minRating=4
+    filters.avg_rating = parseFloat(minRating);
+  }
+  if (cuisine) {
+    //e.g. ?cuisine=Mexican or ?name=mexican (not case sensitive)
+    filters.cuisine = cuisine;
+  }
+  if (delivery) {
+    //e.g. ?delivery=true
+    filters.delivery = delivery === "true";
+  }
+  if (price) {
+    //e.g. ?price=$
+    filters.price = price;
+  }
+  if (accepted_payments) {
+    //JSON object, e.g., ?accepted_payments={"PolyCard": true, "CreditDebit": true}
+    try {
+      filters.accepted_payments = JSON.parse(accepted_payments);
+    } catch (error) {
+      return res
+        .status(400)
+        .send({ error: "Invalid format for accepted_payments" });
+    }
+  }
+  if (nutrition_types) {
+    //JSON object, e.g., ?nutrition_types={"Vegan": true, "GlutenFree": true}
+    try {
+      filters.nutrition_types = JSON.parse(nutrition_types);
+    } catch (error) {
+      return res
+        .status(400)
+        .send({ error: "Invalid format for nutrition_types" });
+    }
+  }
+  if (hours) {
+    //JSON object, e.g., ?hours={"M": "7:30AM-3:30PM"}
+    try {
+      filters.hours = JSON.parse(hours);
+    } catch (error) {
+      return res.status(400).send({ error: "Invalid format for hours" });
+    }
+  }
 
   restaurantService
-    .getRestaurantsByComplex(complexId)
+    .getRestaurants(filters, sortField, sortOrder || "asc", complexId)
     .then((restaurants) => {
       res.status(200).send({ restaurants_list: restaurants });
     })
     .catch((error) => {
-      res.status(500).send({ error: "Error fetching restaurants in complex" });
+      res
+        .status(500)
+        .send({
+          error: "Error fetching/filtering/sorting restaurants in complex"
+        });
     });
 });
+/* For sorting:
+  ?sortField=name&sortOrder=asc --> Name A-Z
+  ?sortField=name&sortOrder=desc --> Name Z-A
+  ?sortField=avg_rating&sortOrder=desc --> Average Rating high to low
+  ?sortField=avg_rating&sortOrder=asc --> Average Rating low to high
+  ?sortField=price&sortOrder=asc --> price low to high
+  ?sortField=price&sortOrder=desc --> price high to low
+  */
 
 //get specific restaurant by id
 app.get("/restaurant/:id", (req, res) => {
@@ -68,67 +142,5 @@ app.get("/restaurant/:id", (req, res) => {
     })
     .catch((error) => {
       res.status(500).send({ error: "Error fetching restaurant" });
-    });
-});
-
-//get restaurants that satisfy specific filters
-app.get("/restaurants/filter", (req, res) => {
-  const { minRating, cuisine, delivery, accepted_payments, nutrition_types } =
-    req.query;
-
-  const filters = {};
-  if (minRating) {
-    filters.avg_rating = parseFloat(minRating);
-  }
-  if (cuisine) {
-    filters.cuisine = cuisine;
-  }
-  if (delivery) {
-    filters.delivery = delivery === "true";
-  }
-  if (accepted_payments) {
-    try {
-      //parse accepted_payments from query string to an object
-      filters.accepted_payments = JSON.parse(accepted_payments);
-    } catch (error) {
-      return res
-        .status(400)
-        .send({ error: "Invalid format for accepted_payments" });
-    }
-  }
-  if (nutrition_types) {
-    try {
-      //parse nutrition_types from query string to an object
-      filters.nutrition_types = JSON.parse(nutrition_types);
-    } catch (error) {
-      return res
-        .status(400)
-        .send({ error: "Invalid format for nutrition_types" });
-    }
-  }
-
-  restaurantService
-    .filterRestaurants(filters)
-    .then((restaurants) => {
-      res.status(200).send({ restaurants_list: restaurants });
-    })
-    .catch((error) => {
-      res
-        .status(500)
-        .send({ error: "Error fetching restaurants with specified filters" });
-    });
-});
-
-//get restaurants sorted by a specific parameter
-app.get("/restaurants/sort", (req, res) => {
-  const { sortField, sortOrder } = req.query;
-
-  restaurantService
-    .getSortedRestaurants(sortField, sortOrder || "asc")
-    .then((restaurants) => {
-      res.status(200).send({ restaurants_list: restaurants });
-    })
-    .catch((error) => {
-      res.status(500).send({ error: "Error sorting restaurants" });
     });
 });
