@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import userService from "../express-backend/services/user-service.js";
 // import accountService from "../express-backend/services/account-service.js";
 import complexService from "../express-backend/services/complex-service.js";
 import restaurantService from "../express-backend/services/restaurant-service.js";
@@ -97,7 +96,7 @@ app.get("/complexes/:complexId/restaurants", (req, res) => {
     }
   }
   if (hours) {
-    //JSON object, e.g., ?hours={"M": "7:30AM-3:30PM"}
+    //JSON object, e.g., ?hours={"M": true}
     try {
       filters.hours = JSON.parse(hours);
     } catch (error) {

@@ -47,7 +47,7 @@ function getRestaurants(filters, sortField, sortOrder = "asc", complexId) {
   if (filters.hours) {
     //returns restaurants based on the desired hours
     Object.keys(filters.hours).forEach((day) => {
-      query[`hours.${day}`] = { $regex: filters.hours[day], $options: "i" };
+      query[`hours.${day}`] = { $ne: "CLOSED" }; //ensure the day exists and is not "CLOSED"
     });
   }
 
