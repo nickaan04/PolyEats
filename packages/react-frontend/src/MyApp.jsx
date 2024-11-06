@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Table from "./Table";
 import Form from "./Form";
+import Button from "react-bootstrap/Button";
+import Card from "react-bootstrap/Card";
+import campusMarketImage from "./assets/campus_market.jpg";
+import "./App.scss";
 
 function MyApp() {
   const [characters, setCharacters] = useState([]);
@@ -30,14 +34,16 @@ function MyApp() {
     return promise;
   }
 
-  useEffect(() => {
-    fetchUsers()
-      .then((res) => res.json())
-      .then((json) => setCharacters(json["users_list"]))
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
+  //TODO: Convert to Mongo call
+  const complex_data = [
+    { name: "1901 Marketplace" },
+    { name: "University Union" },
+    { name: "Campus Market" },
+    { name: "Vista Grande" },
+    { name: "Poly Canyon Village" }
+  ];
+
+  useEffect(() => {}, []);
 
   function postUser(person) {
     const promise = fetch("http://localhost:8000/users", {
@@ -65,12 +71,20 @@ function MyApp() {
         console.log(error);
       });
   }
-
+  const cards = complex_data.map((row, index) => {
+    return (
+      <Card style={{ width: "18rem" }} key={index}>
+        <Card.Img variant="top" src={campusMarketImage} />
+        <Card.Body>
+          <Card.Title>{row.name}</Card.Title>
+        </Card.Body>
+      </Card>
+    );
+  });
   return (
-    <div className="container">
-      <Table characterData={characters} removeCharacter={removeOneCharacter} />
-      <Form handleSubmit={updateList} />
-    </div>
+    <>
+      <div className="container">{cards}</div>
+    </>
   );
 }
 export default MyApp;
