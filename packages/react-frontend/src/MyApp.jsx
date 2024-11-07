@@ -20,6 +20,15 @@ function MyApp() {
   const [message, setMessage] = useState("");
   const [complexes, setComplexes] = useState([]);
 
+  useEffect(() => {
+    //save token to localStorage whenever it updates
+    if (token && token !== INVALID_TOKEN) {
+      localStorage.setItem("authToken", token);
+    } else {
+      localStorage.removeItem("authToken");
+    }
+  }, [token]);
+
   function addAuthHeader(otherHeaders = {}) {
     return token === INVALID_TOKEN
       ? otherHeaders
@@ -35,13 +44,15 @@ function MyApp() {
   }
 
   useEffect(() => {
-    fetchComplexes()
-      .then((res) => (res.status === 200 ? res.json() : undefined))
-      .then((json) => setComplexes(json ? json.complexes_list : null))
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
+    if (token !== INVALID_TOKEN) {
+      fetchComplexes()
+        .then((res) => (res.status === 200 ? res.json() : undefined))
+        .then((json) => setComplexes(json ? json.complexes_list : null))
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, [token]);
 
   function loginUser(creds) {
     const promise = fetch(`${API_PREFIX}/login`, {
@@ -143,7 +154,10 @@ function MyApp() {
               token === INVALID_TOKEN ? (
                 <Navigate to="/login" replace />
               ) : (
-                <>{cards}</>
+                <>
+                  <>{cards}</>
+                  <button onClick={logoutUser}>Sign Out</button>
+                </>
               )
             }
           />
