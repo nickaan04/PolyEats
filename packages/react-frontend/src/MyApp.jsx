@@ -7,7 +7,7 @@ import campusMarketImage from "./assets/campus_market.jpg";
 import "./App.scss";
 
 function MyApp() {
-  const [characters, setCharacters] = useState([]);
+  const [complexes, setComplexes] = useState([]);
 
   function removeOneCharacter(index) {
     const deletedUser = characters.find((character, i) => i === index);
@@ -34,6 +34,11 @@ function MyApp() {
     return promise;
   }
 
+  function fetchComplexes() {
+    const promise = fetch("http://localhost:8000/complexes");
+    return promise;
+  }
+
   //TODO: Convert to Mongo call
   const complex_data = [
     { name: "1901 Marketplace" },
@@ -43,7 +48,14 @@ function MyApp() {
     { name: "Poly Canyon Village" }
   ];
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    fetchComplexes()
+      .then((res) => res.json())
+      .then((json) => setComplexes(json.complexes_list))
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
   function postUser(person) {
     const promise = fetch("http://localhost:8000/users", {
@@ -71,7 +83,7 @@ function MyApp() {
         console.log(error);
       });
   }
-  const cards = complex_data.map((row, index) => {
+  const cards = complexes.map((row, index) => {
     return (
       <Card style={{ width: "18rem" }} key={index}>
         <Card.Img variant="top" src={campusMarketImage} />
