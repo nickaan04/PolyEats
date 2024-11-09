@@ -4,7 +4,7 @@ export const sendVerificationMail = (user) => {
   const transporter = createMailTransporter();
 
   const mailOptions = {
-    from: 'Poly Eats <polyeats1901@gmail.comm>', // Replace with your sender email
+    from: 'Poly Eats <polyeats1901@gmail.com>', // Replace with your sender email
     to: user.email,
     subject: 'Verify your email...',
     html: `
