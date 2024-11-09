@@ -4,32 +4,35 @@ const AccountSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      // required: true,
-      trim: true
+      trim: true,
     },
     calpoly_email: {
       type: String,
       required: true,
       unique: true,
-      trim: true
+      trim: true,
     },
     password: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
     favorites: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Restaurant"
-      }
+        ref: "Restaurant",
+      },
     ],
     reviews_given: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Review"
-      }
-    ]
+        ref: "Review",
+      },
+    ],
   },
   { collection: "accounts" }
 );

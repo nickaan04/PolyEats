@@ -9,6 +9,7 @@ import {
   registerUser,
   loginUser
 } from "../express-backend/auth.js";
+import authRoutes from "../express-backend/auth.js"; // Ensure the path is correct
 // import accountService from "../express-backend/services/account-service.js";
 // import reviewService from "../express-backend/services/review-service.js";
 
@@ -28,6 +29,9 @@ app.use(express.json());
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
+
+// Register auth routes
+app.use("/auth", authRoutes);
 
 app.post("/signup", registerUser);
 app.post("/login", loginUser);

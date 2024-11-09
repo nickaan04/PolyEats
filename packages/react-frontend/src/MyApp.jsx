@@ -4,6 +4,8 @@ import Card from "react-bootstrap/Card";
 import campusMarketImage from "./assets/campus_market.jpg";
 import "./App.scss";
 import Login from "./Login";
+import VerifyEmail from "./VerifyEmail";
+
 import {
   BrowserRouter as Router,
   Route,
@@ -90,7 +92,7 @@ function MyApp() {
       .then((response) => {
         if (response.status === 201) {
           response.json().then((payload) => setToken(payload.token));
-          setMessage("Signup successful");
+          setMessage("Signup successful. Email verfication sent.");
         } else if (response.status === 409) {
           setMessage("Email already in use");
         } else {
@@ -147,6 +149,10 @@ function MyApp() {
                 <Navigate to="/" replace />
               )
             }
+          />
+          <Route
+            path="/auth/verify-email"
+            element={<VerifyEmail />}
           />
           <Route
             path="/"
