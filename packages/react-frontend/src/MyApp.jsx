@@ -56,30 +56,39 @@ function MyApp() {
     }
   }, [token]);
 
-  function loginUser(creds) {
-    const promise = fetch(`${API_PREFIX}/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(creds)
-    })
-      .then((response) => {
-        if (response.status === 200) {
-          response.json().then((payload) => setToken(payload.token));
+function loginUser(creds) {
+  const promise = fetch(`${API_PREFIX}/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(creds)
+  })
+    .then((response) => {
+      if (response.status === 200) {
+        response.json().then((payload) => {
+          setToken(payload.token);
           setMessage("Login successful");
-        } else if (response.status === 401) {
-          setMessage("Incorrect email or password");
-        } else {
-          setMessage(`Login Error ${response.status}: ${response.data}`);
-        }
-      })
-      .catch((error) => {
-        setMessage(`Login Error: ${error}`);
-      });
+        });
+      } else if (response.status === 401) {
+        setMessage("Incorrect email or password");
+      } else if (response.status === 403) {
+        response.text().then((text) => {
+          setMessage(`Login Error 403: ${text || "Email not verified"}`);
+        });
+      } else {
+        response.text().then((text) => {
+          setMessage(`Login Error ${response.status}: ${text || "Unknown error"}`);
+        });
+      }
+    })
+    .catch((error) => {
+      setMessage(`Login Error: ${error.message}`);
+    });
 
-    return promise;
-  }
+  return promise;
+}
+
 
   function signupUser(creds) {
     const promise = fetch(`${API_PREFIX}/signup`, {

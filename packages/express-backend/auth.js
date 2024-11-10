@@ -99,6 +99,11 @@ export function loginUser(req, res) {
       return res.status(401).send("Unauthorized");
     }
 
+    // Check if the user's email has been verified
+    if (!user.isVerified) {
+      return res.status(403).send("Email not verified");
+    }
+
     bcrypt.compare(password, user.password).then((matched) => {
       if (matched) {
         generateAccessToken(calpoly_email).then((token) => {
@@ -110,6 +115,7 @@ export function loginUser(req, res) {
     });
   });
 }
+
 
 // Route to verify email token
 router.get('/verify-email', (req, res) => {
