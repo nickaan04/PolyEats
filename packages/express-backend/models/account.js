@@ -2,8 +2,14 @@ import mongoose from "mongoose";
 
 const AccountSchema = new mongoose.Schema(
   {
-    name: {
+    firstname: {
       type: String,
+      required: true,
+      trim: true,
+    },
+    lastname: {
+      type: String,
+      required: true,
       trim: true,
     },
     calpoly_email: {

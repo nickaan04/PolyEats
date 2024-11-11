@@ -4,7 +4,9 @@ import { Link } from "react-router-dom";
 function Login(props) {
   const [creds, setCreds] = useState({
     calpoly_email: "",
-    password: ""
+    password: "",
+    firstname: "",
+    lastname: ""
   });
 
   function handleChange(event) {
@@ -12,14 +14,49 @@ function Login(props) {
     setCreds((prevCreds) => ({ ...prevCreds, [name]: value }));
   }
 
+  // function submitForm() {
+  //   props.handleSubmit(creds);
+  //   setCreds({ calpoly_email: "", password: "" });
+  // }
+
   function submitForm() {
-    props.handleSubmit(creds);
-    setCreds({ calpoly_email: "", password: "" });
+    const { firstname, lastname, calpoly_email, password } = creds;
+    // Conditionally include the name in the submitted credentials for signup
+    const userCreds =
+      props.buttonLabel === "Sign Up"
+        ? { firstname, lastname, calpoly_email, password }
+        : { calpoly_email, password };
+    props.handleSubmit(userCreds);
+    setCreds({ calpoly_email: "", password: "", firstname: "", lastname: "" });
   }
 
   return (
     <div>
       <form>
+        {props.buttonLabel === "Sign Up" && (
+          <div>
+            <>
+              <label htmlFor="firstname">First Name</label>
+              <input
+                type="text"
+                name="firstname"
+                id="firstname"
+                value={creds.firstname}
+                onChange={handleChange}
+              />
+            </>
+            <>
+              <label htmlFor="lastname">Last Name</label>
+              <input
+                type="text"
+                name="lastname"
+                id="lastname"
+                value={creds.lastname}
+                onChange={handleChange}
+              />
+            </>
+          </div>
+        )}
         <label htmlFor="calpoly_email">Cal Poly Email</label>
         <input
           type="text"

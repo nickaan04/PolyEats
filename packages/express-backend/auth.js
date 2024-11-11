@@ -44,9 +44,9 @@ export function authenticateUser(req, res, next) {
 }
 
 export function registerUser(req, res) {
-  const { calpoly_email, password } = req.body;
+  const { firstname, lastname, calpoly_email, password } = req.body;
 
-  if (!calpoly_email || !password) {
+  if (!firstname || !lastname || !calpoly_email || !password) {
     return res.status(400).send("Please fill out the required fields");
   }
 
@@ -64,7 +64,7 @@ export function registerUser(req, res) {
         .genSalt(10)
         .then((salt) => bcrypt.hash(password, salt))
         .then((hashedPassword) => {
-          const newUser = new Account({ calpoly_email, password: hashedPassword });
+          const newUser = new Account({ firstname, lastname, calpoly_email, password: hashedPassword });
           newUser.save().then(() => {
             //generate a verification token
             const verificationToken = jwt.sign(
@@ -74,7 +74,7 @@ export function registerUser(req, res) {
             );
 
             //send the verification email
-            sendVerificationMail({ email: calpoly_email, name: calpoly_email, emailToken: verificationToken })
+            sendVerificationMail({ email: calpoly_email, name: firstname, emailToken: verificationToken })
               .then(() => {
                 res.status(201).send("Account created. Verification email sent");
               })
