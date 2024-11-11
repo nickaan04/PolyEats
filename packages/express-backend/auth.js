@@ -47,15 +47,13 @@ export function registerUser(req, res) {
   const { calpoly_email, password } = req.body;
 
   if (!calpoly_email || !password) {
-    res.status(400).send("Bad request: Invalid input data.");
-    return;
+    return res.status(400).send("Please fill out the required fields");
   }
 
-  // Check if the email has the correct domain
+  //check if the email has the correct domain
   const validDomain = "@calpoly.edu";
   if (!calpoly_email.endsWith(validDomain)) {
-    res.status(400).send({ error: "Signup Error: Invalid email domain. Only @calpoly.edu emails are allowed." });
-    return;
+    return res.status(400).send("Invalid email domain. Only @calpoly.edu emails are allowed" );
   }
 
   Account.findOne({ calpoly_email }).then((existingUser) => {
@@ -68,17 +66,17 @@ export function registerUser(req, res) {
         .then((hashedPassword) => {
           const newUser = new Account({ calpoly_email, password: hashedPassword });
           newUser.save().then(() => {
-            // Generate a verification token
+            //generate a verification token
             const verificationToken = jwt.sign(
               { calpoly_email },
               process.env.TOKEN_SECRET,
               { expiresIn: '1h' }
             );
 
-            // Send the verification email
+            //send the verification email
             sendVerificationMail({ email: calpoly_email, name: calpoly_email, emailToken: verificationToken })
               .then(() => {
-                res.status(201).send("Account created. Verification email sent.");
+                res.status(201).send("Account created. Verification email sent");
               })
               .catch((error) => {
                 console.log("Error sending verification email:", error);
@@ -94,9 +92,13 @@ export function registerUser(req, res) {
 export function loginUser(req, res) {
   const { calpoly_email, password } = req.body;
 
+  if (!calpoly_email || !password) {
+    return res.status(400).send("Please fill out the required fields");
+  }
+
   Account.findOne({ calpoly_email }).then((user) => {
     if (!user) {
-      return res.status(401).send("Unauthorized");
+      return res.status(401).send("User does not exist");
     }
 
     // Check if the user's email has been verified
@@ -110,33 +112,28 @@ export function loginUser(req, res) {
           res.status(200).send({ token });
         });
       } else {
-        res.status(401).send("Unauthorized");
+        res.status(401).send("Incorrect password");
       }
     });
   });
 }
 
 
-// Route to verify email token
+//route to verify email token
 router.get('/verify-email', (req, res) => {
   const token = req.query.token;
-  console.log('Received token for verification:', token); // Debugging line
 
   if (!token) {
     return res.status(400).send('No token provided');
   }
 
-  // Verify the token using the secret key
+  //verify the token using the secret key
   jwt.verify(token, process.env.TOKEN_SECRET, (err, decoded) => {
     if (err) {
-      console.log('Token verification error:', err); // Debugging line
       return res.status(400).send('Invalid or expired token');
     }
 
-    // Check the decoded payload
-    console.log('Decoded token payload:', decoded); // Debugging line
-
-    // Logic to mark the user as verified
+    //mark the user as verified
     Account.findOneAndUpdate(
       { calpoly_email: decoded.calpoly_email },
       { isVerified: true },
@@ -144,15 +141,12 @@ router.get('/verify-email', (req, res) => {
     )
       .then((updatedUser) => {
         if (updatedUser) {
-          console.log('User verification updated successfully:', updatedUser); // Debugging line
           res.status(200).send('Email verified successfully');
         } else {
-          console.log('User not found for verification'); // Debugging line
           res.status(404).send('User not found');
         }
       })
       .catch((error) => {
-        console.log('Error updating user:', error); // Debugging line
         res.status(500).send('Internal server error');
       });
   });
