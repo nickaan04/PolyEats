@@ -55,33 +55,32 @@ function MyApp() {
     }
   }, [token]);
 
-function loginUser(creds) {
-  const promise = fetch(`${API_PREFIX}/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(creds)
-  })
-    .then((response) => {
-      if (response.status === 200) {
-        response.json().then((payload) => {
-          setToken(payload.token);
-          setMessage("Login successful");
-        });
-      } else {
-        response.text().then((text) => {
-          setMessage(`Login Error ${response.status}: ${text}`);
-        });
-      }
+  function loginUser(creds) {
+    const promise = fetch(`${API_PREFIX}/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(creds)
     })
-    .catch((error) => {
-      setMessage(`Login Error: ${error.message}`);
-    });
+      .then((response) => {
+        if (response.status === 200) {
+          response.json().then((payload) => {
+            setToken(payload.token);
+            setMessage("Login successful");
+          });
+        } else {
+          response.text().then((text) => {
+            setMessage(`Login Error ${response.status}: ${text}`);
+          });
+        }
+      })
+      .catch((error) => {
+        setMessage(`Login Error: ${error.message}`);
+      });
 
-  return promise;
-}
-
+    return promise;
+  }
 
   function signupUser(creds) {
     const promise = fetch(`${API_PREFIX}/signup`, {
@@ -152,10 +151,7 @@ function loginUser(creds) {
               )
             }
           />
-          <Route
-            path="/auth/verify-email"
-            element={<VerifyEmail />}
-          />
+          <Route path="/auth/verify-email" element={<VerifyEmail />} />
           <Route
             path="/"
             element={

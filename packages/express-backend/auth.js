@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import express from 'express';
+import express from "express";
 import Account from "./models/account.js";
-import { sendVerificationMail } from './sendVerifEmail.js';
+import { sendVerificationMail } from "./sendVerifEmail.js";
 
 const router = express.Router();
 
@@ -53,7 +53,9 @@ export function registerUser(req, res) {
   //check if the email has the correct domain
   const validDomain = "@calpoly.edu";
   if (!calpoly_email.endsWith(validDomain)) {
-    return res.status(400).send("Invalid email domain. Only @calpoly.edu emails are allowed" );
+    return res
+      .status(400)
+      .send("Invalid email domain. Only @calpoly.edu emails are allowed");
   }
 
   Account.findOne({ calpoly_email }).then((existingUser) => {
@@ -64,23 +66,38 @@ export function registerUser(req, res) {
         .genSalt(10)
         .then((salt) => bcrypt.hash(password, salt))
         .then((hashedPassword) => {
-          const newUser = new Account({ firstname, lastname, calpoly_email, password: hashedPassword });
+          const newUser = new Account({
+            firstname,
+            lastname,
+            calpoly_email,
+            password: hashedPassword
+          });
           newUser.save().then(() => {
             //generate a verification token
             const verificationToken = jwt.sign(
               { calpoly_email },
               process.env.TOKEN_SECRET,
-              { expiresIn: '1h' }
+              { expiresIn: "1h" }
             );
 
             //send the verification email
-            sendVerificationMail({ email: calpoly_email, name: firstname, emailToken: verificationToken })
+            sendVerificationMail({
+              email: calpoly_email,
+              name: firstname,
+              emailToken: verificationToken
+            })
               .then(() => {
-                res.status(201).send("Account created. Verification email sent");
+                res
+                  .status(201)
+                  .send("Account created. Verification email sent");
               })
               .catch((error) => {
                 console.log("Error sending verification email:", error);
-                res.status(500).send("Account created but failed to send verification email.");
+                res
+                  .status(500)
+                  .send(
+                    "Account created but failed to send verification email."
+                  );
               });
           });
         })
@@ -118,19 +135,18 @@ export function loginUser(req, res) {
   });
 }
 
-
 //route to verify email token
-router.get('/verify-email', (req, res) => {
+router.get("/verify-email", (req, res) => {
   const token = req.query.token;
 
   if (!token) {
-    return res.status(400).send('No token provided');
+    return res.status(400).send("No token provided");
   }
 
   //verify the token using the secret key
   jwt.verify(token, process.env.TOKEN_SECRET, (err, decoded) => {
     if (err) {
-      return res.status(400).send('Invalid or expired token');
+      return res.status(400).send("Invalid or expired token");
     }
 
     //mark the user as verified
@@ -141,13 +157,13 @@ router.get('/verify-email', (req, res) => {
     )
       .then((updatedUser) => {
         if (updatedUser) {
-          res.status(200).send('Email verified successfully');
+          res.status(200).send("Email verified successfully");
         } else {
-          res.status(404).send('User not found');
+          res.status(404).send("User not found");
         }
       })
       .catch((error) => {
-        res.status(500).send('Internal server error');
+        res.status(500).send("Internal server error");
       });
   });
 });

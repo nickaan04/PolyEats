@@ -9,9 +9,9 @@ import {
   registerUser,
   loginUser
 } from "../express-backend/auth.js";
-import authRoutes from "../express-backend/auth.js"; // Ensure the path is correct
-// import accountService from "../express-backend/services/account-service.js";
-// import reviewService from "../express-backend/services/review-service.js";
+import authRoutes from "../express-backend/auth.js";
+import accountService from "../express-backend/services/account-service.js";
+import reviewService from "../express-backend/services/review-service.js";
 
 dotenv.config();
 
@@ -30,14 +30,109 @@ app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
 
-// Register auth routes
+//register auth routes
 app.use("/auth", authRoutes);
 
 app.post("/signup", registerUser);
 app.post("/login", loginUser);
 
+//post a review for a specific restaurant
+app.post("/review", (req, res) => {
+  const reviewData = {
+    ...req.body,
+    author: req.user._id
+  };
+
+  reviewService
+    .postReview(reviewData)
+    .then((review) => res.status(201).send(review))
+    .catch((error) => res.status(500).send({ error: "Error posting review" }));
+});
+
+//delete a review
+app.delete("/review/:reviewId", (req, res) => {
+  const { reviewId } = req.params;
+
+  reviewService
+    .deleteReview(reviewId, req.user._id)
+    .then(() =>
+      res.status(200).send({ message: "Review deleted successfully" })
+    )
+    .catch((error) => res.status(500).send({ error: "Error deleting review" }));
+});
+
+//get account details
+app.get("/account/details", (req, res) => {
+  accountService
+    .getAccountDetails(req.user._id)
+    .then((account) => res.status(200).send({ account }))
+    .catch((error) =>
+      res.status(500).send({ error: "Error fetching account details" })
+    );
+});
+
+//get reviews given by the account
+app.get("/account/reviews", (req, res) => {
+  accountService
+    .getAccountReviews(req.user._id)
+    .then((reviews) => res.status(200).send({ reviews }))
+    .catch((error) =>
+      res.status(500).send({ error: "Error fetching reviews" })
+    );
+});
+
+//get favorite restaurants for the account
+app.get("/account/favorites", (req, res) => {
+  accountService
+    .getFavoriteRestaurants(req.user._id)
+    .then((favorites) => res.status(200).send({ favorites }))
+    .catch((error) =>
+      res.status(500).send({ error: "Error fetching favorite restaurants" })
+    );
+});
+
+//add a restaurant to favorites
+app.post("/account/favorites/:restaurantId", (req, res) => {
+  accountService
+    .addFavoriteRestaurant(req.user._id, req.params.restaurantId)
+    .then((account) =>
+      res
+        .status(201)
+        .send({ message: "Restaurant added to favorites", account })
+    )
+    .catch((error) =>
+      res.status(500).send({ error: "Error adding restaurant to favorites" })
+    );
+});
+
+//remove a restaurant from favorites
+app.delete("/account/favorites/:restaurantId", (req, res) => {
+  accountService
+    .removeFavoriteRestaurant(req.user._id, req.params.restaurantId)
+    .then((account) =>
+      res
+        .status(204)
+        .send({ message: "Restaurant removed from favorites", account })
+    )
+    .catch((error) =>
+      res
+        .status(500)
+        .send({ error: "Error removing restaurant from favorites" })
+    );
+});
+
+//delete account route
+app.delete("/account/delete", (req, res) => {
+  accountService
+    .deleteAccount(req.user._id)
+    .then((response) => res.status(204).send(response))
+    .catch((error) =>
+      res.status(500).send({ error: "Error deleting account" })
+    );
+});
+
 //get list of complexes
-app.get("/complexes", authenticateUser, (req, res) => {
+app.get("/complexes", (req, res) => {
   const name = req.query.name;
 
   complexService
@@ -51,7 +146,7 @@ app.get("/complexes", authenticateUser, (req, res) => {
 });
 
 //get all restaurants within a specific complex (with filters/sorting if desired)
-app.get("/complexes/:complexId/restaurants", authenticateUser, (req, res) => {
+app.get("/complexes/:complexId/restaurants", (req, res) => {
   const complexId = req.params.complexId;
   const {
     name,
@@ -136,15 +231,15 @@ app.get("/complexes/:complexId/restaurants", authenticateUser, (req, res) => {
   ?sortField=price&sortOrder=desc --> price high to low
   */
 
-//get specific restaurant by id
-app.get("/restaurant/:id", authenticateUser, (req, res) => {
+//get specific restaurant information by id (with reviews)
+app.get("/restaurant/:id", (req, res) => {
   const restaurantId = req.params.id;
 
   restaurantService
-    .getRestaurantById(restaurantId)
-    .then((restaurant) => {
+    .getRestaurantWithReviews(restaurantId)
+    .then(({ restaurant, reviews }) => {
       if (restaurant) {
-        res.status(200).send({ restaurant: restaurant });
+        res.status(200).send({ restaurant: { restaurant, reviews } });
       } else {
         res.status(404).send("Restaurant not found");
       }
