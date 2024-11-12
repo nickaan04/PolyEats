@@ -32,3 +32,5 @@ export function VerifyEmail() {
 
   return <div>{message}</div>;
 }
+
+export default VerifyEmail;
