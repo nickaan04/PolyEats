@@ -4,6 +4,7 @@ import Card from "react-bootstrap/Card";
 import campusMarketImage from "./assets/campus_market.jpg";
 import "./App.scss";
 import Login from "./Login";
+import Account from "./Pages/Account";
 import VerifyEmail from "./VerifyEmail";
 import {
   BrowserRouter as Router,
@@ -11,6 +12,7 @@ import {
   Routes,
   Navigate
 } from "react-router-dom";
+import Signup from "./Signup";
 
 function MyApp() {
   const API_PREFIX = "http://localhost:8000";
@@ -162,6 +164,16 @@ function MyApp() {
                   <>{cards}</>
                   <button onClick={logoutUser}>Sign Out</button>
                 </>
+              )
+            }
+          />
+          <Route
+            path="/account"
+            element={
+              token === INVALID_TOKEN ? (
+                <Navigate to="/login" replace />
+              ) : (
+                <Account />
               )
             }
           />
