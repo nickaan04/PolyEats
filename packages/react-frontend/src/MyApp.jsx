@@ -27,6 +27,13 @@ function MyApp() {
     //save token to localStorage whenever it updates
     if (token && token !== INVALID_TOKEN) {
       localStorage.setItem("authToken", token);
+      Promise.all([fetchAccountDetails()])
+        .then((responses) => {
+          console.log('Fetched data:', responses);
+        })
+        .catch((error) => {
+          setMessage(`Error fetching account data: ${error.message}`);
+        });
     } else {
       localStorage.removeItem("authToken");
     }
@@ -80,6 +87,30 @@ function MyApp() {
       .catch((error) => {
         setMessage(`Login Error: ${error.message}`);
       });
+
+    return promise;
+  }
+  
+  function fetchAccountDetails() {
+    const promise = fetch(`${API_PREFIX}/account/details`, {
+      headers: addAuthHeader()
+    });
+
+    return promise;
+  }
+
+  function fetchAccountReviews() {
+    const promise = fetch(`${API_PREFIX}/account/reviews`, {
+      headers: addAuthHeader()
+    });
+
+    return promise;
+  }
+
+  function fetchAccountFavorites() {
+    const promise = fetch(`${API_PREFIX}/account/favorites`, {
+      headers: addAuthHeader()
+    });
 
     return promise;
   }

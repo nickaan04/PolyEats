@@ -119,9 +119,9 @@ export function loginUser(req, res) {
     }
 
     // Check if the user's email has been verified
-    if (!user.isVerified) {
-      return res.status(403).send("Email not verified");
-    }
+    // if (!user.isVerified) {
+    //   return res.status(403).send("Email not verified");
+    // }
 
     bcrypt.compare(password, user.password).then((matched) => {
       if (matched) {
