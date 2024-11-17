@@ -39,9 +39,9 @@ export function authenticateUser(req, res, next) {
       }
       try {
         //optionally fetch user details from the database
-        const user = await Account.findById(decoded.id).select(
-          "_id firstname lastname"
-        );
+        const user = await Account.findOne({
+          calpoly_email: decoded.calpoly_email
+        }).select("_id firstname lastname");
         if (!user) {
           return res.status(401).end();
         }

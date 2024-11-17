@@ -23,7 +23,7 @@ mongoose.connect(MONGO_CONNECTION_STRING).catch((error) => console.log(error));
 const app = express();
 const port = 8000;
 
-app.use(cors());
+app.use("*", cors());
 app.use(express.json());
 
 app.listen(port, () => {
