@@ -12,7 +12,6 @@ import {
   Routes,
   Navigate
 } from "react-router-dom";
-import Signup from "./Signup";
 
 function MyApp() {
   const API_PREFIX = "http://localhost:8000";
