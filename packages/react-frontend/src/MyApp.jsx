@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
-import Card from "react-bootstrap/Card";
-import campusMarketImage from "./assets/campus_market.jpg";
-import "./App.scss";
-import Login from "./Login";
-import VerifyEmail from "./VerifyEmail";
 import {
   BrowserRouter as Router,
   Route,
   Routes,
   Navigate
 } from "react-router-dom";
+import "./App.scss";
+import Login from "./Login";
+import VerifyEmail from "./VerifyEmail.jsx";
+import ComplexList from "./Components/ComplexList.jsx";
+import RestaurantList from "./Components/Restaurant/RestaurantList.jsx";
+import RestaurantDetails from "./Components/Restaurant/RestaurantDetails.jsx";
 
 function MyApp() {
   const API_PREFIX = "http://localhost:8000";
@@ -111,17 +112,6 @@ function MyApp() {
     setMessage("You have been logged out");
   }
 
-  const cards = complexes.map((row, index) => {
-    return (
-      <Card style={{ width: "18rem" }} key={index}>
-        <Card.Img variant="top" src={campusMarketImage} />
-        <Card.Body>
-          <Card.Title>{row.name}</Card.Title>
-        </Card.Body>
-      </Card>
-    );
-  });
-
   return (
     <div className="container">
       <Router>
@@ -150,7 +140,6 @@ function MyApp() {
               )
             }
           />
-          <Route path="/auth/verify-email" element={<VerifyEmail />} />
           <Route
             path="/"
             element={
@@ -158,22 +147,31 @@ function MyApp() {
                 <Navigate to="/login" replace />
               ) : (
                 <>
-                  <>{cards}</>
+                  <ComplexList complexes={complexes} logoutUser={logoutUser} />
                   <button onClick={logoutUser}>Sign Out</button>
                 </>
               )
             }
           />
           <Route
-            path="/account"
+            path="/complex/:complexId"
             element={
-              token === INVALID_TOKEN ? (
-                <Navigate to="/login" replace />
-              ) : (
-                <Account />
-              )
+              <RestaurantList
+                API_PREFIX={API_PREFIX}
+                addAuthHeader={addAuthHeader}
+              />
             }
           />
+          <Route
+            path="/restaurant/:restaurantId"
+            element={
+              <RestaurantDetails
+                API_PREFIX={API_PREFIX}
+                addAuthHeader={addAuthHeader}
+              />
+            }
+          />
+          <Route path="/auth/verify-email" element={<VerifyEmail />} />
         </Routes>
       </Router>
     </div>
