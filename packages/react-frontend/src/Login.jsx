@@ -14,11 +14,6 @@ function Login(props) {
     setCreds((prevCreds) => ({ ...prevCreds, [name]: value }));
   }
 
-  // function submitForm() {
-  //   props.handleSubmit(creds);
-  //   setCreds({ calpoly_email: "", password: "" });
-  // }
-
   function submitForm() {
     const { firstname, lastname, calpoly_email, password } = creds;
     // Conditionally include the name in the submitted credentials for signup

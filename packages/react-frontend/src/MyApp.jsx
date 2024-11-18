@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import campusMarketImage from "./assets/campus_market.jpg";
 import "./App.scss";
 import Login from "./Login";
-import Account from "./Pages/Account";
 import VerifyEmail from "./VerifyEmail";
 import {
   BrowserRouter as Router,
@@ -26,13 +24,6 @@ function MyApp() {
     //save token to localStorage whenever it updates
     if (token && token !== INVALID_TOKEN) {
       localStorage.setItem("authToken", token);
-      Promise.all([fetchAccountDetails()])
-        .then((responses) => {
-          console.log('Fetched data:', responses);
-        })
-        .catch((error) => {
-          setMessage(`Error fetching account data: ${error.message}`);
-        });
     } else {
       localStorage.removeItem("authToken");
     }
@@ -86,30 +77,6 @@ function MyApp() {
       .catch((error) => {
         setMessage(`Login Error: ${error.message}`);
       });
-
-    return promise;
-  }
-  
-  function fetchAccountDetails() {
-    const promise = fetch(`${API_PREFIX}/account/details`, {
-      headers: addAuthHeader()
-    });
-
-    return promise;
-  }
-
-  function fetchAccountReviews() {
-    const promise = fetch(`${API_PREFIX}/account/reviews`, {
-      headers: addAuthHeader()
-    });
-
-    return promise;
-  }
-
-  function fetchAccountFavorites() {
-    const promise = fetch(`${API_PREFIX}/account/favorites`, {
-      headers: addAuthHeader()
-    });
 
     return promise;
   }
