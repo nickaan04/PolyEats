@@ -1,92 +1,113 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Card from "react-bootstrap/Card";
+import "../../Styles/RestaurantDetails.scss";
 
 const RestaurantDetails = ({ API_PREFIX, addAuthHeader }) => {
-  const { restaurantId } = useParams();
+  const { id } = useParams();
   const [restaurant, setRestaurant] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_PREFIX}/restaurant/${restaurantId}`, {
+    //fetch restaurant details
+    fetch(`${API_PREFIX}/restaurant/${id}`, {
       headers: addAuthHeader()
     })
-      .then((res) => (res.status === 200 ? res.json() : undefined))
-      .then((json) => {
-        if (json) {
-          setRestaurant(json.restaurant.restaurant);
-          setReviews(json.restaurant.reviews);
-        }
+      .then((res) => res.json())
+      .then((data) => {
+        setRestaurant(data.restaurant.restaurant);
+        setReviews(data.restaurant.reviews);
       })
-      .catch((error) => console.log(error));
-  }, [restaurantId, API_PREFIX, addAuthHeader]);
+      .catch((error) =>
+        console.error("Error fetching restaurant details:", error)
+      );
+
+    //check if restaurant is in favorites
+    fetch(`${API_PREFIX}/account/favorites`, {
+      headers: addAuthHeader()
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        const favorites = data.favorites || [];
+        setIsFavorite(favorites.some((fav) => fav._id === id));
+      })
+      .catch((error) =>
+        console.error("Error fetching favorite restaurants:", error)
+      );
+  }, [API_PREFIX, addAuthHeader, id]);
+
+  //add or remove restaurant from favorites
+  const toggleFavorite = async () => {
+    const url = `${API_PREFIX}/account/favorites/${id}`;
+    const method = isFavorite ? "DELETE" : "POST";
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: addAuthHeader()
+      });
+
+      if (response.ok) {
+        setIsFavorite(!isFavorite);
+        alert(
+          isFavorite
+            ? "Restaurant removed from favorites."
+            : "Restaurant added to favorites."
+        );
+      } else {
+        alert("Error updating favorites.");
+      }
+    } catch (error) {
+      console.error("Error updating favorites:", error);
+    }
+  };
 
   if (!restaurant) {
-    return <p>Loading...</p>;
+    return <p>Loading restaurant details...</p>;
   }
 
-  const formatAcceptedPayments = (payments) => {
-    return Object.entries(payments)
-      .filter(([key, value]) => value)
-      .map(([key]) => key)
-      .join(", ");
-  };
-
-  const formatNutritionTypes = (nutrition) => {
-    return Object.entries(nutrition)
-      .filter(([key, value]) => value)
-      .map(([key]) => key)
-      .join(", ");
-  };
-
   return (
-    <div>
-      <h2>{restaurant.name}</h2>
+    <div className="restaurant-details">
+      <div className="header">
+        <h1>{restaurant.name}</h1>
+        <button
+          className={`bookmark ${isFavorite ? "favorited" : ""}`}
+          onClick={toggleFavorite}>
+          {isFavorite ? "★" : "☆"}
+        </button>
+      </div>
+      <p>{restaurant.cuisine}</p>
+      <p>Average Rating: {restaurant.avg_rating}</p>
+      <p>{restaurant.description}</p>
       <p>
-        <strong>Cuisine:</strong> {restaurant.cuisine}
+        Accepted Payments:{" "}
+        {Object.keys(restaurant.accepted_payments).join(", ")}
       </p>
       <p>
-        <strong>Average Rating:</strong> {restaurant.avg_rating}
+        Nutrition Types: {Object.keys(restaurant.nutrition_types).join(", ")}
       </p>
-      <p>
-        <strong>Delivery Available:</strong>{" "}
-        {restaurant.delivery ? "Yes" : "No"}
-      </p>
-      <p>
-        <strong>Price Range:</strong> {restaurant.price}
-      </p>
-      <h3>Hours:</h3>
-      <ul>
-        {Object.entries(restaurant.hours).map(([day, hours]) => (
-          <li key={day}>
-            {day}: {hours}
-          </li>
-        ))}
-      </ul>
-      <p>
-        <strong>Accepted Payments:</strong>{" "}
-        {formatAcceptedPayments(restaurant.accepted_payments)}
-      </p>
-      <p>
-        <strong>Nutrition Types:</strong>{" "}
-        {formatNutritionTypes(restaurant.nutrition_types)}
-      </p>
-      <h3>Reviews:</h3>
-      {reviews.length > 0 ? (
-        reviews.map((review, index) => (
-          <Card key={index} style={{ margin: "10px 0" }}>
-            <Card.Body>
-              <Card.Title>{review.item}</Card.Title>
-              <Card.Text>{review.review}</Card.Text>
-              <Card.Text>
-                <strong>Rating:</strong> {review.rating}
-              </Card.Text>
-            </Card.Body>
-          </Card>
-        ))
-      ) : (
-        <p>No reviews yet.</p>
-      )}
+
+      {/* Reviews Section */}
+      <div className="reviews-section">
+        <h2>Reviews</h2>
+        {reviews.length > 0 ? (
+          reviews.map((review, index) => (
+            <div key={index} className="review-card">
+              <h3>{review.item}</h3>
+              <p>
+                By: {review.author.firstname} {review.author.lastname}
+              </p>
+              <div className="stars">
+                {"★".repeat(review.rating)}
+                {"☆".repeat(5 - review.rating)}
+              </div>
+              <p>{review.review}</p>
+            </div>
+          ))
+        ) : (
+          <p>No reviews yet</p>
+        )}
+      </div>
     </div>
   );
 };

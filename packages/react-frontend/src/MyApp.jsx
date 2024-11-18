@@ -13,6 +13,7 @@ import RestaurantList from "./Components/Restaurant/RestaurantList.jsx";
 import RestaurantDetails from "./Components/Restaurant/RestaurantDetails.jsx";
 import BottomNavBar from "./Components/BottomNavBar.jsx"
 import AccountPage from "./Components/AccountPage.jsx"
+import FavoritesPage from "./Components/FavoritesPage.jsx"
 
 function MyApp() {
   const API_PREFIX = "http://localhost:8000";
@@ -163,7 +164,7 @@ function MyApp() {
               }
             />
             <Route
-              path="/restaurant/:restaurantId"
+              path="/restaurant/:id"
               element={
                 <RestaurantDetails
                   API_PREFIX={API_PREFIX}
@@ -172,10 +173,6 @@ function MyApp() {
               }
             />
             <Route path="/auth/verify-email" element={<VerifyEmail />} />
-            <Route
-              path="/favorites"
-              element={<h2>Favorites Page (Placeholder)</h2>}
-            />
             <Route
               path="/account"
               element={
@@ -186,6 +183,19 @@ function MyApp() {
                     API_PREFIX={API_PREFIX}
                     addAuthHeader={addAuthHeader}
                     logoutUser={logoutUser}
+                  />
+                )
+              }
+            />
+            <Route
+              path="/favorites"
+              element={
+                token === INVALID_TOKEN ? (
+                  <Navigate to="/login" replace />
+                ) : (
+                  <FavoritesPage
+                    API_PREFIX={API_PREFIX}
+                    addAuthHeader={addAuthHeader}
                   />
                 )
               }
