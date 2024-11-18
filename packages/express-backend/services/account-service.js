@@ -6,9 +6,19 @@ import restaurantModel from "../models/restaurant.js";
 async function getAccountDetails(accountId) {
   return accountModel
     .findById(accountId, "-password")
-    .populate("reviews_given")
     .populate("favorites")
     .exec();
+}
+
+//update profile picture path for an account
+async function updateProfilePicture(accountId, profile_pic) {
+  const account = await accountModel.findById(accountId);
+  if (!account) {
+    throw new Error("Account not found");
+  }
+  account.profile_pic = profile_pic;
+  await account.save();
+  return account;
 }
 
 //fetch reviews given by the account
@@ -54,6 +64,7 @@ async function deleteAccount(accountId) {
 
 export default {
   getAccountDetails,
+  updateProfilePicture,
   getAccountReviews,
   getFavoriteRestaurants,
   addFavoriteRestaurant,

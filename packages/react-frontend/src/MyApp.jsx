@@ -5,12 +5,14 @@ import {
   Routes,
   Navigate
 } from "react-router-dom";
-import "./App.scss";
+import "./Styles/App.scss";
 import Login from "./Login";
 import VerifyEmail from "./VerifyEmail.jsx";
 import ComplexList from "./Components/ComplexList.jsx";
 import RestaurantList from "./Components/Restaurant/RestaurantList.jsx";
 import RestaurantDetails from "./Components/Restaurant/RestaurantDetails.jsx";
+import BottomNavBar from "./Components/BottomNavBar.jsx"
+import AccountPage from "./Components/AccountPage.jsx"
 
 function MyApp() {
   const API_PREFIX = "http://localhost:8000";
@@ -115,64 +117,82 @@ function MyApp() {
   return (
     <div className="container">
       <Router>
-        <Routes>
-          <Route
-            path="/login"
-            element={
-              token === INVALID_TOKEN ? (
-                <Login handleSubmit={loginUser} message={message} />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            }
-          />
-          <Route
-            path="/signup"
-            element={
-              token === INVALID_TOKEN ? (
-                <Login
-                  handleSubmit={signupUser}
-                  buttonLabel="Sign Up"
-                  message={message}
+        <div style={{ paddingBottom: token !== INVALID_TOKEN ? "60px" : "0" }}>
+          <Routes>
+            <Route
+              path="/login"
+              element={
+                token === INVALID_TOKEN ? (
+                  <Login handleSubmit={loginUser} message={message} />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+            />
+            <Route
+              path="/signup"
+              element={
+                token === INVALID_TOKEN ? (
+                  <Login
+                    handleSubmit={signupUser}
+                    buttonLabel="Sign Up"
+                    message={message}
+                  />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+            />
+            <Route
+              path="/"
+              element={
+                token === INVALID_TOKEN ? (
+                  <Navigate to="/login" replace />
+                ) : (
+                  <ComplexList complexes={complexes} />
+                )
+              }
+            />
+            <Route
+              path="/complex/:complexId"
+              element={
+                <RestaurantList
+                  API_PREFIX={API_PREFIX}
+                  addAuthHeader={addAuthHeader}
                 />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            }
-          />
-          <Route
-            path="/"
-            element={
-              token === INVALID_TOKEN ? (
-                <Navigate to="/login" replace />
-              ) : (
-                <>
-                  <ComplexList complexes={complexes} logoutUser={logoutUser} />
-                  <button onClick={logoutUser}>Sign Out</button>
-                </>
-              )
-            }
-          />
-          <Route
-            path="/complex/:complexId"
-            element={
-              <RestaurantList
-                API_PREFIX={API_PREFIX}
-                addAuthHeader={addAuthHeader}
-              />
-            }
-          />
-          <Route
-            path="/restaurant/:restaurantId"
-            element={
-              <RestaurantDetails
-                API_PREFIX={API_PREFIX}
-                addAuthHeader={addAuthHeader}
-              />
-            }
-          />
-          <Route path="/auth/verify-email" element={<VerifyEmail />} />
-        </Routes>
+              }
+            />
+            <Route
+              path="/restaurant/:restaurantId"
+              element={
+                <RestaurantDetails
+                  API_PREFIX={API_PREFIX}
+                  addAuthHeader={addAuthHeader}
+                />
+              }
+            />
+            <Route path="/auth/verify-email" element={<VerifyEmail />} />
+            <Route
+              path="/favorites"
+              element={<h2>Favorites Page (Placeholder)</h2>}
+            />
+            <Route
+              path="/account"
+              element={
+                token === INVALID_TOKEN ? (
+                  <Navigate to="/login" replace />
+                ) : (
+                  <AccountPage
+                    API_PREFIX={API_PREFIX}
+                    addAuthHeader={addAuthHeader}
+                    logoutUser={logoutUser}
+                  />
+                )
+              }
+            />
+          </Routes>
+          {token !== INVALID_TOKEN && <BottomNavBar />}
+        </div>
       </Router>
     </div>
   );

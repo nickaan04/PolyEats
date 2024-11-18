@@ -20,17 +20,17 @@ const RestaurantList = ({ API_PREFIX, addAuthHeader }) => {
     <div>
       <h2>Restaurants</h2>
       {restaurants.map((restaurant, index) => (
-        <Card style={{ width: "18rem" }} key={index}>
-          <Card.Img variant="top" src={campusMarketImage} />
-          <Card.Body>
-            <Card.Title>
-              {" "}
-              <Link to={`/restaurant/${restaurant._id}`}>
-                {restaurant.name}
-              </Link>
-            </Card.Title>
-          </Card.Body>
-        </Card>
+        <Link
+          to={`/restaurant/${restaurant._id}`}
+          key={index}
+          style={{ textDecoration: "none" }}>
+          <Card style={{ width: "18rem", margin: "10px 0", cursor: "pointer" }}>
+            <Card.Img variant="top" src={campusMarketImage} />
+            <Card.Body>
+              <Card.Title>{restaurant.name}</Card.Title>
+            </Card.Body>
+          </Card>
+        </Link>
       ))}
     </div>
   );

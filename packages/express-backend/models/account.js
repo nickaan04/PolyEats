@@ -28,8 +28,9 @@ const AccountSchema = new mongoose.Schema(
       default: false
     },
     profile_pic: {
-      data: Buffer, //binary in MongoDB
-      contentType: String
+      type: String,
+      trim: true,
+      default: "uploads/defaultprofilepic.jpeg"
     },
     favorites: [
       {

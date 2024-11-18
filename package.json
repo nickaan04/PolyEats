@@ -16,6 +16,6 @@
   "devDependencies": {
     "nodemon": "^3.1.7",
     "prettier": "^3.3.3",
-    "vite": "^5.4.10"
+    "vite": "^5.4.11"
   }
 }
