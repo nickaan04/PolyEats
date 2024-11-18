@@ -9,7 +9,7 @@ const RestaurantDetails = ({ API_PREFIX, addAuthHeader }) => {
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
-    //fetch restaurant details
+    // Fetch restaurant details
     fetch(`${API_PREFIX}/restaurant/${id}`, {
       headers: addAuthHeader()
     })
@@ -22,7 +22,7 @@ const RestaurantDetails = ({ API_PREFIX, addAuthHeader }) => {
         console.error("Error fetching restaurant details:", error)
       );
 
-    //check if restaurant is in favorites
+    // Check if restaurant is in favorites
     fetch(`${API_PREFIX}/account/favorites`, {
       headers: addAuthHeader()
     })
@@ -36,7 +36,7 @@ const RestaurantDetails = ({ API_PREFIX, addAuthHeader }) => {
       );
   }, [API_PREFIX, addAuthHeader, id]);
 
-  //add or remove restaurant from favorites
+  // Add or remove restaurant from favorites
   const toggleFavorite = async () => {
     const url = `${API_PREFIX}/account/favorites/${id}`;
     const method = isFavorite ? "DELETE" : "POST";
@@ -76,7 +76,7 @@ const RestaurantDetails = ({ API_PREFIX, addAuthHeader }) => {
           {isFavorite ? "★" : "☆"}
         </button>
       </div>
-      <p>{restaurant.cuisine}</p>
+      <p>Cuisine: {restaurant.cuisine}</p>
       <p>Average Rating: {restaurant.avg_rating}</p>
       <p>{restaurant.description}</p>
       <p>
@@ -86,6 +86,18 @@ const RestaurantDetails = ({ API_PREFIX, addAuthHeader }) => {
       <p>
         Nutrition Types: {Object.keys(restaurant.nutrition_types).join(", ")}
       </p>
+      <p>Price: {restaurant.price}</p>
+      <p>Delivery: {restaurant.delivery ? "Yes" : "No"}</p>
+      <div className="hours">
+        <h2>Hours</h2>
+        <ul>
+          {Object.entries(restaurant.hours).map(([day, hours], index) => (
+            <li key={index}>
+              {day}: {hours}
+            </li>
+          ))}
+        </ul>
+      </div>
 
       {/* Reviews Section */}
       <div className="reviews-section">
