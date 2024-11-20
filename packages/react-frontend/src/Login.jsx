@@ -16,7 +16,7 @@ function Login(props) {
 
   function submitForm() {
     const { firstname, lastname, calpoly_email, password } = creds;
-    // Conditionally include the name in the submitted credentials for signup
+    //conditionally include the name in the submitted credentials for signup
     const userCreds =
       props.buttonLabel === "Sign Up"
         ? { firstname, lastname, calpoly_email, password }

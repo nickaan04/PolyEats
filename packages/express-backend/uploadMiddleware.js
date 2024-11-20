@@ -3,7 +3,7 @@ import sharp from "sharp";
 import path from "path";
 import fs from "fs";
 
-// Configure Multer for storing images
+//configure Multer for storing images
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = "../uploads";

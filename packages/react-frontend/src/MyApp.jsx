@@ -11,9 +11,9 @@ import VerifyEmail from "./VerifyEmail.jsx";
 import ComplexList from "./Components/ComplexList.jsx";
 import RestaurantList from "./Components/Restaurant/RestaurantList.jsx";
 import RestaurantDetails from "./Components/Restaurant/RestaurantDetails.jsx";
-import BottomNavBar from "./Components/BottomNavBar.jsx"
-import AccountPage from "./Components/AccountPage.jsx"
-import FavoritesPage from "./Components/FavoritesPage.jsx"
+import BottomNavBar from "./Components/BottomNavBar.jsx";
+import AccountPage from "./Components/AccountPage.jsx";
+import FavoritesPage from "./Components/FavoritesPage.jsx";
 
 function MyApp() {
   const API_PREFIX = "http://localhost:8000";
