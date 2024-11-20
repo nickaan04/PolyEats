@@ -1,5 +1,5 @@
 // Import all of Bootstrap's CSS
-@import "bootstrap/scss/bootstrap";
+@use "bootstrap";
 
 .container {
   display: flex;
@@ -11,4 +11,11 @@
 
 .card {
   margin: 0.5rem; // Optional: additional margin
+}
+
+.top-image img {
+  width: 100%; // Full width
+  height: auto; // Maintain aspect ratio
+  display: block;
+  margin-bottom: 1rem;
 }
