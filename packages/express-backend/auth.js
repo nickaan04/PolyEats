@@ -6,6 +6,24 @@ import { sendVerificationMail } from "./sendVerifEmail.js";
 
 const router = express.Router();
 
+function scheduleAccountDeletion(accountId) {
+  setTimeout(
+    async () => {
+      try {
+        const account = await Account.findById(accountId);
+        if (account && !account.isVerified) {
+          await Account.findByIdAndDelete(accountId);
+          console.log(`Deleted unverified account: ${account.calpoly_email}`);
+        }
+      } catch (error) {
+        console.error("Error deleting unverified account:", error);
+      }
+    },
+    5 * 60 * 1000
+  ); // 5 minutes in milliseconds
+}
+
+
 function generateAccessToken(calpoly_email) {
   return new Promise((resolve, reject) => {
     jwt.sign(
@@ -85,8 +103,10 @@ export function registerUser(req, res) {
             calpoly_email,
             password: hashedPassword
           });
-          newUser.save().then(() => {
-            //generate a verification token
+          newUser.save().then((savedUser) => {
+            //schedule deletion if not verified
+            scheduleAccountDeletion(savedUser._id);
+            //generate verificaiton tokem
             const verificationToken = jwt.sign(
               { calpoly_email },
               process.env.TOKEN_SECRET,
