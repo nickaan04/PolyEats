@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "../Styles/FavoritesPage.scss";
 
 const FavoritesPage = ({ API_PREFIX, addAuthHeader }) => {
@@ -33,12 +35,13 @@ const FavoritesPage = ({ API_PREFIX, addAuthHeader }) => {
         setFavorites((prevFavorites) =>
           prevFavorites.filter((restaurant) => restaurant._id !== restaurantId)
         );
-        alert("Restaurant removed from favorites.");
+        toast.success("Restaurant removed from favorites");
       } else {
-        alert("Error removing restaurant from favorites.");
+        toast.error("Error removing restaurant from favorites");
       }
     } catch (error) {
       console.error("Error removing favorite restaurant:", error);
+      toast.error("Something went wrong!");
     }
   };
 
@@ -50,7 +53,7 @@ const FavoritesPage = ({ API_PREFIX, addAuthHeader }) => {
           favorites.map((restaurant) => (
             <div key={restaurant._id} className="favorite-card">
               <img
-                src={restaurant.image} //`http://localhost:8000/${restaurant.image}
+                src={restaurant.image}
                 alt={restaurant.name}
                 className="favorite-image"
               />

@@ -84,8 +84,6 @@ function Login(props) {
           Don’t have an account? <Link to="/signup">Sign Up</Link>
         </p>
       )}
-
-      {props.message && <p>{props.message}</p>}
     </div>
   );
 }

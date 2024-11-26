@@ -11,6 +11,7 @@ export const sendVerificationMail = (user) => {
       <p>Hello 👋 ${user.name},</p>
       <p>Please verify your email by clicking the link below:</p>
       <a href='${process.env.CLIENT_URL}/auth/verify-email?token=${user.emailToken}'>Verify Your Email</a>
+      <p>This link expires in 5 minutes.</p>
       <p>If you did not request this, please ignore this email.</p>
     `
   };

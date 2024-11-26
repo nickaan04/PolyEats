@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "../Styles/AccountPage.scss";
 
 const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
@@ -52,13 +54,13 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
           ...prevAccount,
           profile_pic: data.profile_pic
         }));
-        alert("Profile picture updated successfully!");
+        toast.success("Profile picture updated successfully");
       } else {
-        alert(`Error updating profile picture: ${data.error}`);
+        toast.error(`Error updating profile picture: ${data.error}`);
       }
     } catch (error) {
       console.error("Error uploading file:", error);
-      alert("Error uploading profile picture.");
+      toast.error("Error uploading profile picture");
     }
   };
 
@@ -70,14 +72,14 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
         headers: addAuthHeader()
       });
       if (response.ok) {
-        alert("Account deleted successfully.");
-        logoutUser(); // Log the user out
+        toast.success("Account deleted successfully");
+        logoutUser(false); // Log the user out
       } else {
-        alert("Error deleting account.");
+        toast.error("Error deleting account");
       }
     } catch (error) {
       console.error("Error deleting account:", error);
-      alert("Error deleting account.");
+      toast.error("Error deleting account");
     }
   };
 
@@ -132,7 +134,6 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
         <button onClick={() => setShowDeleteModal(true)}>Delete Account</button>
       </div>
 
-      {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="modal">
           <div className="modal-content">

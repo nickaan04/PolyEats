@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "../../Styles/RestaurantDetails.scss";
 
 const RestaurantDetails = ({ API_PREFIX, addAuthHeader }) => {
@@ -49,16 +51,17 @@ const RestaurantDetails = ({ API_PREFIX, addAuthHeader }) => {
 
       if (response.ok) {
         setIsFavorite(!isFavorite);
-        alert(
+        toast.success(
           isFavorite
-            ? "Restaurant removed from favorites."
-            : "Restaurant added to favorites."
+            ? "Restaurant removed from favorites"
+            : "Restaurant added to favorites"
         );
       } else {
-        alert("Error updating favorites.");
+        toast.error("Error updating favorites");
       }
     } catch (error) {
       console.error("Error updating favorites:", error);
+      toast.error("Something went wrong!");
     }
   };
 
