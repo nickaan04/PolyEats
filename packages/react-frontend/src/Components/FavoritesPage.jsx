@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import { Link } from "react-router-dom";
+import { Card, Button } from "react-bootstrap";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../Styles/FavoritesPage.scss";
 
@@ -7,7 +9,7 @@ const FavoritesPage = ({ API_PREFIX, addAuthHeader }) => {
   const [favorites, setFavorites] = useState([]);
 
   useEffect(() => {
-    //fetch favorite restaurants
+    // Fetch favorite restaurants
     fetch(`${API_PREFIX}/account/favorites`, {
       headers: addAuthHeader()
     })
@@ -20,7 +22,7 @@ const FavoritesPage = ({ API_PREFIX, addAuthHeader }) => {
       );
   }, [API_PREFIX, addAuthHeader]);
 
-  //remove a restaurant from favorites
+  // Remove a restaurant from favorites
   const removeFavorite = async (restaurantId) => {
     try {
       const response = await fetch(
@@ -51,22 +53,35 @@ const FavoritesPage = ({ API_PREFIX, addAuthHeader }) => {
       <div className="favorites-list">
         {favorites.length > 0 ? (
           favorites.map((restaurant) => (
-            <div key={restaurant._id} className="favorite-card">
-              <img
-                src={restaurant.image}
-                alt={restaurant.name}
-                className="favorite-image"
-              />
-              <div className="favorite-info">
-                <h3>{restaurant.name}</h3>
-                <p>{restaurant.cuisine}</p>
-                <button
-                  className="remove-button"
+            <Card
+              key={restaurant._id}
+              style={{
+                width: "18rem",
+                margin: "10px",
+                display: "inline-block",
+                verticalAlign: "top"
+              }}>
+              <Link
+                to={`/restaurant/${restaurant._id}`}
+                style={{ textDecoration: "none", color: "inherit" }}>
+                <Card.Img
+                  variant="top"
+                  src={restaurant.image}
+                  alt={restaurant.name}
+                />
+                <Card.Body>
+                  <Card.Title>{restaurant.name}</Card.Title>
+                  <Card.Text>{restaurant.cuisine}</Card.Text>
+                </Card.Body>
+              </Link>
+              <Card.Footer>
+                <Button
+                  variant="danger"
                   onClick={() => removeFavorite(restaurant._id)}>
                   Remove from Favorites
-                </button>
-              </div>
-            </div>
+                </Button>
+              </Card.Footer>
+            </Card>
           ))
         ) : (
           <p>No favorites yet</p>
