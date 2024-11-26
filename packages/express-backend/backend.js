@@ -13,7 +13,6 @@ import authRoutes from "../express-backend/auth.js";
 import accountService from "../express-backend/services/account-service.js";
 import reviewService from "../express-backend/services/review-service.js";
 import { upload, convertHeicToJpeg } from "./uploadMiddleware.js";
-import path from "path";
 
 dotenv.config();
 
@@ -91,6 +90,24 @@ app.post(
       });
   }
 );
+
+//delete profile picture
+app.post("/account/profile-pic/remove", authenticateUser, (req, res) => {
+  const userId = req.user._id;
+
+  accountService
+    .removeProfilePicture(userId)
+    .then((updatedAccount) =>
+      res.status(200).send({
+        message: "Profile picture removed successfully",
+        profile_pic: updatedAccount.profile_pic
+      })
+    )
+    .catch((error) => {
+      console.error("Error removing profile picture:", error);
+      res.status(500).send({ error: "Error removing profile picture" });
+    });
+});
 
 //get account details
 app.get("/account/details", authenticateUser, (req, res) => {

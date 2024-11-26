@@ -7,6 +7,8 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
   const [account, setAccount] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showProfilePicOptions, setShowProfilePicOptions] = useState(false);
+  const DEFAULT_PROFILE_PIC = `${API_PREFIX}/uploads/defaultprofilepic.jpeg`;
 
   useEffect(() => {
     // Fetch account details
@@ -55,12 +57,47 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
           profile_pic: data.profile_pic
         }));
         toast.success("Profile picture updated successfully");
+        setShowProfilePicOptions(false);
       } else {
         toast.error(`Error updating profile picture: ${data.error}`);
       }
     } catch (error) {
       console.error("Error uploading file:", error);
       toast.error("Error uploading profile picture");
+    }
+  };
+
+  // Remove profile picture
+  const removeProfilePicture = async () => {
+    try {
+      const response = await fetch(`${API_PREFIX}/account/profile-pic/remove`, {
+        method: "POST",
+        headers: addAuthHeader()
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setAccount((prevAccount) => ({
+          ...prevAccount,
+          profile_pic: data.profile_pic
+        }));
+        toast.success("Profile picture removed successfully");
+        setShowProfilePicOptions(false);
+      } else {
+        toast.error("Error removing profile picture");
+      }
+    } catch (error) {
+      console.error("Error removing profile picture:", error);
+      toast.error("Error removing profile picture");
+    }
+  };
+
+  // Handle profile picture click
+  const handleProfilePicClick = () => {
+    const currentProfilePicUrl = `${API_PREFIX}/${account.profile_pic}`;
+    if (currentProfilePicUrl === DEFAULT_PROFILE_PIC) {
+      document.getElementById("profile-pic-upload").click();
+    } else {
+      setShowProfilePicOptions(true);
     }
   };
 
@@ -91,13 +128,12 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
     <div className="account-page">
       <h2>Account</h2>
       <div className="account-header">
-        <label htmlFor="profile-pic-upload">
-          <img
-            src={`http://localhost:8000/${account.profile_pic}`}
-            alt="Profile"
-            className="profile-pic"
-          />
-        </label>
+        <img
+          src={`${API_PREFIX}/${account.profile_pic}`}
+          alt="Profile"
+          className="profile-pic"
+          onClick={handleProfilePicClick}
+        />
         <input
           type="file"
           id="profile-pic-upload"
@@ -109,6 +145,29 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
           {account.firstname} {account.lastname}
         </h2>
       </div>
+
+      {showProfilePicOptions && (
+        <div className="modal">
+          <div className="modal-content">
+            <p>Edit Profile Picture</p>
+            <button
+              onClick={() =>
+                document.getElementById("profile-pic-upload").click()
+              }>
+              Change Profile Picture
+            </button>
+            <button
+              onClick={() => {
+                removeProfilePicture();
+              }}>
+              Remove Profile Picture
+            </button>
+            <button onClick={() => setShowProfilePicOptions(false)}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="reviews-section">
         <h3>Reviews {reviews.length}</h3>
