@@ -1,7 +1,6 @@
 import React from "react";
 import Card from "react-bootstrap/Card";
 import { Link } from "react-router-dom";
-import campusMarketImage from "../assets/campus_market.jpg";
 
 const ComplexList = ({ complexes }) => {
   return (
@@ -13,7 +12,7 @@ const ComplexList = ({ complexes }) => {
           key={index}
           style={{ textDecoration: "none" }}>
           <Card style={{ width: "18rem", margin: "10px 0", cursor: "pointer" }}>
-            <Card.Img variant="top" src={campusMarketImage} />
+            <Card.Img variant="top" src={complex.image} />
             <Card.Body>
               <Card.Title>{complex.name}</Card.Title>
             </Card.Body>

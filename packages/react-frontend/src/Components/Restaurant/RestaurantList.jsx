@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Card from "react-bootstrap/Card";
-import campusMarketImage from "../../assets/campus_market.jpg";
 
 const RestaurantList = ({ API_PREFIX, addAuthHeader }) => {
   const { complexId } = useParams();
@@ -25,7 +24,7 @@ const RestaurantList = ({ API_PREFIX, addAuthHeader }) => {
           key={index}
           style={{ textDecoration: "none" }}>
           <Card style={{ width: "18rem", margin: "10px 0", cursor: "pointer" }}>
-            <Card.Img variant="top" src={campusMarketImage} />
+            <Card.Img variant="top" src={restaurant.image} />
             <Card.Body>
               <Card.Title>{restaurant.name}</Card.Title>
             </Card.Body>

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import "../Styles/FavoritesPage.scss";
-import campusMarketImage from "../assets/campus_market.jpg";
 
 const FavoritesPage = ({ API_PREFIX, addAuthHeader }) => {
   const [favorites, setFavorites] = useState([]);
@@ -51,7 +50,7 @@ const FavoritesPage = ({ API_PREFIX, addAuthHeader }) => {
           favorites.map((restaurant) => (
             <div key={restaurant._id} className="favorite-card">
               <img
-                src={campusMarketImage} //`http://localhost:8000/${restaurant.image}
+                src={restaurant.image} //`http://localhost:8000/${restaurant.image}
                 alt={restaurant.name}
                 className="favorite-image"
               />
