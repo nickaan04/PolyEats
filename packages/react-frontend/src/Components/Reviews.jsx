@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import "../Styles/Reviews.scss";
 
@@ -18,6 +19,7 @@ const Reviews = ({
     rating: "",
     pictures: []
   });
+  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -64,6 +66,28 @@ const Reviews = ({
     }
   };
 
+  // Handle deleting a review
+  const handleDeleteReview = async (reviewId) => {
+    try {
+      const response = await fetch(`${API_PREFIX}/review/${reviewId}`, {
+        method: "DELETE",
+        headers: addAuthHeader()
+      });
+
+      if (response.ok) {
+        setReviews((prevReviews) =>
+          prevReviews.filter((review) => review._id !== reviewId)
+        );
+        toast.success("Review deleted successfully");
+      } else {
+        toast.error("Error deleting review");
+      }
+    } catch (error) {
+      console.error("Error deleting review:", error);
+      toast.error("Error deleting review");
+    }
+  };
+
   return (
     <div className="reviews-section">
       <h2>Reviews</h2>
@@ -71,11 +95,15 @@ const Reviews = ({
         <button onClick={() => setShowReviewForm(true)}>Add Review</button>
       )}
       {reviews.length > 0 ? (
-        reviews.map((review, index) => (
-          <div key={index} className="review-card">
+        reviews.map((review) => (
+          <div
+            key={review._id}
+            className="review-card"
+            onClick={() => navigate(`/restaurant/${review.restaurant}`)}
+          >
             <div className="header">
               <img
-                src={`${API_PREFIX}/${review.author?.profile_pic || "uploads/defaultprofilepic.jpeg"}`}
+                src={`${API_PREFIX}/${review.author?.profile_pic}`}
                 alt="Author"
                 className="review-author-pic"
               />
@@ -110,13 +138,20 @@ const Reviews = ({
                 ))}
               </div>
             )}
+            {
+              <button
+                className="delete-review-button"
+                onClick={() => handleDeleteReview(review._id)}>
+                Delete Review
+              </button>
+            }
           </div>
         ))
       ) : (
         <p>No reviews yet</p>
       )}
 
-      {showReviewForm && (
+      {editable && showReviewForm && (
         <div className="modal">
           <div className="modal-content">
             <form onSubmit={handleSubmitReview}>

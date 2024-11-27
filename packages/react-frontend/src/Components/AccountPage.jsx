@@ -180,7 +180,7 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
         reviews={reviews}
         setReviews={setReviews}
         API_PREFIX={API_PREFIX}
-        editable={false} // No "Add Review" form on account page
+        editable={false}
         addAuthHeader={addAuthHeader}
       />
 
