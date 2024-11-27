@@ -10,7 +10,8 @@ const Reviews = ({
   API_PREFIX,
   editable = false, // Optional: Allow adding reviews only where necessary
   restaurantId = null, // Optional: Only needed if creating new reviews
-  addAuthHeader
+  addAuthHeader,
+  setRestaurant
 }) => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewData, setReviewData] = useState({
@@ -55,6 +56,16 @@ const Reviews = ({
         toast.success("Review added successfully");
         setShowReviewForm(false);
         setReviewData({ item: "", review: "", rating: "" });
+
+        // Refresh restaurant details to update the average rating
+        const restaurantResponse = await fetch(
+          `${API_PREFIX}/restaurant/${restaurantId}`,
+          { headers: addAuthHeader() }
+        );
+        if (restaurantResponse.ok) {
+          const data = await restaurantResponse.json();
+          setRestaurant(data.restaurant.restaurant);
+        }
       } else {
         const errorText = await response.text();
         console.error("Response Error:", errorText);
@@ -67,26 +78,36 @@ const Reviews = ({
   };
 
   // Handle deleting a review
-  const handleDeleteReview = async (reviewId) => {
-    try {
-      const response = await fetch(`${API_PREFIX}/review/${reviewId}`, {
-        method: "DELETE",
-        headers: addAuthHeader()
-      });
+const handleDeleteReview = async (reviewId) => {
+  try {
+    const response = await fetch(`${API_PREFIX}/review/${reviewId}`, {
+      method: "DELETE",
+      headers: addAuthHeader()
+    });
 
-      if (response.ok) {
-        setReviews((prevReviews) =>
-          prevReviews.filter((review) => review._id !== reviewId)
-        );
-        toast.success("Review deleted successfully");
-      } else {
-        toast.error("Error deleting review");
+    if (response.ok) {
+      setReviews((prevReviews) =>
+        prevReviews.filter((review) => review._id !== reviewId)
+      );
+      toast.success("Review deleted successfully");
+
+      // Refresh restaurant details to update the average rating
+      const restaurantResponse = await fetch(
+        `${API_PREFIX}/restaurant/${restaurantId}`,
+        { headers: addAuthHeader() }
+      );
+      if (restaurantResponse.ok) {
+        const data = await restaurantResponse.json();
+        setRestaurant(data.restaurant.restaurant);
       }
-    } catch (error) {
-      console.error("Error deleting review:", error);
+    } else {
       toast.error("Error deleting review");
     }
-  };
+  } catch (error) {
+    console.error("Error deleting review:", error);
+    toast.error("Error deleting review");
+  }
+};
 
   return (
     <div className="reviews-section">

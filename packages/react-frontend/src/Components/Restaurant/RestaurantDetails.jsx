@@ -109,6 +109,7 @@ const RestaurantDetails = ({ API_PREFIX, addAuthHeader }) => {
         editable={true} // Allow adding reviews here
         restaurantId={id} // Pass the restaurant ID
         addAuthHeader={addAuthHeader}
+        setRestaurant={setRestaurant} // Pass down to update the rating
       />
     </div>
   );
