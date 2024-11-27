@@ -16,7 +16,7 @@ function Login(props) {
 
   function submitForm() {
     const { firstname, lastname, calpoly_email, password } = creds;
-    // Conditionally include the name in the submitted credentials for signup
+    //conditionally include the name in the submitted credentials for signup
     const userCreds =
       props.buttonLabel === "Sign Up"
         ? { firstname, lastname, calpoly_email, password }
@@ -84,8 +84,6 @@ function Login(props) {
           Don’t have an account? <Link to="/signup">Sign Up</Link>
         </p>
       )}
-
-      {props.message && <p>{props.message}</p>}
     </div>
   );
 }

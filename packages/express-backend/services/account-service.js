@@ -21,6 +21,21 @@ async function updateProfilePicture(accountId, profile_pic) {
   return account;
 }
 
+//remove profile pic
+async function removeProfilePicture(accountId) {
+  const account = await accountModel.findById(accountId);
+  if (!account) {
+    throw new Error("Account not found");
+  }
+
+  //replace with your actual path to the default profile picture
+  const DEFAULT_PROFILE_PIC = "uploads/defaultprofilepic.jpeg";
+
+  account.profile_pic = DEFAULT_PROFILE_PIC;
+  await account.save();
+  return account;
+}
+
 //fetch reviews given by the account
 async function getAccountReviews(accountId) {
   return reviewModel.find({ author: accountId }).exec();
@@ -65,6 +80,7 @@ async function deleteAccount(accountId) {
 export default {
   getAccountDetails,
   updateProfilePicture,
+  removeProfilePicture,
   getAccountReviews,
   getFavoriteRestaurants,
   addFavoriteRestaurant,

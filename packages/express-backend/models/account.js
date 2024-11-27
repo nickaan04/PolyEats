@@ -37,7 +37,11 @@ const AccountSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "Restaurant"
       }
-    ]
+    ],
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
   },
   { collection: "accounts" }
 );

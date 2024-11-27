@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import logo from "../assets/logo.png";
+import logo from "../../Assets/logo.png";
 import { useParams } from "react-router-dom";
 import Card from "react-bootstrap/Card";
-import Cards from "../Components/Cards";
-import ImageList from "../Components/ImageList";
-import "../App.scss";
+import Cards from "../Cards";
+import ImageList from "./ImageList";
+import "../../Styles/App.scss";
 
-function RestaurantReviews() {
+function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
   const { id } = useParams(); // Get restaurant ID from URL
   const [restaurant, setRestaurant] = useState([]); // Restaurant object
   const [reviews, setReviews] = useState([]); // Reviews array
@@ -62,6 +62,13 @@ function RestaurantReviews() {
           )}
         </Card.Body>
       </Card>
+      </div>
+      <div className="top-image">
+        <Cards 
+            color={"#1a602a" || campusMarketImage}  // Fallback to campusMarketImage
+            title={"Restaurant Details"}
+            link={`/restaurant/${id}/details`}          // Link to each item’s unique page
+          />
       </div>
       <div className="top-image">
         <Cards 

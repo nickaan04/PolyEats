@@ -49,6 +49,10 @@ const RestaurantSchema = new mongoose.Schema(
       type: String,
       enum: ["$", "$$", "$$$"],
       default: "$$"
+    },
+    image: {
+      type: String,
+      trim: true
     }
   },
   { collection: "restaurants" }

@@ -29,4 +29,5 @@
     margin: 0 auto; /* Center the card horizontally */
     border-radius: 1rem;
     box-sizing: border-box;
+    cursor: "pointer";
 }

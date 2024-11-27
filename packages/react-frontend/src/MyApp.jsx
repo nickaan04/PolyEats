@@ -5,15 +5,19 @@ import {
   Routes,
   Navigate
 } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./Styles/App.scss";
 import Login from "./Login";
 import VerifyEmail from "./VerifyEmail.jsx";
 import ComplexList from "./Components/ComplexList.jsx";
 import RestaurantList from "./Components/Restaurant/RestaurantList.jsx";
+import RestaurantReviews from "./Components/Restaurant/RestaurantReviews.jsx";
 import RestaurantDetails from "./Components/Restaurant/RestaurantDetails.jsx";
-import BottomNavBar from "./Components/BottomNavBar.jsx"
-import AccountPage from "./Components/AccountPage.jsx"
-import FavoritesPage from "./Components/FavoritesPage.jsx"
+import ImageList from "./Components/Restaurant/ImageList.jsx";
+import BottomNavBar from "./Components/BottomNavBar.jsx";
+import AccountPage from "./Components/AccountPage.jsx";
+import FavoritesPage from "./Components/FavoritesPage.jsx";
 
 function MyApp() {
   const API_PREFIX = "http://localhost:8000";
@@ -21,7 +25,6 @@ function MyApp() {
   const [token, setToken] = useState(
     localStorage.getItem("authToken") || INVALID_TOKEN
   );
-  const [message, setMessage] = useState("");
   const [complexes, setComplexes] = useState([]);
 
   useEffect(() => {
@@ -70,16 +73,16 @@ function MyApp() {
         if (response.status === 200) {
           response.json().then((payload) => {
             setToken(payload.token);
-            setMessage("Login successful");
+            toast.success("Login successful");
           });
         } else {
           response.text().then((text) => {
-            setMessage(`Login Error ${response.status}: ${text}`);
+            toast.error(`${text}`);
           });
         }
       })
       .catch((error) => {
-        setMessage(`Login Error: ${error.message}`);
+        toast.error(`${error.message}`);
       });
 
     return promise;
@@ -96,24 +99,26 @@ function MyApp() {
       .then((response) => {
         if (response.status === 201) {
           response.json().then((payload) => setToken(payload.token));
-          setMessage("Signup successful. Email verfication sent.");
+          toast.success("Signup successful. Email verification sent");
         } else {
           response.text().then((text) => {
-            setMessage(`Signup Error ${response.status}: ${text}`);
+            toast.error(`${text}`);
           });
         }
       })
       .catch((error) => {
-        setMessage(`Signup Error: ${error}`);
+        toast.error(`${error}`);
       });
 
     return promise;
   }
 
-  function logoutUser() {
-    setToken(INVALID_TOKEN);
-    setMessage("You have been logged out");
+function logoutUser(showLogoutMessage = true) {
+  setToken(INVALID_TOKEN);
+  if (showLogoutMessage) {
+    toast.info("You have been logged out");
   }
+}
 
   return (
     <div className="container">
@@ -124,7 +129,7 @@ function MyApp() {
               path="/login"
               element={
                 token === INVALID_TOKEN ? (
-                  <Login handleSubmit={loginUser} message={message} />
+                  <Login handleSubmit={loginUser} />
                 ) : (
                   <Navigate to="/" replace />
                 )
@@ -134,11 +139,7 @@ function MyApp() {
               path="/signup"
               element={
                 token === INVALID_TOKEN ? (
-                  <Login
-                    handleSubmit={signupUser}
-                    buttonLabel="Sign Up"
-                    message={message}
-                  />
+                  <Login handleSubmit={signupUser} buttonLabel="Sign Up" />
                 ) : (
                   <Navigate to="/" replace />
                 )
@@ -166,7 +167,25 @@ function MyApp() {
             <Route
               path="/restaurant/:id"
               element={
+                <RestaurantReviews
+                  API_PREFIX={API_PREFIX}
+                  addAuthHeader={addAuthHeader}
+                />
+              }
+            />
+            <Route
+              path="/restaurant/:id/details"
+              element={
                 <RestaurantDetails
+                  API_PREFIX={API_PREFIX}
+                  addAuthHeader={addAuthHeader}
+                />
+              }
+            />
+            <Route
+              path="/restaurant/:id/images"
+              element={
+                <ImageList
                   API_PREFIX={API_PREFIX}
                   addAuthHeader={addAuthHeader}
                 />
@@ -204,6 +223,7 @@ function MyApp() {
           {token !== INVALID_TOKEN && <BottomNavBar />}
         </div>
       </Router>
+      <ToastContainer />
     </div>
   );
 }

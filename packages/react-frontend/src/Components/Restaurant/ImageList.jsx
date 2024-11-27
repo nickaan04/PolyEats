@@ -5,7 +5,7 @@ const photos = ["https://storage.googleapis.com/polyeats/julians_coffee.jpeg",
 "https://storage.googleapis.com/polyeats/julians_outside.jpg",
 "https://storage.googleapis.com/polyeats/julians_sammy.jpeg"];
 
-function ImageList() {
+function ImageList({ API_PREFIX, addAuthHeader }) {
 
   return (
     <div className="card-container">
