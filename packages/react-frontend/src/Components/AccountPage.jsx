@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import Reviews from "./Reviews";
 import "react-toastify/dist/ReactToastify.css";
 import "../Styles/AccountPage.scss";
 
@@ -11,7 +12,6 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
   const DEFAULT_PROFILE_PIC = `${API_PREFIX}/uploads/defaultprofilepic.jpeg`;
 
   useEffect(() => {
-    // Fetch account details
     fetch(`${API_PREFIX}/account/details`, {
       headers: addAuthHeader()
     })
@@ -23,13 +23,12 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
         console.error("Error fetching account details:", error)
       );
 
-    // Fetch account reviews
     fetch(`${API_PREFIX}/account/reviews`, {
       headers: addAuthHeader()
     })
       .then((res) => res.json())
       .then((data) => {
-        setReviews(data.reviews || []);
+        setReviews(data.reviews || []); // This now includes the updated profile_pic
       })
       .catch((error) => console.error("Error fetching reviews:", error));
   }, [API_PREFIX, addAuthHeader]);
@@ -56,6 +55,15 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
           ...prevAccount,
           profile_pic: data.profile_pic
         }));
+        setReviews((prevReviews) =>
+          prevReviews.map((review) => ({
+            ...review,
+            author: {
+              ...review.author,
+              profile_pic: data.profile_pic
+            }
+          }))
+        );
         toast.success("Profile picture updated successfully");
         setShowProfilePicOptions(false);
       } else {
@@ -168,25 +176,13 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
           </div>
         </div>
       )}
-
-      <div className="reviews-section">
-        <h3>Reviews {reviews.length}</h3>
-        {reviews.map((review, index) => (
-          <div key={index} className="review-card">
-            <h4>{review.item}</h4>
-            <div className="review-meta">
-              <span>
-                {account.firstname} {account.lastname}
-              </span>
-              <div className="stars">
-                {"★".repeat(review.rating)}
-                {"☆".repeat(5 - review.rating)}
-              </div>
-            </div>
-            <p>{review.review}</p>
-          </div>
-        ))}
-      </div>
+      <Reviews
+        reviews={reviews}
+        setReviews={setReviews}
+        API_PREFIX={API_PREFIX}
+        editable={false} // No "Add Review" form on account page
+        addAuthHeader={addAuthHeader}
+      />
 
       <div className="account-actions">
         <button onClick={logoutUser}>Sign Out</button>

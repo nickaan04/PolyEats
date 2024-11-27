@@ -1,0 +1,174 @@
+import React, { useState } from "react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "../Styles/Reviews.scss";
+
+const Reviews = ({
+  reviews,
+  setReviews,
+  API_PREFIX,
+  editable = false, // Optional: Allow adding reviews only where necessary
+  restaurantId = null, // Optional: Only needed if creating new reviews
+  addAuthHeader
+}) => {
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewData, setReviewData] = useState({
+    item: "",
+    review: "",
+    rating: "",
+    pictures: []
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setReviewData({ ...reviewData, [name]: value });
+  };
+
+  const handlePicturesChange = (e) => {
+    setReviewData({ ...reviewData, pictures: Array.from(e.target.files) });
+  };
+
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+
+    const reviewPayload = {
+      item: reviewData.item,
+      review: reviewData.review,
+      rating: reviewData.rating,
+      restaurant: restaurantId
+    };
+
+    try {
+      const response = await fetch(`${API_PREFIX}/review`, {
+        method: "POST",
+        headers: addAuthHeader({
+          "Content-Type": "application/json"
+        }),
+        body: JSON.stringify(reviewPayload)
+      });
+
+      if (response.ok) {
+        const newReview = await response.json();
+        setReviews((prevReviews) => [newReview, ...prevReviews]);
+        toast.success("Review added successfully");
+        setShowReviewForm(false);
+        setReviewData({ item: "", review: "", rating: "" });
+      } else {
+        const errorText = await response.text();
+        console.error("Response Error:", errorText);
+        toast.error("Error adding review");
+      }
+    } catch (error) {
+      console.error("Error adding review:", error);
+      toast.error("Error adding review");
+    }
+  };
+
+  return (
+    <div className="reviews-section">
+      <h2>Reviews</h2>
+      {editable && (
+        <button onClick={() => setShowReviewForm(true)}>Add Review</button>
+      )}
+      {reviews.length > 0 ? (
+        reviews.map((review, index) => (
+          <div key={index} className="review-card">
+            <div className="header">
+              <img
+                src={`${API_PREFIX}/${review.author?.profile_pic || "uploads/defaultprofilepic.jpeg"}`}
+                alt="Author"
+                className="review-author-pic"
+              />
+              <div className="author-info">
+                {review.author?.firstname} {review.author?.lastname}
+              </div>
+            </div>
+            <div className="top-row">
+              <div className="item-name">{review.item}</div>
+              <div className="review-date">
+                {new Date(review.date).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric"
+                })}
+              </div>
+            </div>
+            <div className="stars">
+              {"★".repeat(review.rating)}
+              {"☆".repeat(5 - review.rating)}
+            </div>
+            <div className="review-body">{review.review}</div>
+            {review.pictures && review.pictures.length > 0 && (
+              <div className="review-pictures">
+                {review.pictures.map((pic, i) => (
+                  <img
+                    key={i}
+                    src={`${API_PREFIX}/${pic}`}
+                    alt={`Review Pic ${i + 1}`}
+                    className="review-pic"
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        ))
+      ) : (
+        <p>No reviews yet</p>
+      )}
+
+      {showReviewForm && (
+        <div className="modal">
+          <div className="modal-content">
+            <form onSubmit={handleSubmitReview}>
+              <label>
+                Item:
+                <input
+                  type="text"
+                  name="item"
+                  value={reviewData.item}
+                  onChange={handleInputChange}
+                  required
+                />
+              </label>
+              <label>
+                Review:
+                <textarea
+                  name="review"
+                  value={reviewData.review}
+                  onChange={handleInputChange}
+                  required></textarea>
+              </label>
+              <label>
+                Rating:
+                <input
+                  type="number"
+                  name="rating"
+                  value={reviewData.rating}
+                  onChange={handleInputChange}
+                  min="1"
+                  max="5"
+                  required
+                />
+              </label>
+              <label>
+                Pictures:
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handlePicturesChange}
+                />
+              </label>
+              <button type="submit">Submit Review</button>
+              <button type="button" onClick={() => setShowReviewForm(false)}>
+                Cancel
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Reviews;

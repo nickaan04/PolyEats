@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../../Styles/RestaurantDetails.scss";
+import Reviews from "../Reviews";
 
 const RestaurantDetails = ({ API_PREFIX, addAuthHeader }) => {
   const { id } = useParams();
@@ -101,28 +102,14 @@ const RestaurantDetails = ({ API_PREFIX, addAuthHeader }) => {
           ))}
         </ul>
       </div>
-
-      {/* Reviews Section */}
-      <div className="reviews-section">
-        <h2>Reviews</h2>
-        {reviews.length > 0 ? (
-          reviews.map((review, index) => (
-            <div key={index} className="review-card">
-              <h3>{review.item}</h3>
-              <p>
-                By: {review.author.firstname} {review.author.lastname}
-              </p>
-              <div className="stars">
-                {"★".repeat(review.rating)}
-                {"☆".repeat(5 - review.rating)}
-              </div>
-              <p>{review.review}</p>
-            </div>
-          ))
-        ) : (
-          <p>No reviews yet</p>
-        )}
-      </div>
+      <Reviews
+        reviews={reviews}
+        setReviews={setReviews}
+        API_PREFIX={API_PREFIX}
+        editable={true} // Allow adding reviews here
+        restaurantId={id} // Pass the restaurant ID
+        addAuthHeader={addAuthHeader}
+      />
     </div>
   );
 };

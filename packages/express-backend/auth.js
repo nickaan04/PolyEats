@@ -23,7 +23,6 @@ function scheduleAccountDeletion(accountId) {
   ); // 5 minutes in milliseconds
 }
 
-
 function generateAccessToken(calpoly_email) {
   return new Promise((resolve, reject) => {
     jwt.sign(

@@ -22,7 +22,7 @@ async function deleteReview(reviewId, accountId) {
 async function getReviewsByRestaurant(restaurantId) {
   return reviewModel
     .find({ restaurant: restaurantId })
-    .populate("author", "firstname lastname")
+    .populate("author", "firstname lastname profile_pic")
     .exec();
 }
 
