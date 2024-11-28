@@ -104,23 +104,25 @@ function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
         {showOverlay && (
           <div className="overlay-frame">
             <div className="overlay-content">
-              <p>{restaurant.description}</p>
               <p>
-                Accepted Payments:{" "}
+                <strong>Accepted Payments: </strong>
                 {Object.keys(restaurant.accepted_payments).join(", ")}
               </p>
               <p>
-                Nutrition Types:{" "}
+                <strong>Nutrition Types: </strong>
                 {Object.keys(restaurant.nutrition_types).join(", ")}
               </p>
-              <p>Delivery: {restaurant.delivery ? "Yes" : "No"}</p>
+              <p>
+                <strong>Delivery: </strong>
+                {restaurant.delivery ? "Yes" : "No"}
+              </p>
               <div className="hours">
                 <h2>Hours</h2>
                 <ul>
                   {Object.entries(restaurant.hours).map(
                     ([day, hours], index) => (
                       <li key={index}>
-                        {day}: {hours}
+                        <strong>{day}</strong>: {hours}
                       </li>
                     )
                   )}

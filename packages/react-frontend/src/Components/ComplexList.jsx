@@ -12,14 +12,14 @@ const ComplexList = ({ complexes }) => {
       </div>
       <h2>Dining Complexes</h2>
       <div className="card-container">
-      {complexes.map((complex, index) => (
-        <Cards
-          key={index} 
-          image={complex.image || campusMarketImage}  // Fallback to campusMarketImage
-          title={complex.name}
-          link={`/complex/${complex._id}`} // Link to each item’s unique page
-        />
-      ))}
+        {complexes.map((complex, index) => (
+          <Cards
+            key={index}
+            image={complex.image || campusMarketImage} // Fallback to campusMarketImage
+            title={complex.name}
+            link={`/complex/${complex._id}`} // Link to each item’s unique page
+          />
+        ))}
       </div>
     </div>
   );

@@ -78,50 +78,63 @@ const Reviews = ({
   };
 
   // Handle deleting a review
-const handleDeleteReview = async (reviewId) => {
-  try {
-    const response = await fetch(`${API_PREFIX}/review/${reviewId}`, {
-      method: "DELETE",
-      headers: addAuthHeader()
-    });
+  const handleDeleteReview = async (reviewId) => {
+    try {
+      const response = await fetch(`${API_PREFIX}/review/${reviewId}`, {
+        method: "DELETE",
+        headers: addAuthHeader()
+      });
 
-    if (response.ok) {
-      setReviews((prevReviews) =>
-        prevReviews.filter((review) => review._id !== reviewId)
-      );
-      toast.success("Review deleted successfully");
+      if (response.ok) {
+        setReviews((prevReviews) =>
+          prevReviews.filter((review) => review._id !== reviewId)
+        );
+        toast.success("Review deleted successfully");
 
-      // Refresh restaurant details to update the average rating
-      const restaurantResponse = await fetch(
-        `${API_PREFIX}/restaurant/${restaurantId}`,
-        { headers: addAuthHeader() }
-      );
-      if (restaurantResponse.ok) {
-        const data = await restaurantResponse.json();
-        setRestaurant(data.restaurant.restaurant);
+        // Refresh restaurant details to update the average rating
+        const restaurantResponse = await fetch(
+          `${API_PREFIX}/restaurant/${restaurantId}`,
+          { headers: addAuthHeader() }
+        );
+        if (restaurantResponse.ok) {
+          const data = await restaurantResponse.json();
+          setRestaurant(data.restaurant.restaurant);
+        }
+      } else {
+        toast.error("Error deleting review");
       }
-    } else {
+    } catch (error) {
+      console.error("Error deleting review:", error);
       toast.error("Error deleting review");
     }
-  } catch (error) {
-    console.error("Error deleting review:", error);
-    toast.error("Error deleting review");
-  }
-};
+  };
 
   return (
     <div className="reviews-section">
-      <h2>Reviews</h2>
-      {editable && (
-        <button onClick={() => setShowReviewForm(true)}>Add Review</button>
-      )}
+      <div className="reviews-header">
+        <h2>Reviews</h2>
+        {editable && (
+          <button
+            className="add-review-button"
+            onClick={() => setShowReviewForm(true)}>
+            Add Review
+          </button>
+        )}
+      </div>
       {reviews.length > 0 ? (
         reviews.map((review) => (
           <div
             key={review._id}
             className="review-card"
-            onClick={() => navigate(`/restaurant/${review.restaurant}`)}
-          >
+            onClick={() => navigate(`/restaurant/${review.restaurant}`)}>
+            <button
+              className="delete-review-button"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent navigating when clicking the delete button
+                handleDeleteReview(review._id);
+              }}>
+              &times; {/* HTML entity for the 'X' symbol */}
+            </button>
             <div className="header">
               <img
                 src={`${API_PREFIX}/${review.author?.profile_pic}`}
@@ -159,13 +172,6 @@ const handleDeleteReview = async (reviewId) => {
                 ))}
               </div>
             )}
-            {
-              <button
-                className="delete-review-button"
-                onClick={() => handleDeleteReview(review._id)}>
-                Delete Review
-              </button>
-            }
           </div>
         ))
       ) : (
