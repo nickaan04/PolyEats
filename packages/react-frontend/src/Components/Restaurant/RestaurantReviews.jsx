@@ -1,92 +1,104 @@
 import React, { useState, useEffect } from "react";
-import logo from "../../Assets/logo.png";
-import { useParams } from "react-router-dom";
-import Card from "react-bootstrap/Card";
+import { useParams, Link } from "react-router-dom";
 import Cards from "../Cards";
-import ImageList from "./ImageList";
 import "../../Styles/App.scss";
+import Reviews from "../Reviews";
+import "../../Styles/Reviews.scss";
 
 function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
   const { id } = useParams(); // Get restaurant ID from URL
   const [restaurant, setRestaurant] = useState([]); // Restaurant object
   const [reviews, setReviews] = useState([]); // Reviews array
-  const [isEditing, setIsEditing] = useState([]); // To toggle between view and edit mode
-  const [newTitle, setNewTitle] = useState("Reviews");
+  const [showOverlay, setShowOverlay] = useState(false); // State to toggle overlay visibility
+  const [overlayContent, setOverlayContent] = useState(null); // State to hold dynamic content for overlay
 
-  // Handle the Enter key press to save the data
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      saveData();
-    }
-  };
-
-  const saveData = () => {
-    setIsEditing(false);
-  };
 
   useEffect(() => {
-    fetch(`http://localhost:8000/restaurant/${id}`)
+    fetch(`http://localhost:8000/restaurant/${id}`, {
+      headers: addAuthHeader()
+    })
       .then((res) => res.json())
       .then((json) => {
-        setRestaurant(json.restaurant);
-        setReviews(json.restaurant.reviews); // Assuming `reviews` is a field in `json.restaurant`
+        setRestaurant(json.restaurant.restaurant);
+        setReviews(json.restaurant.reviews);
       })
       .catch((error) => console.error("Error fetching restaurant:", error));
-  }, [id]);
+  }, [API_PREFIX, addAuthHeader, id]);
 
   if (!restaurant) {
-    return <p>Loading restaurant details...</p>; // Display a loading message while fetching
+    return <p>Loading restaurant details...</p>;
   }
+
+  const handleOverlayToggle = (content) => {
+    setOverlayContent(content); // Set content dynamically
+    setShowOverlay(!showOverlay); // Toggle overlay visibility
+  };
 
   return (
     <div>
-      <div className="top-image">
-        <img src={logo} alt="Top Banner" />
+      <div className="restaurant-top-banner">
+      <img src={restaurant.image} alt={restaurant.name} className="restaurant-image" />
+      <div className="restaurant-overlay">
+        <h1 className="restaurant-name">{restaurant.name}</h1>
+          <Link to={`/restaurant/${id}/images`} className="btn btn-primary see-images-button">
+            See Photos
+          </Link>
+        </div>
       </div>
-      <h1>Reviews</h1>
-      <div className="top-image">
-      <Card className="card">
-        <div className="card-img" style={{ backgroundColor: "#1a602a" }}></div>
-        <Card.Title className="card-title">{"Post Review"}</Card.Title>
-        <Card.Body>
-          {isEditing ? (
-            <input
-              type="text"
-              onChange={(e) => setNewTitle(e.target.value)}
-              onKeyDown={handleKeyPress}
-              onBlur={saveData}
-              autoFocus
-            />
-          ) : (
-            <Card.Title onClick={() => setIsEditing(true)}>{newTitle}</Card.Title>
-          )}
-        </Card.Body>
-      </Card>
+    <div>
+      <h2 className="details">{restaurant.price} {restaurant.cuisine} </h2>
+      <div className="stars">
+              {"★".repeat(restaurant.avg_rating)}
+              {"☆".repeat(5 - (Math.floor(restaurant.avg_rating)))}
       </div>
-      <div className="top-image">
-        <Cards 
-            color={"#1a602a" || campusMarketImage}  // Fallback to campusMarketImage
-            title={"Restaurant Details"}
-            link={`/restaurant/${id}/details`}          // Link to each item’s unique page
-          />
+    </div>
+      <div className="image-container">        
+        {/* Overlay that appears when button is clicked */}
+        {showOverlay && (
+          <div className="overlay-frame">
+            <div className="overlay-content">
+            <p>{restaurant.description}</p>
+            <p>
+              Accepted Payments:{" "}
+              {Object.keys(restaurant.accepted_payments).join(", ")}
+            </p>
+            <p>
+              Nutrition Types: {Object.keys(restaurant.nutrition_types).join(", ")}
+            </p>
+            <p>Delivery: {restaurant.delivery ? "Yes" : "No"}</p>
+            <div className="hours">
+              <h2>Hours</h2>
+              <ul>
+                {Object.entries(restaurant.hours).map(([day, hours], index) => (
+                  <li key={index}>
+                    {day}: {hours}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+              <button onClick={() => setShowOverlay(false)} className="close-overlay-button">
+                Close
+              </button>
+            </div>
+          </div>
+        )}
       </div>
-      <div className="top-image">
-        <Cards 
-            color={"#1a602a" || campusMarketImage}  // Fallback to campusMarketImage
-            title={"Images"}
-            link={`/restaurant/${id}/images`}          // Link to each item’s unique page
-          />
-      </div>
-      <div className="review-list">
-        {reviews.map((review, index) => (
-          <Card key={index} style={{ margin: "1rem", width: "25rem" }}>
-            <Card.Body>
-              <Card.Title>{review.author}</Card.Title>
-              <Card.Text>{review.text}</Card.Text>
-            </Card.Body>
-          </Card>
-        ))}
-      </div>
+      
+
+      <button onClick={() => handleOverlayToggle(<div><h3>{restaurant.name}</h3><p>{restaurant.description}</p></div>)} className="toggle-overlay-button">
+        See Details
+      </button>
+
+      <Reviews
+        reviews={reviews}
+        setReviews={setReviews}
+        API_PREFIX={API_PREFIX}
+        editable={true} // Allow adding reviews here
+        restaurantId={id} // Pass the restaurant ID
+        addAuthHeader={addAuthHeader}
+        setRestaurant={setRestaurant} // Pass down to update the rating
+      />
     </div>
   );
 }

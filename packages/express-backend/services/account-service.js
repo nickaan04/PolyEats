@@ -38,7 +38,10 @@ async function removeProfilePicture(accountId) {
 
 //fetch reviews given by the account
 async function getAccountReviews(accountId) {
-  return reviewModel.find({ author: accountId }).exec();
+  return reviewModel
+    .find({ author: accountId })
+    .populate("author", "firstname lastname profile_pic") // Ensure profile_pic is included
+    .exec();
 }
 
 //fetch favorite restaurants saved by the account

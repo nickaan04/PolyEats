@@ -18,8 +18,8 @@ const ReviewSchema = new mongoose.Schema(
     },
     pictures: [
       {
-        data: Buffer, //binary in MongoDB
-        contentType: String
+        type: String,
+        trim: true
       }
     ],
     date: {
