@@ -5,10 +5,13 @@ const RestaurantFilter = ({ setFilters }) => {
   const [showModal, setShowModal] = useState(false);
   const [filterValues, setFilterValues] = useState({
     name: "",
-    avg_rating: "",
+    minRating: "",
     price: "",
     cuisine: "",
-    delivery: ""
+    delivery: "",
+    accepted_payments: {},
+    nutrition_types: {},
+    hours: {}
   });
 
   const handleInputChange = (e) => {
@@ -16,13 +19,31 @@ const RestaurantFilter = ({ setFilters }) => {
     setFilterValues((prev) => ({ ...prev, [name]: value }));
   };
 
-  const applyFilters = () => {
-    setFilters(filterValues); // Pass the selected filters to the parent component
-    setShowModal(false);
+  const handleCheckboxChange = (e, category) => {
+    const { name, checked } = e.target;
+    setFilterValues((prev) => ({
+      ...prev,
+      [category]: { ...prev[category], [name]: checked }
+    }));
   };
 
+const applyFilters = () => {
+  setFilters({}); // Clear any existing filters
+  setTimeout(() => setFilters(filterValues), 0); // Apply new filters after clearing
+  setShowModal(false);
+};
+
   const clearFilters = () => {
-    setFilterValues({}); // Clear all filter fields
+    setFilterValues({
+      name: "",
+      minRating: "",
+      price: "",
+      cuisine: "",
+      delivery: "",
+      accepted_payments: {},
+      nutrition_types: {},
+      hours: {}
+    }); // Clear all filter fields
     setFilters({}); // Reset filters in parent
     setShowModal(false);
   };
@@ -95,6 +116,53 @@ const RestaurantFilter = ({ setFilters }) => {
                   }))
                 }
               />
+            </Form.Group>
+            <Form.Group controlId="filterPayments">
+              <Form.Label>Accepted Payments</Form.Label>
+              {["PolyCard", "CreditDebit", "Cash"].map((payment) => (
+                <Form.Check
+                  key={payment}
+                  type="checkbox"
+                  label={payment}
+                  name={payment}
+                  checked={filterValues.accepted_payments[payment] || false}
+                  onChange={(e) => handleCheckboxChange(e, "accepted_payments")}
+                />
+              ))}
+            </Form.Group>
+            <Form.Group controlId="filterNutrition">
+              <Form.Label>Nutrition Types</Form.Label>
+              {["Vegan", "GlutenFree", "Vegetarian"].map((type) => (
+                <Form.Check
+                  key={type}
+                  type="checkbox"
+                  label={type}
+                  name={type}
+                  checked={filterValues.nutrition_types[type] || false}
+                  onChange={(e) => handleCheckboxChange(e, "nutrition_types")}
+                />
+              ))}
+            </Form.Group>
+            <Form.Group controlId="filterHours">
+              <Form.Label>Days Open</Form.Label>
+              {[
+                "M",
+                "T",
+                "W",
+                "TH",
+                "F",
+                "SAT",
+                "SUN"
+              ].map((day) => (
+                <Form.Check
+                  key={day}
+                  type="checkbox"
+                  label={day}
+                  name={day}
+                  checked={filterValues.hours[day] || false}
+                  onChange={(e) => handleCheckboxChange(e, "hours")}
+                />
+              ))}
             </Form.Group>
           </Form>
         </Modal.Body>
