@@ -9,36 +9,24 @@ import logo from "../../Assets/logo.png";
 const RestaurantList = ({ API_PREFIX, addAuthHeader }) => {
   const { complexId } = useParams();
   const [restaurants, setRestaurants] = useState([]);
-  const [filteredRestaurants, setFilteredRestaurants] = useState([]);
-  const [priceFilter, setPriceFilter] = useState("all");
+  const [filters, setFilters] = useState({});
 
-  useEffect(() => {
-    fetch(`${API_PREFIX}/complexes/${complexId}/restaurants`, {
+  // Fetch restaurants based on filters
+  const fetchRestaurants = () => {
+    const filterParams = new URLSearchParams(filters).toString(); // Convert filters object to query string
+    fetch(`${API_PREFIX}/complexes/${complexId}/restaurants?${filterParams}`, {
       headers: addAuthHeader()
     })
       .then((res) => (res.status === 200 ? res.json() : undefined))
       .then((json) => {
-        const restaurantList = json ? json.restaurants_list : [];
-        setRestaurants(restaurantList);
-        setFilteredRestaurants(restaurantList);
+        setRestaurants(json ? json.restaurants_list : []);
       })
       .catch((error) => console.log(error));
-  }, [complexId, API_PREFIX, addAuthHeader]);
+  };
 
   useEffect(() => {
-    filterRestaurants();
-  }, [priceFilter, restaurants]);
-
-  const filterRestaurants = () => {
-    if (priceFilter === "all") {
-      setFilteredRestaurants(restaurants);
-    } else {
-      const filtered = restaurants.filter(
-        (restaurant) => restaurant.price === priceFilter
-      );
-      setFilteredRestaurants(filtered);
-    }
-  };
+    fetchRestaurants();
+  }, [filters, complexId, API_PREFIX, addAuthHeader]); // Re-fetch when filters change
 
   return (
     <div>
@@ -46,9 +34,9 @@ const RestaurantList = ({ API_PREFIX, addAuthHeader }) => {
         <img src={logo} alt="Top Banner" />
       </div>
       <h2>Restaurants</h2>
-      <RestaurantFilter onFilterChange={setPriceFilter} />
+      <RestaurantFilter setFilters={setFilters} />
       <div className="card-container">
-        {filteredRestaurants.map((restaurant, index) => (
+        {restaurants.map((restaurant, index) => (
           <Cards
             key={index}
             image={restaurant.image || campusMarketImage} // Fallback to campusMarketImage

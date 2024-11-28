@@ -65,6 +65,7 @@ const Reviews = ({
         if (restaurantResponse.ok) {
           const data = await restaurantResponse.json();
           setRestaurant(data.restaurant.restaurant);
+          setReviews(data.restaurant.reviews)
         }
       } else {
         const errorText = await response.text();
@@ -91,14 +92,17 @@ const Reviews = ({
         );
         toast.success("Review deleted successfully");
 
-        // Refresh restaurant details to update the average rating
-        const restaurantResponse = await fetch(
-          `${API_PREFIX}/restaurant/${restaurantId}`,
-          { headers: addAuthHeader() }
-        );
-        if (restaurantResponse.ok) {
-          const data = await restaurantResponse.json();
-          setRestaurant(data.restaurant.restaurant);
+        // Only refresh restaurant details if restaurantId is provided
+        if (restaurantId) {
+          const restaurantResponse = await fetch(
+            `${API_PREFIX}/restaurant/${restaurantId}`,
+            { headers: addAuthHeader() }
+          );
+          if (restaurantResponse.ok) {
+            const data = await restaurantResponse.json();
+            setRestaurant(data.restaurant.restaurant);
+            setReviews(data.restaurant.reviews);
+          }
         }
       } else {
         toast.error("Error deleting review");
