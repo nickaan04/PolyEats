@@ -20,7 +20,7 @@ const ComplexList = ({ complexes }) => {
           link={`/complex/${complex._id}`} // Link to each item’s unique page
         />
       ))}
-    </div>
+      </div>
     </div>
   );
 };

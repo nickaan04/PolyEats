@@ -13,7 +13,6 @@ import VerifyEmail from "./VerifyEmail.jsx";
 import ComplexList from "./Components/ComplexList.jsx";
 import RestaurantList from "./Components/Restaurant/RestaurantList.jsx";
 import RestaurantReviews from "./Components/Restaurant/RestaurantReviews.jsx";
-import RestaurantDetails from "./Components/Restaurant/RestaurantDetails.jsx";
 import ImageList from "./Components/Restaurant/ImageList.jsx";
 import BottomNavBar from "./Components/BottomNavBar.jsx";
 import AccountPage from "./Components/AccountPage.jsx";
@@ -168,15 +167,6 @@ function MyApp() {
               path="/restaurant/:id"
               element={
                 <RestaurantReviews
-                  API_PREFIX={API_PREFIX}
-                  addAuthHeader={addAuthHeader}
-                />
-              }
-            />
-            <Route
-              path="/restaurant/:id/details"
-              element={
-                <RestaurantDetails
                   API_PREFIX={API_PREFIX}
                   addAuthHeader={addAuthHeader}
                 />
