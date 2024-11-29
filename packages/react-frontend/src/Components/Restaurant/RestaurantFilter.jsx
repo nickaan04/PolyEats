@@ -29,8 +29,22 @@ const RestaurantFilter = () => {
     }));
   };
 
+  const cleanCheckboxFilters = (checkboxFilters) => {
+    return Object.fromEntries(
+      Object.entries(checkboxFilters).filter(([_, value]) => value) // Only keep keys with `true` values
+    );
+  };
+
   const applyFilters = () => {
-    setFilters(filterValues); // Persist the filters in the context
+    const cleanedFilters = {
+      ...filterValues,
+      accepted_payments: cleanCheckboxFilters(
+        filterValues.accepted_payments
+      ),
+      nutrition_types: cleanCheckboxFilters(filterValues.nutrition_types),
+      hours: cleanCheckboxFilters(filterValues.hours)
+    };
+    setFilters(cleanedFilters); // Persist the cleaned filters in the context
     setShowModal(false);
   };
 
@@ -147,15 +161,7 @@ const RestaurantFilter = () => {
             </Form.Group>
             <Form.Group controlId="filterHours">
               <Form.Label>Days Open</Form.Label>
-              {[
-                "M",
-                "T",
-                "W",
-                "TH",
-                "F",
-                "SAT",
-                "SUN"
-              ].map((day) => (
+              {["M", "T", "W", "TH", "F", "SAT", "SUN"].map((day) => (
                 <Form.Check
                   key={day}
                   type="checkbox"
