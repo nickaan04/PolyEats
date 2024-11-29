@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useFilters } from "./FiltersContext"
 import Cards from "../Cards";
 import RestaurantFilter from "./RestaurantFilter";
 import "../../Styles/App.scss";
@@ -9,7 +10,7 @@ import logo from "../../Assets/logo.png";
 const RestaurantList = ({ API_PREFIX, addAuthHeader }) => {
   const { complexId } = useParams();
   const [restaurants, setRestaurants] = useState([]);
-  const [filters, setFilters] = useState({});
+  const { filters, setFilters } = useFilters();
 
   // Fetch restaurants based on filters
   const fetchRestaurants = () => {
@@ -22,28 +23,18 @@ const RestaurantList = ({ API_PREFIX, addAuthHeader }) => {
     if (filters.price) queryParameters.append("price", filters.price);
     if (filters.cuisine) queryParameters.append("cuisine", filters.cuisine);
     if (filters.delivery) queryParameters.append("delivery", filters.delivery);
-
-    if (
-      filters.accepted_payments &&
-      Object.keys(filters.accepted_payments).length > 0
-    ) {
+    if (filters.accepted_payments)
       queryParameters.append(
         "accepted_payments",
         JSON.stringify(filters.accepted_payments)
       );
-    }
-    if (
-      filters.nutrition_types &&
-      Object.keys(filters.nutrition_types).length > 0
-    ) {
+    if (filters.nutrition_types)
       queryParameters.append(
         "nutrition_types",
         JSON.stringify(filters.nutrition_types)
       );
-    }
-    if (filters.hours && Object.keys(filters.hours).length > 0) {
+    if (filters.hours)
       queryParameters.append("hours", JSON.stringify(filters.hours));
-    }
 
     // Fetch restaurants with new query parameters
     fetch(
@@ -52,17 +43,16 @@ const RestaurantList = ({ API_PREFIX, addAuthHeader }) => {
         headers: addAuthHeader()
       }
     )
-      .then((res) => {
-        if (res.ok) return res.json();
-        throw new Error("Failed to fetch restaurants");
-      })
+      .then((res) =>
+        res.ok ? res.json() : Promise.reject("Failed to fetch restaurants")
+      )
       .then((data) => setRestaurants(data.restaurants_list))
       .catch((error) => console.error(error));
   };
 
   useEffect(() => {
     fetchRestaurants();
-  }, [filters, complexId, API_PREFIX, addAuthHeader]); // Re-fetch when filters change
+  }, [filters, complexId]); // Re-fetch when filters change
 
   return (
     <div>

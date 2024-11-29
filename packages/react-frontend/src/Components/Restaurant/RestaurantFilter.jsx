@@ -1,17 +1,19 @@
 import React, { useState } from "react";
 import { Button, Modal, Form } from "react-bootstrap";
+import { useFilters } from "./FiltersContext"
 
-const RestaurantFilter = ({ setFilters }) => {
+const RestaurantFilter = () => {
+  const { filters, setFilters } = useFilters();
   const [showModal, setShowModal] = useState(false);
   const [filterValues, setFilterValues] = useState({
-    name: "",
-    minRating: "",
-    price: "",
-    cuisine: "",
-    delivery: "",
-    accepted_payments: {},
-    nutrition_types: {},
-    hours: {}
+    name: filters.name || "",
+    minRating: filters.minRating || "",
+    price: filters.price || "",
+    cuisine: filters.cuisine || "",
+    delivery: filters.delivery || false,
+    accepted_payments: filters.accepted_payments || {},
+    nutrition_types: filters.nutrition_types || {},
+    hours: filters.hours || {}
   });
 
   const handleInputChange = (e) => {
@@ -27,14 +29,13 @@ const RestaurantFilter = ({ setFilters }) => {
     }));
   };
 
-const applyFilters = () => {
-  setFilters({}); // Clear any existing filters
-  setTimeout(() => setFilters(filterValues), 0); // Apply new filters after clearing
-  setShowModal(false);
-};
+  const applyFilters = () => {
+    setFilters(filterValues); // Persist the filters in the context
+    setShowModal(false);
+  };
 
   const clearFilters = () => {
-    setFilterValues({
+    const clearedFilters = {
       name: "",
       minRating: "",
       price: "",
@@ -43,8 +44,9 @@ const applyFilters = () => {
       accepted_payments: {},
       nutrition_types: {},
       hours: {}
-    }); // Clear all filter fields
-    setFilters({}); // Reset filters in parent
+    };
+    setFilterValues(clearedFilters);
+    setFilters(clearedFilters);
     setShowModal(false);
   };
 
