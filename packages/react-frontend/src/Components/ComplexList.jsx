@@ -3,7 +3,7 @@ import Cards from "./Cards";
 import campusMarketImage from "../Assets/campus_market.jpg";
 import logo from "../Assets/logo.png";
 import "../Styles/App.scss";
-import { useFilters } from "./Restaurant/FiltersContext"
+import { useFilters } from "./Restaurant/FiltersContext";
 
 const ComplexList = ({ complexes }) => {
   const { setFilters } = useFilters();
@@ -22,7 +22,7 @@ const ComplexList = ({ complexes }) => {
     };
     setFilters(defaultFilters); // Reset filters to default values
   }, [setFilters]);
-  
+
   return (
     <div>
       <div className="top-image">

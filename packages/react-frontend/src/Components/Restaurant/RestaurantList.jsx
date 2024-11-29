@@ -19,7 +19,7 @@ const RestaurantList = ({ API_PREFIX, addAuthHeader }) => {
     // Build query parameters based on active filters
     if (filters.name) queryParameters.append("name", filters.name);
     if (filters.minRating)
-      queryParameters.append("avg_rating", filters.minRating);
+      queryParameters.append("minRating", filters.minRating);
     if (filters.price) queryParameters.append("price", filters.price);
     if (filters.cuisine) queryParameters.append("cuisine", filters.cuisine);
     if (filters.delivery) queryParameters.append("delivery", filters.delivery);

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Button, Modal, Form } from "react-bootstrap";
-import { useFilters } from "./FiltersContext"
+import { useFilters } from "./FiltersContext";
+import "../../Styles/RestaurantFilter.scss";
 
 const RestaurantFilter = () => {
   const { filters, setFilters } = useFilters();
@@ -38,9 +39,7 @@ const RestaurantFilter = () => {
   const applyFilters = () => {
     const cleanedFilters = {
       ...filterValues,
-      accepted_payments: cleanCheckboxFilters(
-        filterValues.accepted_payments
-      ),
+      accepted_payments: cleanCheckboxFilters(filterValues.accepted_payments),
       nutrition_types: cleanCheckboxFilters(filterValues.nutrition_types),
       hours: cleanCheckboxFilters(filterValues.hours)
     };
@@ -71,8 +70,13 @@ const RestaurantFilter = () => {
       </Button>
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
+        <Modal.Header>
           <Modal.Title>Filter Restaurants</Modal.Title>
+          <button
+            className="close-modal-button"
+            onClick={() => setShowModal(false)}>
+            &times; {/* HTML entity for the 'X' symbol */}
+          </button>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -160,7 +164,7 @@ const RestaurantFilter = () => {
               ))}
             </Form.Group>
             <Form.Group controlId="filterHours">
-              <Form.Label>Days Open</Form.Label>
+              <Form.Label>Hours</Form.Label>
               {["M", "T", "W", "TH", "F", "SAT", "SUN"].map((day) => (
                 <Form.Check
                   key={day}
