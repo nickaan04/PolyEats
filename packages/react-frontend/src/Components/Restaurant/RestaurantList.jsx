@@ -9,8 +9,8 @@ import logo from "../../Assets/logo.png";
 
 const RestaurantList = ({ API_PREFIX, addAuthHeader }) => {
   const { complexId } = useParams();
-  const [restaurants, setRestaurants] = useState([]);
   const { filters, setFilters } = useFilters();
+  const [restaurants, setRestaurants] = useState([]);
 
   // Fetch restaurants based on filters
   const fetchRestaurants = () => {
@@ -52,7 +52,7 @@ const RestaurantList = ({ API_PREFIX, addAuthHeader }) => {
 
   useEffect(() => {
     fetchRestaurants();
-  }, [filters, complexId]); // Re-fetch when filters change
+  }, [filters, complexId, API_PREFIX, addAuthHeader]); // Re-fetch when filters change
 
   return (
     <div>
