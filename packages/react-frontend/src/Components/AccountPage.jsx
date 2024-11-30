@@ -9,7 +9,7 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
   const [reviews, setReviews] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showProfilePicOptions, setShowProfilePicOptions] = useState(false);
-  const DEFAULT_PROFILE_PIC = `${API_PREFIX}/uploads/defaultprofilepic.jpeg`;
+  const DEFAULT_PROFILE_PIC = "uploads/defaultprofilepic.jpeg";
 
   useEffect(() => {
     fetch(`${API_PREFIX}/account/details`, {
@@ -101,8 +101,7 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
 
   // Handle profile picture click
   const handleProfilePicClick = () => {
-    const currentProfilePicUrl = `${API_PREFIX}/${account.profile_pic}`;
-    if (currentProfilePicUrl === DEFAULT_PROFILE_PIC) {
+    if (account.profile_pic === DEFAULT_PROFILE_PIC) {
       document.getElementById("profile-pic-upload").click();
     } else {
       setShowProfilePicOptions(true);

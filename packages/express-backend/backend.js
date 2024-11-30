@@ -1,20 +1,14 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import mongoose from "mongoose";
-import complexService from "../express-backend/services/complex-service.js";
-import restaurantService from "../express-backend/services/restaurant-service.js";
-import {
-  authenticateUser,
-  registerUser,
-  loginUser
-} from "../express-backend/auth.js";
-import authRoutes from "../express-backend/auth.js";
-import accountService from "../express-backend/services/account-service.js";
-import reviewService from "../express-backend/services/review-service.js";
-import { upload, convertHeicToJpeg } from "./uploadMiddleware.js";
-
-dotenv.config();
+import multer from "multer";
+import complexService from "./services/complex-service.js";
+import restaurantService from "./services/restaurant-service.js";
+import { authenticateUser, registerUser, loginUser } from "./auth.js";
+import authRoutes from "./auth.js";
+import accountService from "./services/account-service.js";
+import reviewService from "./services/review-service.js";
+import { uploadFileToGCS, deleteFileFromGCS } from "./googleCloudStorage.js";
 
 const { MONGO_CONNECTION_STRING } = process.env;
 
@@ -32,6 +26,10 @@ app.listen(port, () => {
 });
 
 app.use("/uploads", express.static("../uploads"));
+
+// Configure multer storage
+const storage = multer.memoryStorage(); // Store files in memory
+const upload = multer({ storage });
 
 //register auth routes
 app.use("/auth", authRoutes);
@@ -65,48 +63,61 @@ app.delete("/review/:reviewId", authenticateUser, (req, res) => {
 });
 
 //upload or update profile picture
-app.post(
-  "/account/profile-pic",
-  authenticateUser,
-  upload.single("profile_pic"),
-  convertHeicToJpeg,
-  (req, res) => {
-    const userId = req.user._id;
-    const profile_pic = req.file
-      ? `uploads/${req.file.filename}` // Relative path for static serving
-      : "uploads/defaultprofilepic.jpeg";
-
-    accountService
-      .updateProfilePicture(userId, profile_pic)
-      .then((updatedAccount) =>
-        res.status(200).send({
-          message: "Profile picture updated successfully",
-          profile_pic: updatedAccount.profile_pic
-        })
-      )
-      .catch((error) => {
-        console.error("Error updating profile picture:", error);
-        res.status(500).send({ error: "Error updating profile picture" });
-      });
-  }
-);
-
-//delete profile picture
-app.post("/account/profile-pic/remove", authenticateUser, (req, res) => {
+app.post("/account/profile-pic", authenticateUser, upload.single("profile_pic"), async (req, res) => {
   const userId = req.user._id;
 
-  accountService
-    .removeProfilePicture(userId)
-    .then((updatedAccount) =>
-      res.status(200).send({
-        message: "Profile picture removed successfully",
-        profile_pic: updatedAccount.profile_pic
-      })
-    )
-    .catch((error) => {
-      console.error("Error removing profile picture:", error);
-      res.status(500).send({ error: "Error removing profile picture" });
+  if (!req.file) {
+    return res.status(400).send({ error: "No file uploaded" });
+  }
+
+  try {
+    // Upload file to Google Cloud Storage
+    const publicUrl = await uploadFileToGCS(req.file, "profile-pictures");
+
+    // Update the profile picture in the database
+    const updatedAccount = await accountService.updateProfilePicture(
+      userId,
+      publicUrl
+    );
+
+    res.status(200).send({
+      message: "Profile picture updated successfully",
+      profile_pic: updatedAccount.profile_pic,
     });
+  } catch (error) {
+    console.error("Error uploading profile picture:", error);
+    res.status(500).send({ error: "Error uploading profile picture" });
+  }
+});
+
+//delete profile picture
+app.post("/account/profile-pic/remove", authenticateUser, async (req, res) => {
+  const userId = req.user._id;
+
+  try {
+    const account = await accountService.getAccountDetails(userId);
+
+    if (account.profile_pic !== "uploads/defaultprofilepic.jpeg") {
+      // Extract the GCS file path from the URL
+      const filePath = account.profile_pic.split(
+        "https://storage.googleapis.com/"
+      )[1];
+
+      // Delete the file from Google Cloud Storage
+      await deleteFileFromGCS(filePath);
+    }
+
+    // Set the profile picture to the default
+    const updatedAccount = await accountService.removeProfilePicture(userId);
+
+    res.status(200).send({
+      message: "Profile picture removed successfully",
+      profile_pic: updatedAccount.profile_pic
+    });
+  } catch (error) {
+    console.error("Error removing profile picture:", error);
+    res.status(500).send({ error: "Error removing profile picture" });
+  }
 });
 
 //get account details
