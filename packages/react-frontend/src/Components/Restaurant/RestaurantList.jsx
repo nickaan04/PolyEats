@@ -36,6 +36,12 @@ const RestaurantList = ({ API_PREFIX, addAuthHeader }) => {
     if (filters.hours)
       queryParameters.append("hours", JSON.stringify(filters.hours));
 
+    // Add sorting parameters
+    if (filters.sortField)
+      queryParameters.append("sortField", filters.sortField);
+    if (filters.sortOrder)
+      queryParameters.append("sortOrder", filters.sortOrder);
+
     // Fetch restaurants with new query parameters
     fetch(
       `${API_PREFIX}/complexes/${complexId}/restaurants?${queryParameters.toString()}`,

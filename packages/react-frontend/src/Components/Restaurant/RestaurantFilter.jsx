@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Modal, Form } from "react-bootstrap";
+import { Button, Modal, Form, Dropdown } from "react-bootstrap";
 import { useFilters } from "./FiltersContext";
 import "../../Styles/RestaurantFilter.scss";
 
@@ -15,6 +15,11 @@ const RestaurantFilter = () => {
     accepted_payments: filters.accepted_payments || {},
     nutrition_types: filters.nutrition_types || {},
     hours: filters.hours || {}
+  });
+
+  const [sortOptions, setSortOptions] = useState({
+    sortField: filters.sortField || "",
+    sortOrder: filters.sortOrder || ""
   });
 
   const handleInputChange = (e) => {
@@ -41,7 +46,8 @@ const RestaurantFilter = () => {
       ...filterValues,
       accepted_payments: cleanCheckboxFilters(filterValues.accepted_payments),
       nutrition_types: cleanCheckboxFilters(filterValues.nutrition_types),
-      hours: cleanCheckboxFilters(filterValues.hours)
+      hours: cleanCheckboxFilters(filterValues.hours),
+      ...sortOptions //include sort options in final filters
     };
     setFilters(cleanedFilters); // Persist the cleaned filters in the context
     setShowModal(false);
@@ -56,18 +62,60 @@ const RestaurantFilter = () => {
       delivery: "",
       accepted_payments: {},
       nutrition_types: {},
-      hours: {}
+      hours: {},
+      sortField: "",
+      sortOrder: ""
     };
     setFilterValues(clearedFilters);
+    setSortOptions({ sortField: "", sortOrder: "" });
     setFilters(clearedFilters);
     setShowModal(false);
   };
 
+  // Handle sort selection
+  const handleSortChange = (field, order) => {
+    setSortOptions({ sortField: field, sortOrder: order });
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      sortField: field,
+      sortOrder: order
+    }));
+  };
+
   return (
     <>
-      <Button variant="primary" onClick={() => setShowModal(true)}>
-        Filter
-      </Button>
+      <div className="filter-sort-buttons">
+        <Button variant="primary" onClick={() => setShowModal(true)}>
+          Filter
+        </Button>
+        <Dropdown>
+          <Dropdown.Toggle variant="secondary" id="dropdown-sort">
+            Sort
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <Dropdown.Item onClick={() => handleSortChange("name", "asc")}>
+              Name, A-Z
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => handleSortChange("name", "desc")}>
+              Name, Z-A
+            </Dropdown.Item>
+            <Dropdown.Item
+              onClick={() => handleSortChange("avg_rating", "desc")}>
+              Rating, High to Low
+            </Dropdown.Item>
+            <Dropdown.Item
+              onClick={() => handleSortChange("avg_rating", "asc")}>
+              Rating, Low to High
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => handleSortChange("price", "asc")}>
+              Price, Low to High
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => handleSortChange("price", "desc")}>
+              Price, High to Low
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+      </div>
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header>

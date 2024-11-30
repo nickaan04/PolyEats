@@ -14,7 +14,17 @@
     justify-content: center;
     cursor: pointer;
 
-&:hover {
-    background-color: #c82333;
+    &:hover {
+        background-color: #c82333;
+    }
 }
+
+.filter-sort-buttons {
+    display: flex;
+    gap: 10px; /* Adds spacing between the buttons */
+    margin-bottom: 20px; /* Adds spacing below the buttons */
+}
+
+.filter-sort-buttons .btn {
+    text-align: center; /* Centers the text */
 }
