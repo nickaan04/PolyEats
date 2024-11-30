@@ -89,6 +89,18 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
           ...prevAccount,
           profile_pic: data.profile_pic
         }));
+
+        // Update reviews with the default profile picture
+        setReviews((prevReviews) =>
+          prevReviews.map((review) => ({
+            ...review,
+            author: {
+              ...review.author,
+              profile_pic: data.profile_pic
+            }
+          }))
+        );
+
         toast.success("Profile picture removed successfully");
         setShowProfilePicOptions(false);
       } else {
@@ -131,8 +143,10 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
   return (
     <div>
       <h1>Account</h1>
-      {!account ? (<p>Loading account details...</p>) :  // Display this while loading
-        (<div className="account-page">
+      {!account ? (
+        <p>Loading account details...</p> // Display this while loading
+      ) : (
+        <div className="account-page">
           <div className="account-header">
             <img
               src={`${account.profile_pic}`}
@@ -195,11 +209,14 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
               <div className="modal-content">
                 <p>Are you sure you want to delete your account?</p>
                 <button onClick={deleteAccount}>Yes, Delete</button>
-                <button onClick={() => setShowDeleteModal(false)}>Cancel</button>
+                <button onClick={() => setShowDeleteModal(false)}>
+                  Cancel
+                </button>
               </div>
             </div>
           )}
-        </div>)}
+        </div>
+      )}
     </div>
   );
 };

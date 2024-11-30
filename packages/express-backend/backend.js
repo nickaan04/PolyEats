@@ -63,32 +63,37 @@ app.delete("/review/:reviewId", authenticateUser, (req, res) => {
 });
 
 //upload or update profile picture
-app.post("/account/profile-pic", authenticateUser, upload.single("profile_pic"), async (req, res) => {
-  const userId = req.user._id;
+app.post(
+  "/account/profile-pic",
+  authenticateUser,
+  upload.single("profile_pic"),
+  async (req, res) => {
+    const userId = req.user._id;
 
-  if (!req.file) {
-    return res.status(400).send({ error: "No file uploaded" });
+    if (!req.file) {
+      return res.status(400).send({ error: "No file uploaded" });
+    }
+
+    try {
+      // Upload file to Google Cloud Storage
+      const publicUrl = await uploadFileToGCS(req.file, "profile-pictures");
+
+      // Update the profile picture in the database
+      const updatedAccount = await accountService.updateProfilePicture(
+        userId,
+        publicUrl
+      );
+
+      res.status(200).send({
+        message: "Profile picture updated successfully",
+        profile_pic: updatedAccount.profile_pic
+      });
+    } catch (error) {
+      console.error("Error uploading profile picture:", error);
+      res.status(500).send({ error: "Error uploading profile picture" });
+    }
   }
-
-  try {
-    // Upload file to Google Cloud Storage
-    const publicUrl = await uploadFileToGCS(req.file, "profile-pictures");
-
-    // Update the profile picture in the database
-    const updatedAccount = await accountService.updateProfilePicture(
-      userId,
-      publicUrl
-    );
-
-    res.status(200).send({
-      message: "Profile picture updated successfully",
-      profile_pic: updatedAccount.profile_pic,
-    });
-  } catch (error) {
-    console.error("Error uploading profile picture:", error);
-    res.status(500).send({ error: "Error uploading profile picture" });
-  }
-});
+);
 
 //delete profile picture
 app.post("/account/profile-pic/remove", authenticateUser, async (req, res) => {
@@ -103,7 +108,7 @@ app.post("/account/profile-pic/remove", authenticateUser, async (req, res) => {
     ) {
       // Extract the GCS file path from the URL
       const filePath = account.profile_pic.split(
-        "https://storage.googleapis.com/"
+        "https://storage.googleapis.com/polyeats/"
       )[1];
 
       // Delete the file from Google Cloud Storage

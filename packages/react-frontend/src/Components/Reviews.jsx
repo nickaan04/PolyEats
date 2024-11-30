@@ -66,7 +66,7 @@ const Reviews = ({
         if (restaurantResponse.ok) {
           const data = await restaurantResponse.json();
           setRestaurant(data.restaurant.restaurant);
-          setReviews(data.restaurant.reviews)
+          setReviews(data.restaurant.reviews);
         }
       } else {
         const errorText = await response.text();

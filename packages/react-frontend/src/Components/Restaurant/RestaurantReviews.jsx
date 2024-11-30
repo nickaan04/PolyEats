@@ -35,7 +35,7 @@ function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
         setLoggedInUserId(data.account._id);
       })
       .catch((error) => console.error("Error fetching user details:", error));
-    
+
     // Check if restaurant is in favorites
     fetch(`${API_PREFIX}/account/favorites`, {
       headers: addAuthHeader()

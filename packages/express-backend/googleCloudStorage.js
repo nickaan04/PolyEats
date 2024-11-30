@@ -34,6 +34,7 @@ export const uploadFileToGCS = async (file, destinationFolder) => {
 // Delete file from Google Cloud Storage
 export const deleteFileFromGCS = async (filePath) => {
   try {
+    console.log(filePath);
     await bucket.file(filePath).delete();
   } catch (err) {
     console.error(`Failed to delete file from GCS: ${err.message}`);
