@@ -8,7 +8,6 @@ import { authenticateUser, registerUser, loginUser } from "./auth.js";
 import authRoutes from "./auth.js";
 import accountService from "./services/account-service.js";
 import reviewService from "./services/review-service.js";
-import { uploadFileToGCS, deleteFileFromGCS } from "./googleCloudStorage.js";
 
 const { MONGO_CONNECTION_STRING } = process.env;
 
@@ -38,29 +37,49 @@ app.post("/signup", registerUser);
 app.post("/login", loginUser);
 
 //post a review for a specific restaurant
-app.post("/review", authenticateUser, (req, res) => {
-  const reviewData = {
-    ...req.body,
-    author: req.user._id
-  };
+app.post(
+  "/review",
+  authenticateUser,
+  upload.array("pictures", 10), // Accept up to 10 images
+  async (req, res) => {
+    try {
+      const { item, review, rating, restaurant } = req.body;
+      const userId = req.user._id;
 
-  reviewService
-    .postReview(reviewData)
-    .then((review) => res.status(201).send(review))
-    .catch((error) => res.status(500).send({ error: "Error posting review" }));
-});
+      // Use helper function to handle review creation and picture uploads
+      const newReview = await reviewService.postReview({
+        item,
+        review,
+        rating,
+        restaurant,
+        author: userId,
+        pictures: req.files // Pass the files directly to the helper
+      });
+
+      res.status(201).send(newReview);
+    } catch (error) {
+      console.error("Error posting review:", error);
+      res.status(500).send({ error: "Error posting review" });
+    }
+  }
+);
 
 //delete a review
-app.delete("/review/:reviewId", authenticateUser, (req, res) => {
+app.delete("/review/:reviewId", authenticateUser, async (req, res) => {
   const { reviewId } = req.params;
+  const userId = req.user._id;
 
-  reviewService
-    .deleteReview(reviewId, req.user._id)
-    .then(() =>
-      res.status(200).send({ message: "Review deleted successfully" })
-    )
-    .catch((error) => res.status(500).send({ error: "Error deleting review" }));
+  try {
+    // Use helper function to handle review deletion and picture cleanup
+    await reviewService.deleteReview(reviewId, userId);
+
+    res.status(200).send({ message: "Review and associated pictures deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting review:", error);
+    res.status(500).send({ error: "Error deleting review" });
+  }
 });
+
 
 //upload or update profile picture
 app.post(
@@ -75,13 +94,10 @@ app.post(
     }
 
     try {
-      // Upload file to Google Cloud Storage
-      const publicUrl = await uploadFileToGCS(req.file, "profile-pictures");
-
-      // Update the profile picture in the database
+      // Use the helper function to handle the profile picture update
       const updatedAccount = await accountService.updateProfilePicture(
         userId,
-        publicUrl
+        req.file
       );
 
       res.status(200).send({
@@ -89,8 +105,8 @@ app.post(
         profile_pic: updatedAccount.profile_pic
       });
     } catch (error) {
-      console.error("Error uploading profile picture:", error);
-      res.status(500).send({ error: "Error uploading profile picture" });
+      console.error("Error updating profile picture:", error);
+      res.status(500).send({ error: "Error updating profile picture" });
     }
   }
 );
@@ -100,22 +116,7 @@ app.post("/account/profile-pic/remove", authenticateUser, async (req, res) => {
   const userId = req.user._id;
 
   try {
-    const account = await accountService.getAccountDetails(userId);
-
-    if (
-      account.profile_pic !==
-      "https://storage.googleapis.com/polyeats/profile-pictures/defaultprofilepic.jpeg"
-    ) {
-      // Extract the GCS file path from the URL
-      const filePath = account.profile_pic.split(
-        "https://storage.googleapis.com/polyeats/"
-      )[1];
-
-      // Delete the file from Google Cloud Storage
-      await deleteFileFromGCS(filePath);
-    }
-
-    // Set the profile picture to the default
+    // Use the helper function to handle profile picture removal
     const updatedAccount = await accountService.removeProfilePicture(userId);
 
     res.status(200).send({

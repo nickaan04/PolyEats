@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import "../../Styles/RestaurantReviews.scss";
 import Reviews from "../Reviews";
 import "../../Styles/Reviews.scss";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ImageList from "./ImageList";
 
 function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
   const { id } = useParams(); // Get restaurant ID from URL
-  const [restaurant, setRestaurant] = useState([]); // Restaurant object
+  const [restaurant, setRestaurant] = useState(null); // Restaurant object
   const [isFavorite, setIsFavorite] = useState(false);
   const [reviews, setReviews] = useState([]); // Reviews array
   const [showOverlay, setShowOverlay] = useState(false); // State to toggle overlay visibility
   const [overlayContent, setOverlayContent] = useState(null); // State to hold dynamic content for overlay
   const [loggedInUserId, setLoggedInUserId] = useState(null);
+  const [showImageList, setShowImageList] = useState(false);
+  const [reviewImages, setReviewImages] = useState([]);
 
   useEffect(() => {
     fetch(`${API_PREFIX}/restaurant/${id}`, {
@@ -23,6 +26,12 @@ function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
       .then((json) => {
         setRestaurant(json.restaurant.restaurant);
         setReviews(json.restaurant.reviews);
+
+        // Extract all images from reviews
+        const allImages = json.restaurant.reviews.flatMap(
+          (review) => review.pictures || []
+        );
+        setReviewImages(allImages); // Set pooled images
       })
       .catch((error) => console.error("Error fetching restaurant:", error));
 
@@ -49,6 +58,12 @@ function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
         console.error("Error fetching favorite restaurants:", error)
       );
   }, [API_PREFIX, addAuthHeader, id]);
+
+  // Synchronize reviewImages with updated reviews
+  useEffect(() => {
+    const updatedImages = reviews.flatMap((review) => review.pictures || []);
+    setReviewImages(updatedImages);
+  }, [reviews]);
 
   // Add or remove restaurant from favorites
   const toggleFavorite = async () => {
@@ -103,11 +118,12 @@ function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
               {"☆".repeat(5 - Math.floor(restaurant.avg_rating))}
             </div>
           </div>
-          <Link
-            to={`/restaurant/${id}/images`}
-            className="btn btn-primary see-images-button">
+          <button
+            className="btn btn-primary see-images-button"
+            onClick={() => setShowImageList(true)} // Show ImageList when clicked
+          >
             See Photos
-          </Link>
+          </button>
         </div>
       </div>
       <div className="image-container">
@@ -180,6 +196,13 @@ function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
         setRestaurant={setRestaurant} // Pass down to update the rating
         loggedInUserId={loggedInUserId}
       />
+
+      {showImageList && (
+        <ImageList
+          photos={reviewImages}
+          onClose={() => setShowImageList(false)} // Close ImageList
+        />
+      )}
     </div>
   );
 }
