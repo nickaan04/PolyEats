@@ -180,6 +180,7 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
             API_PREFIX={API_PREFIX}
             editable={false}
             addAuthHeader={addAuthHeader}
+            loggedInUserId={account._id}
           />
 
           <div className="account-actions">

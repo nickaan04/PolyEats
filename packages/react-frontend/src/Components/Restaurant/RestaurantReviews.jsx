@@ -13,6 +13,7 @@ function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
   const [reviews, setReviews] = useState([]); // Reviews array
   const [showOverlay, setShowOverlay] = useState(false); // State to toggle overlay visibility
   const [overlayContent, setOverlayContent] = useState(null); // State to hold dynamic content for overlay
+  const [loggedInUserId, setLoggedInUserId] = useState(null);
 
   useEffect(() => {
     fetch(`${API_PREFIX}/restaurant/${id}`, {
@@ -25,6 +26,16 @@ function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
       })
       .catch((error) => console.error("Error fetching restaurant:", error));
 
+    // Fetch logged-in user ID
+    fetch(`${API_PREFIX}/account/details`, {
+      headers: addAuthHeader()
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setLoggedInUserId(data.account._id);
+      })
+      .catch((error) => console.error("Error fetching user details:", error));
+    
     // Check if restaurant is in favorites
     fetch(`${API_PREFIX}/account/favorites`, {
       headers: addAuthHeader()
@@ -167,6 +178,7 @@ function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
         restaurantId={id} // Pass the restaurant ID
         addAuthHeader={addAuthHeader}
         setRestaurant={setRestaurant} // Pass down to update the rating
+        loggedInUserId={loggedInUserId}
       />
     </div>
   );

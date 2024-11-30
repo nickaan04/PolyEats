@@ -11,7 +11,8 @@ const Reviews = ({
   editable = false, // Optional: Allow adding reviews only where necessary
   restaurantId = null, // Optional: Only needed if creating new reviews
   addAuthHeader,
-  setRestaurant
+  setRestaurant,
+  loggedInUserId
 }) => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewData, setReviewData] = useState({
@@ -131,14 +132,16 @@ const Reviews = ({
             key={review._id}
             className="review-card"
             onClick={() => navigate(`/restaurant/${review.restaurant}`)}>
-            <button
-              className="delete-review-button"
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent navigating when clicking the delete button
-                handleDeleteReview(review._id);
-              }}>
-              &times; {/* HTML entity for the 'X' symbol */}
-            </button>
+            {review.author._id === loggedInUserId && (
+              <button
+                className="delete-review-button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteReview(review._id);
+                }}>
+                &times;
+              </button>
+            )}
             <div className="header">
               <img
                 src={`${API_PREFIX}/${review.author?.profile_pic}`}
