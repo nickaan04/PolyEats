@@ -97,7 +97,10 @@ app.post("/account/profile-pic/remove", authenticateUser, async (req, res) => {
   try {
     const account = await accountService.getAccountDetails(userId);
 
-    if (account.profile_pic !== "uploads/defaultprofilepic.jpeg") {
+    if (
+      account.profile_pic !==
+      "https://storage.googleapis.com/polyeats/profile-pictures/defaultprofilepic.jpeg"
+    ) {
       // Extract the GCS file path from the URL
       const filePath = account.profile_pic.split(
         "https://storage.googleapis.com/"

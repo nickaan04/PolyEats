@@ -9,7 +9,8 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
   const [reviews, setReviews] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showProfilePicOptions, setShowProfilePicOptions] = useState(false);
-  const DEFAULT_PROFILE_PIC = "uploads/defaultprofilepic.jpeg";
+  const DEFAULT_PROFILE_PIC =
+    "https://storage.googleapis.com/polyeats/profile-pictures/defaultprofilepic.jpeg";
 
   useEffect(() => {
     fetch(`${API_PREFIX}/account/details`, {
@@ -134,7 +135,7 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
         (<div className="account-page">
           <div className="account-header">
             <img
-              src={`${API_PREFIX}/${account.profile_pic}`}
+              src={`${account.profile_pic}`}
               alt="Profile"
               className="profile-pic"
               onClick={handleProfilePicClick}

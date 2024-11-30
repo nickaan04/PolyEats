@@ -29,7 +29,8 @@ async function removeProfilePicture(accountId) {
   }
 
   //replace with your actual path to the default profile picture
-  const DEFAULT_PROFILE_PIC = "uploads/defaultprofilepic.jpeg";
+  const DEFAULT_PROFILE_PIC =
+    "https://storage.googleapis.com/polyeats/profile-pictures/defaultprofilepic.jpeg";
 
   account.profile_pic = DEFAULT_PROFILE_PIC;
   await account.save();

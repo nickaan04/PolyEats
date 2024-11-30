@@ -144,7 +144,7 @@ const Reviews = ({
             )}
             <div className="header">
               <img
-                src={`${API_PREFIX}/${review.author?.profile_pic}`}
+                src={`${review.author?.profile_pic}`}
                 alt="Author"
                 className="review-author-pic"
               />
