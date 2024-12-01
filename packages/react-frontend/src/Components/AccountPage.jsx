@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Reviews from "./Reviews";
 import "react-toastify/dist/ReactToastify.css";
@@ -9,6 +10,7 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
   const [reviews, setReviews] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showProfilePicOptions, setShowProfilePicOptions] = useState(false);
+  const navigate = useNavigate();
   const DEFAULT_PROFILE_PIC =
     "https://storage.googleapis.com/polyeats/profile-pictures/defaultprofilepic.jpeg";
 
@@ -121,6 +123,10 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
     }
   };
 
+  const handleLogout = (bool = true) => {
+    logoutUser(bool, () => navigate("/")); // Pass a callback to navigate
+  };
+
   // Handle account deletion
   const deleteAccount = async () => {
     try {
@@ -130,7 +136,7 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
       });
       if (response.ok) {
         toast.success("Account deleted successfully");
-        logoutUser(false); // Log the user out
+        handleLogout(false); // Log the user out
       } else {
         toast.error("Error deleting account");
       }
@@ -198,7 +204,7 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
           />
 
           <div className="account-actions">
-            <button onClick={logoutUser}>Sign Out</button>
+            <button onClick={handleLogout}>Sign Out</button>
             <button onClick={() => setShowDeleteModal(true)}>
               Delete Account
             </button>

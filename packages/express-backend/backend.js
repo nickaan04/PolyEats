@@ -33,6 +33,10 @@ const upload = multer({ storage });
 //register auth routes
 app.use("/auth", authRoutes);
 
+app.get("/", (req, res) => {
+  res.status(200).send({ message: "Welcome to PolyEats!" });
+});
+
 app.post("/signup", registerUser);
 app.post("/login", loginUser);
 
