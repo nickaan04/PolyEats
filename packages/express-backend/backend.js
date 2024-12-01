@@ -204,7 +204,7 @@ app.delete("/account/delete", authenticateUser, (req, res) => {
 });
 
 //get list of complexes
-app.get("/complexes", (req, res) => {
+app.get("/complexes", authenticateUser, (req, res) => {
   const name = req.query.name;
 
   complexService
@@ -218,7 +218,7 @@ app.get("/complexes", (req, res) => {
 });
 
 //get all restaurants within a specific complex (with filters/sorting if desired)
-app.get("/complexes/:complexId/restaurants", (req, res) => {
+app.get("/complexes/:complexId/restaurants", authenticateUser, (req, res) => {
   const complexId = req.params.complexId;
   const {
     name,
@@ -304,7 +304,7 @@ app.get("/complexes/:complexId/restaurants", (req, res) => {
   */
 
 //get specific restaurant information by id (with reviews)
-app.get("/restaurant/:id", (req, res) => {
+app.get("/restaurant/:id", authenticateUser, (req, res) => {
   const restaurantId = req.params.id;
 
   restaurantService
