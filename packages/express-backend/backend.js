@@ -15,6 +15,18 @@ mongoose.set("debug", true);
 mongoose.connect(MONGO_CONNECTION_STRING).catch((error) => console.log(error));
 
 const app = express();
+app.use(
+  cors({
+    origin: "https://ashy-beach-00ce8fa1e.4.azurestaticapps.net",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Accept",
+      "X-Requested-With"
+    ]
+  })
+);
 
 app.use("*", cors());
 app.use(express.json());
