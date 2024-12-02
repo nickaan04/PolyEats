@@ -49,6 +49,7 @@ const RestaurantFilter = () => {
 
   const cleanCheckboxFilters = (checkboxFilters) => {
     return Object.fromEntries(
+      // eslint-disable-next-line no-unused-vars
       Object.entries(checkboxFilters).filter(([key, value]) => value) // Only keep keys with `true` values
     );
   };

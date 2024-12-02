@@ -107,7 +107,7 @@ function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
     return <p>Loading restaurant details...</p>;
   }
 
-  const handleOverlayToggle = (content) => {
+  const handleOverlayToggle = () => {
     setShowOverlay(!showOverlay); // Toggle overlay visibility
   };
 
