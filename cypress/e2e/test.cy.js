@@ -78,34 +78,20 @@ describe('Full App End-to-End Test', () => {
     cy.wait(2000);
 
     // Step 6: Click Filter and Apply Filter Settings
-    cy.get('button.btn.btn-primary') // Locate the "Filter" button
-      .contains('Filter')
-      .should('be.visible')
-      .click();
+    cy.get('button.btn.btn-primary').contains('Filter').should('be.visible').click();
     cy.wait(2000);
 
-    // Fill in the filter popup fields
-
-    // Step: Fill in the Minimum Rating field
-    cy.get('#filterRating') // Use the `id` attribute to locate the input
-      .clear() // Clear the existing value
-      .type('1'); // Enter the desired rating
+    cy.get('#filterRating').clear().type('1');
     cy.wait(2000);
-
     cy.get('select[name="price"]').select('All');
     cy.wait(2000);
     cy.get('input[name="cuisine"]').type('Fast Food');
     cy.wait(2000);
-
     cy.get('input[name="delivery"]').check();
     cy.get('input[name="PolyCard"]').check();
     cy.get('input[name="Vegan"]').check();
     cy.get('input[name="M"]').check();
-
-    // Apply Filters
-    cy.contains('button', 'Apply Filters')
-      .should('be.visible')
-      .click();
+    cy.contains('button', 'Apply Filters').should('be.visible').click();
     cy.wait(2000);
 
     // Step 7: Navigate to a Restaurant's Reviews Page
@@ -115,98 +101,91 @@ describe('Full App End-to-End Test', () => {
     cy.wait(2000);
 
     // Step 8: Check Details and Close
-    cy.get('.toggle-overlay-button')
-      .should('be.visible')
-      .click();
+    cy.get('.toggle-overlay-button').should('be.visible').click();
     cy.wait(2000);
-
-    cy.get('.close-overlay-button')
-      .should('be.visible')
-      .click();
+    cy.get('.close-overlay-button').should('be.visible').click();
     cy.wait(2000);
 
     // Step 9: Add to Favorites
-    cy.get('.bookmark')
-      .should('be.visible')
-      .click();
+    cy.get('.bookmark').should('be.visible').click();
     cy.wait(3000);
-
     cy.contains('Restaurant added to favorites').should('be.visible');
     cy.wait(300);
 
     // Add a review
-    cy.contains('Add Review')
-      .should('be.visible')
-      .click();
+    cy.contains('Add Review').should('be.visible').click();
     cy.wait(2000);
-
-    // Fill out the review form
     cy.get('input[name="item"]').type('Beef and Broccoli');
     cy.wait(2000);
-
     cy.get('textarea[name="review"]').type('This is a great restaurant!');
     cy.wait(2000);
-
     cy.get('input[name="rating"]').type('5');
     cy.wait(2000);
-
-    // Upload an image
-    const imagePath = 'Orangechicken.jpg'; // Ensure this file is located in the "cypress/fixtures" folder
+    const imagePath = 'Orangechicken.jpg'; // File located in "cypress/fixtures"
     cy.get('input[type="file"]').attachFile(imagePath);
     cy.wait(2000);
-    
-    // Submit the review
-    cy.get('button[type="submit"]').contains('Submit Review')
-      .should('be.visible')
-      .click();
-
+    cy.get('button[type="submit"]').contains('Submit Review').should('be.visible').click();
     cy.contains('Beef and Broccoli').should('be.visible');
     cy.wait(2000);
 
     // Delete a review
-    cy.contains('Beef and Broccoli')
-      .parents('.review-card')
-      .within(() => {
-        cy.get('button.delete-review-button')
-          .should('exist')
-          .should('be.visible')
-          .click();
-      });
+    cy.contains('Beef and Broccoli').parents('.review-card').within(() => {
+      cy.get('button.delete-review-button').should('exist').should('be.visible').click();
+    });
     cy.wait(2000);
-
     cy.contains('Beef and Broccoli').should('not.exist');
     cy.wait(2000);
 
     // Step 10: Verify Favorites Page
-    cy.contains('a', 'Favorites')
-      .should('be.visible')
-      .click();
+    cy.contains('a', 'Favorites').should('be.visible').click();
     cy.wait(2000);
-
-    cy.contains('.card', 'Panda Express')
-      .should('be.visible')
-      .within(() => {
-        cy.get('button.btn.btn-danger')
-          .should('be.visible')
-          .click();
-      });
+    cy.contains('.card', 'Panda Express').should('be.visible').within(() => {
+      cy.get('button.btn.btn-danger').should('be.visible').click();
+    });
     cy.wait(2000);
-
     cy.contains('.card', 'Panda Express').should('not.exist');
     cy.wait(2000);
 
     // Step 11: Verify Account Page
-    cy.contains('a', 'Account')
-      .should('be.visible')
-      .click();
+    cy.contains('a', 'Account').should('be.visible').click();
+    cy.wait(2000);
+
+    // Step 11.5: Change Profile Picture
+    const profileImagePath = 'hanjosi-fragment3.jpg'; // File located in "cypress/fixtures"
+    cy.get('input#profile-pic-upload').should('exist').attachFile(profileImagePath);
     cy.wait(2000);
 
     // Step 12: Log Out
-    cy.contains('button', 'Sign Out')
-      .should('be.visible')
-      .click();
+    cy.contains('button', 'Sign Out').should('be.visible').click();
+    cy.wait(2000);
+    cy.url().should('include', '/');
+
+    // Step 13: Log Back In
+    cy.visit('/login');
+    cy.wait(2000);
+    cy.get('#calpoly_email').type(testUser.email);
+    cy.wait(2000);
+    cy.get('#password').type(testUser.password);
+    cy.wait(2000);
+    cy.get('input[type="button"][value="Log In"]').click();
+    cy.wait(2000);
+    cy.contains('a', 'Account').should('be.visible').click();
     cy.wait(2000);
 
-    cy.url().should('include', '/');
+    // Step 14: Delete Account
+    cy.contains('button', 'Delete Account').should('be.visible').click();
+    cy.wait(2000);
+    cy.contains('button', 'Yes, Delete').should('be.visible').click();
+    cy.wait(2000);
+
+    // Step 15: Verify Account Deletion
+    cy.visit('/login');
+    cy.wait(2000);
+    cy.get('#calpoly_email').type(testUser.email);
+    cy.wait(2000);
+    cy.get('#password').type(testUser.password);
+    cy.wait(2000);
+    cy.get('input[type="button"][value="Log In"]').click();
+    cy.contains('User does not exist').should('be.visible');
   });
 });
