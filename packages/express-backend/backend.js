@@ -19,7 +19,7 @@ const app = express();
 app.use("*", cors());
 app.use(express.json());
 
-app.listen(process.env.PORT || port, () => {
+app.listen(process.env.PORT, () => {
   console.log("REST API is listening.");
 });
 
