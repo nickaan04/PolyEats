@@ -7,6 +7,18 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ImageList from "./ImageList";
 
+const LABEL_MAP = {
+  CreditDebit: "Credit/Debit",
+  GlutenFree: "Gluten-Free",
+  M: "Monday",
+  T: "Tuesday",
+  W: "Wednesday",
+  TH: "Thursday",
+  F: "Friday",
+  SAT: "Saturday",
+  SUN: "Sunday"
+};
+
 function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
   const { id } = useParams(); // Get restaurant ID from URL
   const [restaurant, setRestaurant] = useState(null); // Restaurant object
@@ -101,6 +113,8 @@ function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
     setShowOverlay(!showOverlay); // Toggle overlay visibility
   };
 
+  const mapLabel = (key) => LABEL_MAP[key] || key;
+
   return (
     <div>
       <div className="restaurant-top-banner">
@@ -133,11 +147,15 @@ function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
             <div className="overlay-content">
               <p>
                 <strong>Accepted Payments: </strong>
-                {Object.keys(restaurant.accepted_payments).join(", ")}
+                {Object.keys(restaurant.accepted_payments)
+                  .map(mapLabel)
+                  .join(", ")}
               </p>
               <p>
                 <strong>Nutrition Types: </strong>
-                {Object.keys(restaurant.nutrition_types).join(", ")}
+                {Object.keys(restaurant.nutrition_types)
+                  .map(mapLabel)
+                  .join(", ")}
               </p>
               <p>
                 <strong>Delivery: </strong>
@@ -145,15 +163,15 @@ function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
               </p>
               <div className="hours">
                 <h2>Hours</h2>
-                <ul>
+                <div>
                   {Object.entries(restaurant.hours).map(
                     ([day, hours], index) => (
-                      <li key={index}>
-                        <strong>{day}</strong>: {hours}
-                      </li>
+                      <div key={index}>
+                        <strong>{mapLabel(day)}:</strong> {hours}
+                      </div>
                     )
                   )}
-                </ul>
+                </div>
               </div>
 
               <button
