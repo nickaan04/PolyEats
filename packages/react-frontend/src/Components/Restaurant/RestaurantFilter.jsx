@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button, Modal, Form, Dropdown } from "react-bootstrap";
 import { useFilters } from "./FiltersContext";
 import "../../Styles/RestaurantFilter.scss";

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { Card, Row, Col } from "react-bootstrap";
 import "../../Styles/ImageList.scss";
 

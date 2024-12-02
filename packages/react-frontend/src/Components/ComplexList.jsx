@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import Cards from "./Cards";
 import campusMarketImage from "../Assets/campus_market.jpg";
 import logo from "../Assets/logo.png";

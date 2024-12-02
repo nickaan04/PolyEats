@@ -1,4 +1,3 @@
-import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import "../Styles/BottomNavBar.scss";
 
@@ -7,7 +6,9 @@ const BottomNavBar = () => {
 
   return (
     <div className="bottom-nav">
-      <Link to="/complexes" className={location.pathname === "/complexes" ? "active" : ""}>
+      <Link
+        to="/complexes"
+        className={location.pathname === "/complexes" ? "active" : ""}>
         Home
       </Link>
       <Link

@@ -77,13 +77,14 @@ app.delete("/review/:reviewId", authenticateUser, async (req, res) => {
     // Use helper function to handle review deletion and picture cleanup
     await reviewService.deleteReview(reviewId, userId);
 
-    res.status(200).send({ message: "Review and associated pictures deleted successfully" });
+    res
+      .status(200)
+      .send({ message: "Review and associated pictures deleted successfully" });
   } catch (error) {
     console.error("Error deleting review:", error);
     res.status(500).send({ error: "Error deleting review" });
   }
 });
-
 
 //upload or update profile picture
 app.post(
