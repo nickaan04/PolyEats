@@ -50,12 +50,10 @@ const RestaurantSchema = new mongoose.Schema(
       enum: ["$", "$$", "$$$"],
       default: "$$"
     },
-    reviews: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Review"
-      }
-    ]
+    image: {
+      type: String,
+      trim: true
+    }
   },
   { collection: "restaurants" }
 );

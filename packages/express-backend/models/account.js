@@ -2,7 +2,12 @@ import mongoose from "mongoose";
 
 const AccountSchema = new mongoose.Schema(
   {
-    name: {
+    firstname: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    lastname: {
       type: String,
       required: true,
       trim: true
@@ -18,18 +23,26 @@ const AccountSchema = new mongoose.Schema(
       required: true,
       trim: true
     },
+    isVerified: {
+      type: Boolean,
+      default: false
+    },
+    profile_pic: {
+      type: String,
+      trim: true,
+      default:
+        "https://storage.googleapis.com/polyeats/profile-pictures/defaultprofilepic.jpeg"
+    },
     favorites: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Restaurant"
       }
     ],
-    reviews_given: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Review"
-      }
-    ]
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
   },
   { collection: "accounts" }
 );

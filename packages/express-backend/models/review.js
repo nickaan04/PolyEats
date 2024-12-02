@@ -18,10 +18,24 @@ const ReviewSchema = new mongoose.Schema(
     },
     pictures: [
       {
-        data: Buffer, //binary in MongoDB
-        contentType: String
+        type: String,
+        trim: true
       }
-    ]
+    ],
+    date: {
+      type: Date,
+      default: Date.now
+    },
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Account",
+      required: true
+    },
+    restaurant: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Restaurant",
+      required: true
+    }
   },
   { collection: "reviews" }
 );
