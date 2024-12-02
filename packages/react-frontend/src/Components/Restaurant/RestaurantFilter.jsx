@@ -49,7 +49,7 @@ const RestaurantFilter = () => {
 
   const cleanCheckboxFilters = (checkboxFilters) => {
     return Object.fromEntries(
-      Object.entries(checkboxFilters).filter(([_, value]) => value) // Only keep keys with `true` values
+      Object.entries(checkboxFilters).filter(([key, value]) => value) // Only keep keys with `true` values
     );
   };
 

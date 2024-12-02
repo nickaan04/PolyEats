@@ -25,7 +25,6 @@ function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [reviews, setReviews] = useState([]); // Reviews array
   const [showOverlay, setShowOverlay] = useState(false); // State to toggle overlay visibility
-  const [overlayContent, setOverlayContent] = useState(null); // State to hold dynamic content for overlay
   const [loggedInUserId, setLoggedInUserId] = useState(null);
   const [showImageList, setShowImageList] = useState(false);
   const [reviewImages, setReviewImages] = useState([]);
@@ -109,7 +108,6 @@ function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
   }
 
   const handleOverlayToggle = (content) => {
-    setOverlayContent(content); // Set content dynamically
     setShowOverlay(!showOverlay); // Toggle overlay visibility
   };
 
