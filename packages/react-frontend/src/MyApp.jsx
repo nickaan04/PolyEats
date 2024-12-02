@@ -21,7 +21,8 @@ import FavoritesPage from "./Components/FavoritesPage.jsx";
 import WelcomePage from "./Components/WelcomePage.jsx";
 
 function MyApp() {
-  const API_PREFIX = "http://localhost:8000";
+  const API_PREFIX =
+    "https://polyeats1901-awh8hmbsa9a4hsdf.westus-01.azurewebsites.net";
   const INVALID_TOKEN = "INVALID_TOKEN";
   const [token, setToken] = useState(
     localStorage.getItem("authToken") || INVALID_TOKEN
@@ -186,7 +187,10 @@ function MyApp() {
                   />
                 }
               />
-              <Route path="/auth/verify-email" element={<VerifyEmail />} />
+              <Route
+                path="/auth/verify-email"
+                element={<VerifyEmail API_PREFIX={API_PREFIX} />}
+              />
               <Route
                 path="/account"
                 element={
