@@ -6,7 +6,6 @@ const WelcomePage = () => {
 
   return (
     <div className="welcome-page">
-      <h1>Welcome to PolyEats</h1>
       <div className="welcome-buttons">
         <button className="welcome-btn" onClick={() => navigate("/login")}>
           Login

@@ -1,0 +1,60 @@
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Full viewport height */
+  width: 100vw; /* Full viewport width */
+  background-color: #1a602a;
+  text-align: center;
+  flex-direction: column;
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffffff;
+  margin: 0; /* Remove default margin */
+  padding: 0; /* Remove padding */
+
+      /* Style for the Link component */
+  a {
+    color: #60c874; /* Change to your desired color */
+    text-decoration: none; /* Optional: remove underline */
+  }
+
+  /* Optional: Hover effect for the Link */
+  a:hover {
+    color: #3d8c67; /* Darker green for hover effect */
+  }
+}
+
+.login-page label {
+    text-align: left;  /* Align labels to the left to avoid stacking of text */
+    margin-top: 10px;  /* Add spacing between elements */
+}
+
+.login-page input {
+  margin-bottom: 20px; /* Space between form elements */
+  padding: 10px;
+  width: 100%;
+  max-width: 300px; /* Limit width for responsiveness */
+  background-color: #eaf7e5; /* Light green background for inputs */
+  border: 1px solid #60c874; /* Green border to match theme */
+  border-radius: 5px;
+  color: #000; /* Black text for better readability */
+}
+
+.login-page input:focus {
+  outline: 2px solid #60c874; /* Highlighted border on focus */
+}
+
+.login-page input[type="button"] {
+    width: 100%;
+    max-width: 300px;
+    background-color: #60c874;
+    color: rgb(18, 62, 12);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.login-page input[type="button"]:hover {
+    background-color: #60c874;
+}
