@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import multer from "multer";
-import { Storage } from "@google-cloud/storage";
 import complexService from "./services/complex-service.js";
 import restaurantService from "./services/restaurant-service.js";
 import { authenticateUser, registerUser, loginUser } from "./auth.js";
@@ -10,24 +9,15 @@ import authRoutes from "./auth.js";
 import accountService from "./services/account-service.js";
 import reviewService from "./services/review-service.js";
 
-const {
-  MONGO_CONNECTION_STRING,
-  GOOGLE_APPLICATION_CREDENTIALS,
-  GCS_BUCKET_NAME,
-  PORT
-} = process.env;
+const { MONGO_CONNECTION_STRING } = process.env;
 
 mongoose.set("debug", true);
-mongoose
-  .connect(MONGO_CONNECTION_STRING)
-  .catch((error) => console.error("MongoDB Connection Error:", error));
+mongoose.connect(MONGO_CONNECTION_STRING).catch((error) => console.log(error));
 
 const app = express();
-
-// Set up CORS
 app.use(
   cors({
-    origin: "https://ashy-beach-00ce8fa1e.4.azurestaticapps.net",
+    origin: "https://black-meadow-0048ebf1e.4.azurestaticapps.net",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Content-Type",
@@ -38,26 +28,20 @@ app.use(
   })
 );
 
+app.use("*", cors());
 app.use(express.json());
 
-// Configure Google Cloud Storage
-const storage = new Storage();
-const bucket = storage.bucket(GCS_BUCKET_NAME);
-
-// Configure multer to store files in memory
-const multerStorage = multer.memoryStorage();
-const upload = multer({ storage: multerStorage });
-
-// Start the server
-app.listen(PORT, () => {
-  console.log(`REST API is listening on port ${PORT}`);
+app.listen(process.env.PORT, () => {
+  console.log("REST API is listening.");
 });
 
-// Serve static files if necessary
-// (Commented out since images are uploaded to GCS)
-// app.use("/uploads", express.static("../uploads"));
+app.use("/uploads", express.static("../uploads"));
 
-// Register auth routes
+// Configure multer storage
+const storage = multer.memoryStorage(); // Store files in memory
+const upload = multer({ storage });
+
+//register auth routes
 app.use("/auth", authRoutes);
 
 app.get("/", (req, res) => {
@@ -67,65 +51,43 @@ app.get("/", (req, res) => {
 app.post("/signup", registerUser);
 app.post("/login", loginUser);
 
-// Upload file to Google Cloud Storage
-const uploadFileToGCS = async (file) => {
-  const blob = bucket.file(file.originalname);
-  const blobStream = blob.createWriteStream({
-    resumable: false,
-    metadata: {
-      contentType: file.mimetype
-    }
-  });
-
-  return new Promise((resolve, reject) => {
-    blobStream.on("error", reject);
-    blobStream.on("finish", () => {
-      resolve(`https://storage.googleapis.com/${GCS_BUCKET_NAME}/${blob.name}`);
-    });
-    blobStream.end(file.buffer);
-  });
-};
-
-// Post a review with image uploads
+//post a review for a specific restaurant
 app.post(
   "/review",
   authenticateUser,
-  upload.array("pictures", 10),
+  upload.array("pictures", 10), // Accept up to 10 images
   async (req, res) => {
     try {
       const { item, review, rating, restaurant } = req.body;
       const userId = req.user._id;
 
-      // Upload pictures to GCS
-      const pictureUrls = await Promise.all(
-        req.files.map((file) => uploadFileToGCS(file))
-      );
-
-      // Save the review in MongoDB
+      // Use helper function to handle review creation and picture uploads
       const newReview = await reviewService.postReview({
         item,
         review,
         rating,
         restaurant,
         author: userId,
-        pictures: pictureUrls
+        pictures: req.files // Pass the files directly to the helper
       });
 
       res.status(201).send(newReview);
     } catch (error) {
       console.error("Error posting review:", error);
-      res.status(500).send({ error: error.message || "Error posting review" });
+      res.status(500).send({ error: "Error posting review" });
     }
   }
 );
 
-// Delete a review
+//delete a review
 app.delete("/review/:reviewId", authenticateUser, async (req, res) => {
   const { reviewId } = req.params;
   const userId = req.user._id;
 
   try {
+    // Use helper function to handle review deletion and picture cleanup
     await reviewService.deleteReview(reviewId, userId);
+
     res
       .status(200)
       .send({ message: "Review and associated pictures deleted successfully" });
@@ -135,7 +97,7 @@ app.delete("/review/:reviewId", authenticateUser, async (req, res) => {
   }
 });
 
-// Upload or update profile picture
+//upload or update profile picture
 app.post(
   "/account/profile-pic",
   authenticateUser,
@@ -148,11 +110,12 @@ app.post(
     }
 
     try {
-      const profilePicUrl = await uploadFileToGCS(req.file);
+      // Use the helper function to handle the profile picture update
       const updatedAccount = await accountService.updateProfilePicture(
         userId,
-        profilePicUrl
+        req.file
       );
+
       res.status(200).send({
         message: "Profile picture updated successfully",
         profile_pic: updatedAccount.profile_pic
@@ -164,12 +127,14 @@ app.post(
   }
 );
 
-// Remove profile picture
+//delete profile picture
 app.post("/account/profile-pic/remove", authenticateUser, async (req, res) => {
   const userId = req.user._id;
 
   try {
+    // Use the helper function to handle profile picture removal
     const updatedAccount = await accountService.removeProfilePicture(userId);
+
     res.status(200).send({
       message: "Profile picture removed successfully",
       profile_pic: updatedAccount.profile_pic
