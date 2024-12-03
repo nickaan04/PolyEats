@@ -18,7 +18,9 @@ const {
 } = process.env;
 
 mongoose.set("debug", true);
-mongoose.connect(MONGO_CONNECTION_STRING).catch((error) => console.error("MongoDB Connection Error:", error));
+mongoose
+  .connect(MONGO_CONNECTION_STRING)
+  .catch((error) => console.error("MongoDB Connection Error:", error));
 
 const app = express();
 
@@ -27,7 +29,12 @@ app.use(
   cors({
     origin: "https://ashy-beach-00ce8fa1e.4.azurestaticapps.net",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Accept",
+      "X-Requested-With"
+    ]
   })
 );
 
@@ -66,8 +73,8 @@ const uploadFileToGCS = async (file) => {
   const blobStream = blob.createWriteStream({
     resumable: false,
     metadata: {
-      contentType: file.mimetype,
-    },
+      contentType: file.mimetype
+    }
   });
 
   return new Promise((resolve, reject) => {
@@ -101,7 +108,7 @@ app.post(
         rating,
         restaurant,
         author: userId,
-        pictures: pictureUrls,
+        pictures: pictureUrls
       });
 
       res.status(201).send(newReview);
@@ -119,7 +126,9 @@ app.delete("/review/:reviewId", authenticateUser, async (req, res) => {
 
   try {
     await reviewService.deleteReview(reviewId, userId);
-    res.status(200).send({ message: "Review and associated pictures deleted successfully" });
+    res
+      .status(200)
+      .send({ message: "Review and associated pictures deleted successfully" });
   } catch (error) {
     console.error("Error deleting review:", error);
     res.status(500).send({ error: "Error deleting review" });
@@ -140,10 +149,13 @@ app.post(
 
     try {
       const profilePicUrl = await uploadFileToGCS(req.file);
-      const updatedAccount = await accountService.updateProfilePicture(userId, profilePicUrl);
+      const updatedAccount = await accountService.updateProfilePicture(
+        userId,
+        profilePicUrl
+      );
       res.status(200).send({
         message: "Profile picture updated successfully",
-        profile_pic: updatedAccount.profile_pic,
+        profile_pic: updatedAccount.profile_pic
       });
     } catch (error) {
       console.error("Error updating profile picture:", error);
@@ -160,7 +172,7 @@ app.post("/account/profile-pic/remove", authenticateUser, async (req, res) => {
     const updatedAccount = await accountService.removeProfilePicture(userId);
     res.status(200).send({
       message: "Profile picture removed successfully",
-      profile_pic: updatedAccount.profile_pic,
+      profile_pic: updatedAccount.profile_pic
     });
   } catch (error) {
     console.error("Error removing profile picture:", error);
