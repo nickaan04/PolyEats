@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import multer from "multer";
+import { Storage } from "@google-cloud/storage";
 import complexService from "./services/complex-service.js";
 import restaurantService from "./services/restaurant-service.js";
 import { authenticateUser, registerUser, loginUser } from "./auth.js";
@@ -9,39 +10,47 @@ import authRoutes from "./auth.js";
 import accountService from "./services/account-service.js";
 import reviewService from "./services/review-service.js";
 
-const { MONGO_CONNECTION_STRING } = process.env;
+const {
+  MONGO_CONNECTION_STRING,
+  GOOGLE_APPLICATION_CREDENTIALS,
+  GCS_BUCKET_NAME,
+  PORT
+} = process.env;
 
 mongoose.set("debug", true);
-mongoose.connect(MONGO_CONNECTION_STRING).catch((error) => console.log(error));
+mongoose.connect(MONGO_CONNECTION_STRING).catch((error) => console.error("MongoDB Connection Error:", error));
 
 const app = express();
+
+// Set up CORS
 app.use(
   cors({
     origin: "https://ashy-beach-00ce8fa1e.4.azurestaticapps.net",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "Accept",
-      "X-Requested-With"
-    ]
+    allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With"],
   })
 );
 
-app.use("*", cors());
 app.use(express.json());
 
-app.listen(process.env.PORT, () => {
-  console.log("REST API is listening.");
+// Configure Google Cloud Storage
+const storage = new Storage();
+const bucket = storage.bucket(GCS_BUCKET_NAME);
+
+// Configure multer to store files in memory
+const multerStorage = multer.memoryStorage();
+const upload = multer({ storage: multerStorage });
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`REST API is listening on port ${PORT}`);
 });
 
-app.use("/uploads", express.static("../uploads"));
+// Serve static files if necessary
+// (Commented out since images are uploaded to GCS)
+// app.use("/uploads", express.static("../uploads"));
 
-// Configure multer storage
-const storage = multer.memoryStorage(); // Store files in memory
-const upload = multer({ storage });
-
-//register auth routes
+// Register auth routes
 app.use("/auth", authRoutes);
 
 app.get("/", (req, res) => {
@@ -51,53 +60,73 @@ app.get("/", (req, res) => {
 app.post("/signup", registerUser);
 app.post("/login", loginUser);
 
-//post a review for a specific restaurant
+// Upload file to Google Cloud Storage
+const uploadFileToGCS = async (file) => {
+  const blob = bucket.file(file.originalname);
+  const blobStream = blob.createWriteStream({
+    resumable: false,
+    metadata: {
+      contentType: file.mimetype,
+    },
+  });
+
+  return new Promise((resolve, reject) => {
+    blobStream.on("error", reject);
+    blobStream.on("finish", () => {
+      resolve(`https://storage.googleapis.com/${GCS_BUCKET_NAME}/${blob.name}`);
+    });
+    blobStream.end(file.buffer);
+  });
+};
+
+// Post a review with image uploads
 app.post(
   "/review",
   authenticateUser,
-  upload.array("pictures", 10), // Accept up to 10 images
+  upload.array("pictures", 10),
   async (req, res) => {
     try {
       const { item, review, rating, restaurant } = req.body;
       const userId = req.user._id;
 
-      // Use helper function to handle review creation and picture uploads
+      // Upload pictures to GCS
+      const pictureUrls = await Promise.all(
+        req.files.map((file) => uploadFileToGCS(file))
+      );
+
+      // Save the review in MongoDB
       const newReview = await reviewService.postReview({
         item,
         review,
         rating,
         restaurant,
         author: userId,
-        pictures: req.files // Pass the files directly to the helper
+        pictures: pictureUrls,
       });
 
       res.status(201).send(newReview);
     } catch (error) {
       console.error("Error posting review:", error);
-      res.status(500).send({ error: "Error posting review" });
+      res.status(500).send({ error: error.message || "Error posting review" });
     }
   }
 );
 
-//delete a review
+// Delete a review
 app.delete("/review/:reviewId", authenticateUser, async (req, res) => {
   const { reviewId } = req.params;
   const userId = req.user._id;
 
   try {
-    // Use helper function to handle review deletion and picture cleanup
     await reviewService.deleteReview(reviewId, userId);
-
-    res
-      .status(200)
-      .send({ message: "Review and associated pictures deleted successfully" });
+    res.status(200).send({ message: "Review and associated pictures deleted successfully" });
   } catch (error) {
     console.error("Error deleting review:", error);
     res.status(500).send({ error: "Error deleting review" });
   }
 });
 
-//upload or update profile picture
+// Upload or update profile picture
 app.post(
   "/account/profile-pic",
   authenticateUser,
@@ -110,15 +139,11 @@ app.post(
     }
 
     try {
-      // Use the helper function to handle the profile picture update
-      const updatedAccount = await accountService.updateProfilePicture(
-        userId,
-        req.file
-      );
-
+      const profilePicUrl = await uploadFileToGCS(req.file);
+      const updatedAccount = await accountService.updateProfilePicture(userId, profilePicUrl);
       res.status(200).send({
         message: "Profile picture updated successfully",
-        profile_pic: updatedAccount.profile_pic
+        profile_pic: updatedAccount.profile_pic,
       });
     } catch (error) {
       console.error("Error updating profile picture:", error);
@@ -127,17 +152,15 @@ app.post(
   }
 );
 
-//delete profile picture
+// Remove profile picture
 app.post("/account/profile-pic/remove", authenticateUser, async (req, res) => {
   const userId = req.user._id;
 
   try {
-    // Use the helper function to handle profile picture removal
     const updatedAccount = await accountService.removeProfilePicture(userId);
-
     res.status(200).send({
       message: "Profile picture removed successfully",
-      profile_pic: updatedAccount.profile_pic
+      profile_pic: updatedAccount.profile_pic,
     });
   } catch (error) {
     console.error("Error removing profile picture:", error);
