@@ -86,45 +86,54 @@ app.post(
 );
 
 // Upload or update profile picture
-app.post("/account/profile-pic", authenticateUser, upload.single("profile_pic"), async (req, res) => {
-  const userId = req.user._id;
+app.post(
+  "/account/profile-pic",
+  authenticateUser,
+  upload.single("profile_pic"),
+  async (req, res) => {
+    const userId = req.user._id;
 
-  if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" }); // Ensure response is JSON
-  }
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" }); // Ensure response is JSON
+    }
 
-  try {
-    console.log("Uploading file:", req.file.originalname);
+    try {
+      console.log("Uploading file:", req.file.originalname);
 
-    // Upload file to Google Cloud Storage
-    const blob = bucket.file(`profile-pictures/${userId}-${req.file.originalname}`);
-    const stream = blob.createWriteStream();
+      // Upload file to Google Cloud Storage
+      const blob = bucket.file(
+        `profile-pictures/${userId}-${req.file.originalname}`
+      );
+      const stream = blob.createWriteStream();
 
-    stream.on("error", (err) => {
-      console.error("Error uploading to Google Cloud Storage:", err);
-      res.status(500).json({ error: "Error uploading file to storage" }); // Return JSON error response
-    });
-
-    stream.on("finish", async () => {
-      const profilePicUrl = `https://storage.googleapis.com/${bucketName}/${blob.name}`;
-      console.log("File uploaded successfully to:", profilePicUrl);
-
-      // Save the URL to the database
-      const updatedAccount = await accountService.updateProfilePicture(userId, profilePicUrl);
-
-      res.status(200).json({
-        message: "Profile picture updated successfully",
-        profile_pic: profilePicUrl,
+      stream.on("error", (err) => {
+        console.error("Error uploading to Google Cloud Storage:", err);
+        res.status(500).json({ error: "Error uploading file to storage" }); // Return JSON error response
       });
-    });
 
-    stream.end(req.file.buffer);
-  } catch (error) {
-    console.error("Error updating profile picture:", error);
-    res.status(500).json({ error: "Error updating profile picture" }); // Ensure error response is JSON
+      stream.on("finish", async () => {
+        const profilePicUrl = `https://storage.googleapis.com/${bucketName}/${blob.name}`;
+        console.log("File uploaded successfully to:", profilePicUrl);
+
+        // Save the URL to the database
+        const updatedAccount = await accountService.updateProfilePicture(
+          userId,
+          profilePicUrl
+        );
+
+        res.status(200).json({
+          message: "Profile picture updated successfully",
+          profile_pic: profilePicUrl
+        });
+      });
+
+      stream.end(req.file.buffer);
+    } catch (error) {
+      console.error("Error updating profile picture:", error);
+      res.status(500).json({ error: "Error updating profile picture" }); // Ensure error response is JSON
+    }
   }
-});
-
+);
 
 // Remove profile picture
 app.post("/account/profile-pic/remove", authenticateUser, async (req, res) => {
