@@ -19,7 +19,9 @@ const bucket = storage.bucket(bucketName);
 
 // Connect to MongoDB
 mongoose.set("debug", true);
-mongoose.connect(MONGO_CONNECTION_STRING).catch((error) => console.error("MongoDB connection error:", error));
+mongoose
+  .connect(MONGO_CONNECTION_STRING)
+  .catch((error) => console.error("MongoDB connection error:", error));
 
 // Initialize Express app
 const app = express();
@@ -27,7 +29,12 @@ app.use(
   cors({
     origin: "https://black-meadow-0048ebf1e.4.azurestaticapps.net",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Accept",
+      "X-Requested-With"
+    ]
   })
 );
 
@@ -43,73 +50,90 @@ app.listen(process.env.PORT, () => {
 
 // Register routes
 app.use("/auth", authRoutes);
-app.get("/", (req, res) => res.status(200).send({ message: "Welcome to PolyEats!" }));
+app.get("/", (req, res) =>
+  res.status(200).send({ message: "Welcome to PolyEats!" })
+);
 
 // Signup and login routes
 app.post("/signup", registerUser);
 app.post("/login", loginUser);
 
 // Post a review
-app.post("/review", authenticateUser, upload.array("pictures", 10), async (req, res) => {
-  try {
-    const { item, review, rating, restaurant } = req.body;
-    const userId = req.user._id;
+app.post(
+  "/review",
+  authenticateUser,
+  upload.array("pictures", 10),
+  async (req, res) => {
+    try {
+      const { item, review, rating, restaurant } = req.body;
+      const userId = req.user._id;
 
-    const newReview = await reviewService.postReview({
-      item,
-      review,
-      rating,
-      restaurant,
-      author: userId,
-      pictures: req.files, // Files are passed directly to the review service
-    });
+      const newReview = await reviewService.postReview({
+        item,
+        review,
+        rating,
+        restaurant,
+        author: userId,
+        pictures: req.files // Files are passed directly to the review service
+      });
 
-    res.status(201).send(newReview);
-  } catch (error) {
-    console.error("Error posting review:", error);
-    res.status(500).send({ error: "Error posting review" });
+      res.status(201).send(newReview);
+    } catch (error) {
+      console.error("Error posting review:", error);
+      res.status(500).send({ error: "Error posting review" });
+    }
   }
-});
+);
 
 // Upload or update profile picture
-app.post("/account/profile-pic", authenticateUser, upload.single("profile_pic"), async (req, res) => {
-  const userId = req.user._id;
+app.post(
+  "/account/profile-pic",
+  authenticateUser,
+  upload.single("profile_pic"),
+  async (req, res) => {
+    const userId = req.user._id;
 
-  if (!req.file) {
-    return res.status(400).send({ error: "No file uploaded" });
-  }
+    if (!req.file) {
+      return res.status(400).send({ error: "No file uploaded" });
+    }
 
-  try {
-    console.log("Uploading file:", req.file.originalname);
+    try {
+      console.log("Uploading file:", req.file.originalname);
 
-    // Upload file to Google Cloud Storage
-    const blob = bucket.file(`profile-pictures/${userId}-${req.file.originalname}`);
-    const stream = blob.createWriteStream();
+      // Upload file to Google Cloud Storage
+      const blob = bucket.file(
+        `profile-pictures/${userId}-${req.file.originalname}`
+      );
+      const stream = blob.createWriteStream();
 
-    stream.on("error", (err) => {
-      console.error("Error uploading to Google Cloud Storage:", err);
-      throw err;
-    });
-
-    stream.on("finish", async () => {
-      const profilePicUrl = `https://storage.googleapis.com/${bucketName}/${blob.name}`;
-      console.log("File uploaded successfully to:", profilePicUrl);
-
-      // Save the URL to the database
-      const updatedAccount = await accountService.updateProfilePicture(userId, profilePicUrl);
-
-      res.status(200).send({
-        message: "Profile picture updated successfully",
-        profile_pic: profilePicUrl,
+      stream.on("error", (err) => {
+        console.error("Error uploading to Google Cloud Storage:", err);
+        throw err;
       });
-    });
 
-    stream.end(req.file.buffer);
-  } catch (error) {
-    console.error("Error updating profile picture:", error);
-    res.status(500).send({ error: "Error updating profile picture" });
+      stream.on("finish", async () => {
+        const profilePicUrl = `https://storage.googleapis.com/${bucketName}/${blob.name}`;
+        console.log("File uploaded successfully to:", profilePicUrl);
+
+        // Save the URL to the database
+        const updatedAccount = await accountService.updateProfilePicture(
+          userId,
+          profilePicUrl
+        );
+
+        res.status(200).send({
+          message: "Profile picture updated successfully",
+          profile_pic: profilePicUrl
+        });
+      });
+
+      stream.end(req.file.buffer);
+    } catch (error) {
+      console.error("Error updating profile picture:", error);
+      res.status(500).send({ error: "Error updating profile picture" });
+    }
   }
-});
+);
 
 // Remove profile picture
 app.post("/account/profile-pic/remove", authenticateUser, async (req, res) => {
@@ -119,7 +143,7 @@ app.post("/account/profile-pic/remove", authenticateUser, async (req, res) => {
     const updatedAccount = await accountService.removeProfilePicture(userId);
     res.status(200).send({
       message: "Profile picture removed successfully",
-      profile_pic: updatedAccount.profile_pic,
+      profile_pic: updatedAccount.profile_pic
     });
   } catch (error) {
     console.error("Error removing profile picture:", error);
@@ -137,7 +161,6 @@ app.get("/account/details", authenticateUser, async (req, res) => {
     res.status(500).send({ error: "Error fetching account details" });
   }
 });
-
 
 //get reviews given by the account
 app.get("/account/reviews", authenticateUser, (req, res) => {
