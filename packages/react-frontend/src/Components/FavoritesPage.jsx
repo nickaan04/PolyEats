@@ -52,7 +52,7 @@ const FavoritesPage = ({ API_PREFIX, addAuthHeader }) => {
 
   return (
     <div className="favorites-page">
-      <h2>Favorites</h2>
+      <header className="header">Favorites</header>
       <div className="favorites-list">
         {loading ? (
           <p>Loading favorites...</p> // Display this while loading
