@@ -1,9 +1,14 @@
 .favorites-page {
   padding: 20px;
 
-  h2 {
-    text-align: center;
-    margin-bottom: 20px;
+  .header {
+    background-color: rgba(26, 96, 42, 1);
+    align-self: stretch;
+    font-size: 32px;
+    color: rgba(255, 255, 255, 1);
+    font-weight: 800;
+    white-space: nowrap;
+    padding: 49px 70px 11px;
   }
 
   .favorites-list {
@@ -13,9 +18,7 @@
   }
 
   .card {
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    border-radius: 10px;
     overflow: hidden;
     text-align: center;
 
@@ -25,17 +28,19 @@
     }
 
     .card-body {
+      border-radius: 10px;
+      background-color: rgba(26, 96, 42, 1);
       padding: 10px;
 
       .card-title {
         margin: 0;
         font-size: 18px;
-        color: #333;
+        color: #FFFFFF;
       }
 
       .card-text {
         margin: 5px 0;
-        color: #777;
+        color: #FFFFFF;
       }
     }
 
@@ -45,7 +50,7 @@
 
       .btn-danger {
         padding: 8px 15px;
-        border-radius: 5px;
+        border-radius: 10px;
         background: #ff1a1a;
       }
     }

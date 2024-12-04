@@ -52,7 +52,7 @@ const FavoritesPage = ({ API_PREFIX, addAuthHeader }) => {
 
   return (
     <div className="favorites-page">
-      <h2>Favorites</h2>
+      <header className="header">Favorites</header>
       <div className="favorites-list">
         {loading ? (
           <p>Loading favorites...</p> // Display this while loading
@@ -60,12 +60,12 @@ const FavoritesPage = ({ API_PREFIX, addAuthHeader }) => {
           favorites.map((restaurant) => (
             <Card
               key={restaurant._id}
-              style={{
-                width: "18rem",
-                margin: "10px",
-                display: "inline-block",
-                verticalAlign: "top"
-              }}>
+              style={{ 
+                width: "18rem", 
+                margin: "10px", 
+                display: "inline-block", 
+                verticalAlign: "top" }}
+              >
               <Link
                 to={`/restaurant/${restaurant._id}`}
                 style={{ textDecoration: "none", color: "inherit" }}>
