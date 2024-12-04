@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import "../Styles/BottomNavBar.scss";
-import { Star, Person, House } from "react-bootstrap-icons";
+import { Star, Person, House } from "react-bootstrap-icons";;
 
 const BottomNavBar = () => {
   const location = useLocation();
