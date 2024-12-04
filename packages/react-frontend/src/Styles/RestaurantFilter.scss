@@ -13,10 +13,6 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-
-    &:hover {
-        background-color: #c82333;
-    }
 }
 
 .filter-sort-buttons .btn {
@@ -29,11 +25,6 @@
   padding: 10px 20px;
   cursor: pointer;
   transition: transform 0.2s ease;
-}
-
-.filter-sort-buttons .btn:hover {
-  background-color: #45a65b; /* Darker green on hover */
-  transform: scale(1.1); /* Slightly enlarge on hover */
 }
 
 .filter-sort-buttons {
@@ -52,11 +43,6 @@
 .dropdown-item {
   padding: 10px 15px; /* Add spacing */
   font-size: 16px;
-}
-
-.dropdown-item:hover {
-  background-color: #eaf7e5; /* Light green hover */
-  color: #000; /* Black text */
 }
 
 /* Filter Modal */
@@ -159,9 +145,4 @@
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.modal-footer .btn:hover {
-  background-color: #45a65b; /* Darker green on hover */
-  transform: scale(1.05); /* Slight scale effect */
 }

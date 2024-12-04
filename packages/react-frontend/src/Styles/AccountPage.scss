@@ -27,10 +27,6 @@ h1 {
       transition: opacity 0.3s ease;
     }
 
-    .profile-pic:hover {
-      opacity: 0.7;
-    }
-
     h2 {
       margin: 0;
       font-size: 22px;
@@ -140,9 +136,4 @@ h1 {
   text-decoration: none;
   color: inherit;
   display: block;
-}
-
-.custom-link:hover {
-  text-decoration: none;
-  color: #007bff;
 }

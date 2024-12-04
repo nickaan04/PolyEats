@@ -21,10 +21,6 @@
     align-items: center;
     justify-content: center;
 
-    &:hover {
-      color: #007bff;
-    }
-
     &.active {
       color: #007bff;
       border-bottom: 2px solid #007bff;

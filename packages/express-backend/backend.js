@@ -17,7 +17,7 @@ mongoose.connect(MONGO_CONNECTION_STRING).catch((error) => console.log(error));
 const app = express();
 app.use(
   cors({
-    origin: "https://black-meadow-0048ebf1e.4.azurestaticapps.net",
+    origin: process.env.CLIENT_URL,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Content-Type",
@@ -28,6 +28,7 @@ app.use(
   })
 );
 
+app.options("*", cors()); // Preflight requests
 app.use(express.json());
 
 app.listen(process.env.PORT, () => {
