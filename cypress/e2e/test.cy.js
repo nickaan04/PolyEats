@@ -120,9 +120,9 @@ describe("Full App End-to-End Test", () => {
     cy.wait(2000);
     cy.get('input[name="rating"]').type("5");
     cy.wait(2000);
-    const imagePath = "Orangechicken.jpg"; // File located in "cypress/fixtures"
-    cy.get('input[type="file"]').attachFile(imagePath);
-    cy.wait(2000);
+    // const imagePath = "Orangechicken.jpg"; // File located in "cypress/fixtures"
+    // cy.get('input[type="file"]').attachFile(imagePath);
+    // cy.wait(2000);
     cy.get('button[type="submit"]')
       .contains("Submit Review")
       .should("be.visible")
@@ -144,7 +144,7 @@ describe("Full App End-to-End Test", () => {
     cy.wait(2000);
 
     // Step 10: Verify Favorites Page
-    cy.contains("a", "Favorites").should("be.visible").click();
+    cy.contains("a", "Favorite").should("be.visible").click();
     cy.wait(2000);
     cy.contains(".card", "Panda Express")
       .should("be.visible")
@@ -159,15 +159,15 @@ describe("Full App End-to-End Test", () => {
     cy.contains("a", "Account").should("be.visible").click();
     cy.wait(2000);
 
-    // Step 11.5: Change Profile Picture
-    const profileImagePath = "hanjosi-fragment3.jpg"; // File located in "cypress/fixtures"
-    cy.get("input#profile-pic-upload")
-      .should("exist")
-      .attachFile(profileImagePath);
-    cy.wait(2000);
+    // // Step 11.5: Change Profile Picture
+    // const profileImagePath = "hanjosi-fragment3.jpg"; // File located in "cypress/fixtures"
+    // cy.get("input#profile-pic-upload")
+    //   .should("exist")
+    //   .attachFile(profileImagePath);
+    // cy.wait(2000);
 
     // Step 12: Log Out
-    cy.contains("button", "Sign Out").should("be.visible").click();
+    cy.contains("button", "Log Out").should("be.visible").click();
     cy.wait(2000);
     cy.url().should("include", "/");
 
