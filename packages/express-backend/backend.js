@@ -104,6 +104,7 @@ app.post(
     const userId = req.user._id;
 
     if (!req.file) {
+      console.error("No file uploaded");
       return res.status(400).send({ error: "No file uploaded" });
     }
 
@@ -111,13 +112,11 @@ app.post(
       console.log("Uploading file:", req.file.originalname);
 
       // Upload file to Google Cloud Storage
-      const blob = bucket.file(
-        `profile-pictures/${userId}-${req.file.originalname}`
-      );
+      const blob = bucket.file(`profile-pictures/${userId}-${req.file.originalname}`);
       const stream = blob.createWriteStream();
 
       stream.on("error", (err) => {
-        console.error("Error uploading to GCS:", err);
+        console.error("Error uploading to GCS:", err.message);
         res.status(500).json({ error: "Error uploading file to storage" });
       });
 
@@ -126,24 +125,22 @@ app.post(
         console.log("File uploaded successfully to:", profilePicUrl);
 
         // Save the profile picture URL in the database
-        const updatedAccount = await accountService.updateProfilePicture(
-          userId,
-          profilePicUrl
-        );
+        const updatedAccount = await accountService.updateProfilePicture(userId, profilePicUrl);
 
         res.status(200).json({
           message: "Profile picture updated successfully",
-          profile_pic: profilePicUrl
+          profile_pic: profilePicUrl,
         });
       });
 
       stream.end(req.file.buffer);
     } catch (error) {
-      console.error("Error updating profile picture:", error);
+      console.error("Error updating profile picture:", error.stack || error.message);
       res.status(500).json({ error: "Error updating profile picture" });
     }
   }
 );
+
 
 //delete profile picture
 app.post("/account/profile-pic/remove", authenticateUser, async (req, res) => {
