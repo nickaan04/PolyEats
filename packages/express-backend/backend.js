@@ -12,7 +12,7 @@ import { BlobServiceClient } from "@azure/storage-blob";
 
 const {
   MONGO_CONNECTION_STRING,
-  AZURE_STORAGE_CONNECTION_STRING,
+  AZURE_STORAGE_ACCESS_KEY,
   AZURE_CONTAINER_NAME
 } = process.env;
 
@@ -42,7 +42,7 @@ const upload = multer({ storage });
 
 // Azure Blob Service Client setup
 const blobServiceClient = BlobServiceClient.fromConnectionString(
-  AZURE_STORAGE_CONNECTION_STRING
+  AZURE_STORAGE_ACCESS_KEY
 );
 const containerClient =
   blobServiceClient.getContainerClient(AZURE_CONTAINER_NAME);
