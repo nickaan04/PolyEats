@@ -13,7 +13,7 @@ import reviewService from "./services/review-service.js";
 const {
   MONGO_CONNECTION_STRING,
   GOOGLE_CLOUD_BUCKET_NAME,
-  GOOGLE_SERVICE_ACCOUNT_KEY
+  GOOGLE_APPLICATION_CREDENTIALS
 } = process.env;
 
 mongoose.set("debug", true);
@@ -49,7 +49,7 @@ const upload = multer({ storage });
 // Initialize Google Cloud Storage
 let cloudStorage;
 try {
-  const serviceAccount = JSON.parse(GOOGLE_SERVICE_ACCOUNT_KEY);
+  const serviceAccount = JSON.parse(GOOGLE_APPLICATION_CREDENTIALS);
   cloudStorage = new Storage({ credentials: serviceAccount });
   console.log("Google Cloud Storage initialized.");
 } catch (error) {
