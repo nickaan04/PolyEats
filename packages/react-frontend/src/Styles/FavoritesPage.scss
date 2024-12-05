@@ -1,62 +1,27 @@
 .favorites-page {
-  padding: 20px;
+  .remove-favorite {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #dc3545; // Red background
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    font-size: 20px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
 
-  .header {
-    background-color: rgba(26, 96, 42, 1);
-    align-self: stretch;
-    font-size: 32px;
-    color: rgba(255, 255, 255, 1);
-    font-weight: 800;
-    white-space: nowrap;
-    padding: 49px 70px 11px;
-    text-align: center;
-    margin-bottom: 20px;
+    &:hover {
+      background-color: #c82333; // Darker red on hover
+    }
   }
 
-  .favorites-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-  }
-
-  .card {
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    overflow: hidden;
-    text-align: center;
-
-    img {
-      height: 200px;
-      object-fit: cover;
-    }
-
-    .card-body {
-      padding: 10px;
-      border-radius: 10px;
-      background-color: rgba(26, 96, 42, 1);
-
-      .card-title {
-        margin: 0;
-        font-size: 18px;
-        color: #FFFFFF;
-      }
-
-      .card-text {
-        margin: 5px 0;
-        color: #FFFFFF;
-      }
-    }
-
-    .card-footer {
-      background: transparent;
-      border-top: none;
-
-      .btn-danger {
-        padding: 8px 15px;
-        border-radius: 10px;
-        background: #ff1a1a;
-      }
-    }
+  .card-container {
+    position: relative; // Enable positioning for remove button
   }
 }

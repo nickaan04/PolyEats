@@ -4,6 +4,8 @@ import { toast } from "react-toastify";
 import Reviews from "./Reviews";
 import "react-toastify/dist/ReactToastify.css";
 import "../Styles/AccountPage.scss";
+import logo from "../Assets/logo.png";
+import "../Styles/App.scss";
 
 const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
   const [account, setAccount] = useState(null);
@@ -145,87 +147,92 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
       toast.error("Error deleting account");
     }
   };
-
+  
   return (
     <div>
-      <h1>Account</h1>
-      {!account ? (
-        <p>Loading account details...</p> // Display this while loading
-      ) : (
-        <div className="account-page">
-          <div className="account-header">
-            <img
-              src={`${account.profile_pic}`}
-              alt="Profile"
-              className="profile-pic"
-              onClick={handleProfilePicClick}
-            />
-            <input
-              type="file"
-              id="profile-pic-upload"
-              accept="image/*"
-              onChange={handleFileUpload}
-              style={{ display: "none" }}
-            />
-            <h2>
-              {account.firstname} {account.lastname}
-            </h2>
-            <p className="email-text">{account.calpoly_email}</p>
-          </div>
-
-          {showProfilePicOptions && (
-            <div className="modal">
-              <div className="modal-content">
-                <p>Edit Profile Picture</p>
-                <button
-                  onClick={() =>
-                    document.getElementById("profile-pic-upload").click()
-                  }>
-                  Change Profile Picture
-                </button>
-                <button
-                  onClick={() => {
-                    removeProfilePicture();
-                  }}>
-                  Remove Profile Picture
-                </button>
-                <button onClick={() => setShowProfilePicOptions(false)}>
-                  Cancel
-                </button>
-              </div>
+      <div className="top-image">
+        <img src={logo} alt="Top Banner" />
+      </div>
+      <h2 className="heading">Account</h2>
+      <div className="account-page">
+        {!account ? (
+          <p>Loading account details...</p> // Display this while loading
+        ) : (
+          <>
+            <div className="account-header">
+              <img
+                src={`${account.profile_pic}`}
+                alt="Profile"
+                className="profile-pic"
+                onClick={handleProfilePicClick}
+              />
+              <input
+                type="file"
+                id="profile-pic-upload"
+                accept="image/*"
+                onChange={handleFileUpload}
+                style={{ display: "none" }}
+              />
+              <h2>
+                {account.firstname} {account.lastname}
+              </h2>
+              <p className="email-text">{account.calpoly_email}</p>
             </div>
-          )}
-          <div className="reviews-section">
-            <Reviews
-              reviews={reviews}
-              setReviews={setReviews}
-              API_PREFIX={API_PREFIX}
-              editable={false}
-              addAuthHeader={addAuthHeader}
-              loggedInUserId={account._id}
-            />
-          </div>
 
-          <div className="account-actions">
-            <button onClick={handleLogout}>Sign Out</button>
-            <button onClick={() => setShowDeleteModal(true)}>
-              Delete Account
-            </button>
-          </div>
-
-          {showDeleteModal && (
-            <div className="modal">
-              <div className="modal-content">
-                <p>Are you sure you want to delete your account?</p>
-                <button onClick={deleteAccount}>Delete Account</button>
-                <button onClick={() => setShowDeleteModal(false)}>
-                  Cancel
-                </button>
+            {showProfilePicOptions && (
+              <div className="modal">
+                <div className="modal-content">
+                  <p>Edit Profile Picture</p>
+                  <button
+                    onClick={() =>
+                      document.getElementById("profile-pic-upload").click()
+                    }>
+                    Change Profile Picture
+                  </button>
+                  <button
+                    onClick={() => {
+                      removeProfilePicture();
+                    }}>
+                    Remove Profile Picture
+                  </button>
+                  <button onClick={() => setShowProfilePicOptions(false)}>
+                    Cancel
+                  </button>
+                </div>
               </div>
+            )}
+            <div className="reviews-section">
+              <Reviews
+                reviews={reviews}
+                setReviews={setReviews}
+                API_PREFIX={API_PREFIX}
+                editable={false}
+                addAuthHeader={addAuthHeader}
+                loggedInUserId={account._id}
+              />
             </div>
-          )}
-        </div>
-      )}
+
+            <div className="account-actions">
+              <button onClick={handleLogout}>Sign Out</button>
+              <button onClick={() => setShowDeleteModal(true)}>
+                Delete Account
+              </button>
+            </div>
+
+            {showDeleteModal && (
+              <div className="modal">
+                <div className="modal-content">
+                  <p>Are you sure you want to delete your account?</p>
+                  <button onClick={deleteAccount}>Delete Account</button>
+                  <button onClick={() => setShowDeleteModal(false)}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 };
