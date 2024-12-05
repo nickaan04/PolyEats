@@ -2,8 +2,6 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import multer from "multer";
-import { Storage } from "@google-cloud/storage";
-import dotenv from "dotenv";
 import complexService from "./services/complex-service.js";
 import restaurantService from "./services/restaurant-service.js";
 import { authenticateUser, registerUser, loginUser } from "./auth.js";
@@ -11,34 +9,10 @@ import authRoutes from "./auth.js";
 import accountService from "./services/account-service.js";
 import reviewService from "./services/review-service.js";
 
-// Load environment variables
-dotenv.config();
+const { MONGO_CONNECTION_STRING } = process.env;
 
-const { MONGO_CONNECTION_STRING, GOOGLE_APPLICATION_CREDENTIALS } = process.env;
-
-// Validate required environment variables
-if (!MONGO_CONNECTION_STRING) {
-  console.error(
-    "Error: MONGO_CONNECTION_STRING environment variable is not set."
-  );
-  process.exit(1);
-}
-
-if (!GOOGLE_APPLICATION_CREDENTIALS) {
-  console.error(
-    "Error: GOOGLE_APPLICATION_CREDENTIALS environment variable is not set."
-  );
-  process.exit(1);
-}
-
-// Initialize MongoDB connection
 mongoose.set("debug", true);
 mongoose.connect(MONGO_CONNECTION_STRING).catch((error) => console.log(error));
-
-// Initialize Google Cloud Storage
-const storage = new Storage();
-const bucketName = "your_bucket_name";
-const bucket = storage.bucket(bucketName);
 
 const app = express();
 app.use(
@@ -64,10 +38,10 @@ app.listen(process.env.PORT, () => {
 app.use("/uploads", express.static("../uploads"));
 
 // Configure multer storage
-const storageConfig = multer.memoryStorage(); // Store files in memory
-const upload = multer({ storage: storageConfig });
+const storage = multer.memoryStorage(); // Store files in memory
+const upload = multer({ storage });
 
-// Register auth routes
+//register auth routes
 app.use("/auth", authRoutes);
 
 app.get("/", (req, res) => {
@@ -77,7 +51,7 @@ app.get("/", (req, res) => {
 app.post("/signup", registerUser);
 app.post("/login", loginUser);
 
-// Post a review for a specific restaurant
+//post a review for a specific restaurant
 app.post(
   "/review",
   authenticateUser,
@@ -87,13 +61,14 @@ app.post(
       const { item, review, rating, restaurant } = req.body;
       const userId = req.user._id;
 
+      // Use helper function to handle review creation and picture uploads
       const newReview = await reviewService.postReview({
         item,
         review,
         rating,
         restaurant,
         author: userId,
-        pictures: req.files
+        pictures: req.files // Pass the files directly to the helper
       });
 
       res.status(201).send(newReview);
@@ -103,37 +78,6 @@ app.post(
     }
   }
 );
-
-// Upload a file to Google Cloud Storage
-app.post("/upload", upload.single("file"), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).send({ error: "No file uploaded" });
-  }
-
-  try {
-    const blob = bucket.file(req.file.originalname);
-    const blobStream = blob.createWriteStream({
-      metadata: {
-        contentType: req.file.mimetype
-      }
-    });
-
-    blobStream.on("error", (err) => {
-      console.error("Upload error:", err);
-      res.status(500).send({ error: "Upload failed" });
-    });
-
-    blobStream.on("finish", () => {
-      const publicUrl = `https://storage.googleapis.com/${bucketName}/${blob.name}`;
-      res.status(200).send({ message: "Upload successful", url: publicUrl });
-    });
-
-    blobStream.end(req.file.buffer);
-  } catch (error) {
-    console.error("Error handling upload:", error);
-    res.status(500).send({ error: "Upload failed" });
-  }
-});
 
 //delete a review
 app.delete("/review/:reviewId", authenticateUser, async (req, res) => {
