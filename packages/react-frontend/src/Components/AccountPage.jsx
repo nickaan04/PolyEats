@@ -196,14 +196,16 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
               </div>
             </div>
           )}
-          <Reviews
-            reviews={reviews}
-            setReviews={setReviews}
-            API_PREFIX={API_PREFIX}
-            editable={false}
-            addAuthHeader={addAuthHeader}
-            loggedInUserId={account._id}
-          />
+          <div className="reviews-section">
+            <Reviews
+              reviews={reviews}
+              setReviews={setReviews}
+              API_PREFIX={API_PREFIX}
+              editable={false}
+              addAuthHeader={addAuthHeader}
+              loggedInUserId={account._id}
+            />
+          </div>
 
           <div className="list-group-container account-actions">
             <label>Settings</label>
