@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import multer from "multer";
+import { Storage } from "@google-cloud/storage"; // Import Google Cloud Storage library
 import complexService from "./services/complex-service.js";
 import restaurantService from "./services/restaurant-service.js";
 import { authenticateUser, registerUser, loginUser } from "./auth.js";
@@ -9,7 +10,11 @@ import authRoutes from "./auth.js";
 import accountService from "./services/account-service.js";
 import reviewService from "./services/review-service.js";
 
-const { MONGO_CONNECTION_STRING } = process.env;
+const {
+  MONGO_CONNECTION_STRING,
+  GOOGLE_CLOUD_BUCKET_NAME,
+  GOOGLE_SERVICE_ACCOUNT_KEY
+} = process.env;
 
 mongoose.set("debug", true);
 mongoose.connect(MONGO_CONNECTION_STRING).catch((error) => console.log(error));
@@ -41,7 +46,28 @@ app.use("/uploads", express.static("../uploads"));
 const storage = multer.memoryStorage(); // Store files in memory
 const upload = multer({ storage });
 
-//register auth routes
+// Initialize Google Cloud Storage
+let cloudStorage;
+try {
+  const serviceAccount = JSON.parse(GOOGLE_SERVICE_ACCOUNT_KEY);
+  cloudStorage = new Storage({ credentials: serviceAccount });
+  console.log("Google Cloud Storage initialized.");
+} catch (error) {
+  console.error("Error initializing Google Cloud Storage:", error);
+}
+
+// Helper function to upload files to Google Cloud Storage
+async function uploadToCloudStorage(file) {
+  const bucket = cloudStorage.bucket(GOOGLE_CLOUD_BUCKET_NAME);
+  const blob = bucket.file(file.originalname);
+  await blob.save(file.buffer, {
+    contentType: file.mimetype,
+    predefinedAcl: "publicRead" // Make the file publicly accessible
+  });
+  return `https://storage.googleapis.com/${GOOGLE_CLOUD_BUCKET_NAME}/${blob.name}`;
+}
+
+// Register auth routes
 app.use("/auth", authRoutes);
 
 app.get("/", (req, res) => {
@@ -51,7 +77,7 @@ app.get("/", (req, res) => {
 app.post("/signup", registerUser);
 app.post("/login", loginUser);
 
-//post a review for a specific restaurant
+// Post a review for a specific restaurant
 app.post(
   "/review",
   authenticateUser,
@@ -61,14 +87,21 @@ app.post(
       const { item, review, rating, restaurant } = req.body;
       const userId = req.user._id;
 
-      // Use helper function to handle review creation and picture uploads
+      // Upload files to Google Cloud Storage
+      const uploadedFiles = [];
+      for (const file of req.files) {
+        const fileUrl = await uploadToCloudStorage(file);
+        uploadedFiles.push(fileUrl);
+      }
+
+      // Use helper function to handle review creation and store URLs
       const newReview = await reviewService.postReview({
         item,
         review,
         rating,
         restaurant,
         author: userId,
-        pictures: req.files // Pass the files directly to the helper
+        pictures: uploadedFiles // Store the URLs of uploaded files
       });
 
       res.status(201).send(newReview);
@@ -79,25 +112,7 @@ app.post(
   }
 );
 
-//delete a review
-app.delete("/review/:reviewId", authenticateUser, async (req, res) => {
-  const { reviewId } = req.params;
-  const userId = req.user._id;
-
-  try {
-    // Use helper function to handle review deletion and picture cleanup
-    await reviewService.deleteReview(reviewId, userId);
-
-    res
-      .status(200)
-      .send({ message: "Review and associated pictures deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting review:", error);
-    res.status(500).send({ error: "Error deleting review" });
-  }
-});
-
-//upload or update profile picture
+// Upload or update profile picture
 app.post(
   "/account/profile-pic",
   authenticateUser,
@@ -110,11 +125,13 @@ app.post(
     }
 
     try {
-      // Use the helper function to handle the profile picture update
-      const updatedAccount = await accountService.updateProfilePicture(
-        userId,
-        req.file
-      );
+      // Upload file to Google Cloud Storage
+      const fileUrl = await uploadToCloudStorage(req.file);
+
+      // Update account with profile picture URL
+      const updatedAccount = await accountService.updateProfilePicture(userId, {
+        profile_pic: fileUrl
+      });
 
       res.status(200).send({
         message: "Profile picture updated successfully",
@@ -127,14 +144,12 @@ app.post(
   }
 );
 
-//delete profile picture
+// Delete profile picture
 app.post("/account/profile-pic/remove", authenticateUser, async (req, res) => {
   const userId = req.user._id;
 
   try {
-    // Use the helper function to handle profile picture removal
     const updatedAccount = await accountService.removeProfilePicture(userId);
-
     res.status(200).send({
       message: "Profile picture removed successfully",
       profile_pic: updatedAccount.profile_pic
