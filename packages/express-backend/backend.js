@@ -44,9 +44,8 @@ const upload = multer({ storage });
 const blobServiceClient = BlobServiceClient.fromConnectionString(
   AZURE_STORAGE_ACCESS_KEY
 );
-const containerClient = blobServiceClient.getContainerClient(
-  AZURE_STORAGE_ACCOUNT_NAME
-);
+const containerClient =
+  blobServiceClient.getContainerClient(AZURE_CONTAINER_NAME);
 
 // Helper function to upload a file to Azure Blob Storage
 async function uploadFileToAzure(file) {
