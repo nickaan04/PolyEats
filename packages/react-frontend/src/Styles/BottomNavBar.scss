@@ -12,7 +12,7 @@
 
   a {
     text-decoration: none;
-    color: #555;
+    color: black;
     font-size: 16px;
     font-weight: bold;
     padding: 10px 20px;
@@ -22,12 +22,12 @@
     justify-content: center;
 
     &:hover {
-      color: #007bff;
+      color: #60c874;
     }
 
     &.active {
-      color: #007bff;
-      border-bottom: 2px solid #007bff;
+      color: #60c874;
+      border-bottom: 2px solid #60c874;
     }
 
     svg {

@@ -127,7 +127,7 @@ function MyApp() {
       <FiltersProvider>
         <Router>
           <div
-            style={{ paddingBottom: token !== INVALID_TOKEN ? "75px" : "0" }}>
+            style={{ paddingBottom: token !== INVALID_TOKEN ? "85px" : "0" }}>
             <Routes>
               <Route path="/" element={<WelcomePage />} />
               <Route
