@@ -24,7 +24,8 @@ app.use(
       "Authorization",
       "Accept",
       "X-Requested-With"
-    ]
+    ],
+    credentials: true
   })
 );
 

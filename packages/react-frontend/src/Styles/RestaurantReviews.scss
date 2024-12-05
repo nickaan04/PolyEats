@@ -48,6 +48,11 @@
   margin-top: 1rem;
 }
 
+.see-images-button:hover {
+  background: rgba(49, 49, 49, 0.1); 
+  color: #000; 
+}
+
 .toggle-overlay-button {
   margin-top: 20px;
   padding: 10px 20px;
@@ -60,6 +65,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.toggle-overlay-button:hover {
+  background-color: #154606;
 }
 
 .button-image {
@@ -121,4 +130,8 @@
 
 .bookmark.favorited {
   color: gold;
+}
+
+.bookmark:hover {
+  color: orange;
 }

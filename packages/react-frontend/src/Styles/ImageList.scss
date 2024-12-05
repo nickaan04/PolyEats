@@ -28,6 +28,10 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
+
+    &:hover {
+      background-color: #c82333;
+    }
   }
 
 .image-list-overlay > .row {
