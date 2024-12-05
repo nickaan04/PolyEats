@@ -13,7 +13,7 @@ import { BlobServiceClient } from "@azure/storage-blob";
 const {
   MONGO_CONNECTION_STRING,
   AZURE_STORAGE_ACCESS_KEY,
-  AZURE_CONTAINER_NAME
+  AZURE_STORAGE_ACCOUNT_NAME
 } = process.env;
 
 mongoose.set("debug", true);
@@ -44,8 +44,9 @@ const upload = multer({ storage });
 const blobServiceClient = BlobServiceClient.fromConnectionString(
   AZURE_STORAGE_ACCESS_KEY
 );
-const containerClient =
-  blobServiceClient.getContainerClient(AZURE_CONTAINER_NAME);
+const containerClient = blobServiceClient.getContainerClient(
+  AZURE_STORAGE_ACCOUNT_NAME
+);
 
 // Helper function to upload a file to Azure Blob Storage
 async function uploadFileToAzure(file) {
