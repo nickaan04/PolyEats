@@ -12,13 +12,15 @@ import { BlobServiceClient } from "@azure/storage-blob";
 
 const {
   MONGO_CONNECTION_STRING,
-  AZURE_STORAGE_ACCESS_KEY,
-  AZURE_STORAGE_ACCOUNT_NAME
+  AZURE_STORAGE_CONNECTION_STRING, // Full connection string from the .env file
+  AZURE_CONTAINER_NAME // Container name from the .env file
 } = process.env;
 
+// Connect to MongoDB
 mongoose.set("debug", true);
 mongoose.connect(MONGO_CONNECTION_STRING).catch((error) => console.log(error));
 
+// Initialize Express
 const app = express();
 app.use(
   cors({
@@ -32,7 +34,6 @@ app.use(
     ]
   })
 );
-
 app.options("*", cors());
 app.use(express.json());
 
@@ -40,9 +41,9 @@ app.use(express.json());
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// Azure Blob Service Client setup
+// Azure Blob Storage setup
 const blobServiceClient = BlobServiceClient.fromConnectionString(
-  AZURE_STORAGE_ACCESS_KEY
+  AZURE_STORAGE_CONNECTION_STRING
 );
 const containerClient =
   blobServiceClient.getContainerClient(AZURE_CONTAINER_NAME);
@@ -57,19 +58,28 @@ async function uploadFileToAzure(file) {
   return blockBlobClient.url; // Return the URL of the uploaded blob
 }
 
-// Helper function to delete a blob
+// Helper function to delete a file from Azure Blob Storage
 async function deleteFileFromAzure(blobName) {
   const blockBlobClient = containerClient.getBlockBlobClient(blobName);
   const response = await blockBlobClient.deleteIfExists();
   return response.succeeded;
 }
 
-// Register auth routes
-app.use("/auth", authRoutes);
-
+// Start Express server
 app.listen(process.env.PORT, () => {
   console.log("REST API is listening.");
 });
+
+// Routes
+// Welcome route
+app.get("/", (req, res) => {
+  res.status(200).send({ message: "Welcome to PolyEats!" });
+});
+
+// Authentication routes
+app.use("/auth", authRoutes);
+app.post("/signup", registerUser);
+app.post("/login", loginUser);
 
 // Upload a file to Azure Blob Storage
 app.post("/upload", upload.single("file"), async (req, res) => {
@@ -129,15 +139,6 @@ app.delete("/delete/:blobName", async (req, res) => {
   }
 });
 
-// Welcome route
-app.get("/", (req, res) => {
-  res.status(200).send({ message: "Welcome to PolyEats!" });
-});
-
-// Authentication routes
-app.post("/signup", registerUser);
-app.post("/login", loginUser);
-
 // Post a review for a specific restaurant
 app.post(
   "/review",
@@ -184,10 +185,8 @@ app.post(
     }
 
     try {
-      // Upload the profile picture to Azure Blob Storage
       const profilePicUrl = await uploadFileToAzure(req.file);
 
-      // Use the helper function to handle the profile picture update
       const updatedAccount = await accountService.updateProfilePicture(
         userId,
         profilePicUrl

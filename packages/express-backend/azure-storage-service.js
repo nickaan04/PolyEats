@@ -3,7 +3,7 @@ import { BlobServiceClient } from "@azure/storage-blob";
 import { v4 as uuidv4 } from "uuid";
 
 const STORAGE_ACCOUNT =
-  process.env.AZURE_STORAGE_ACCOUNT_NAME || "your-storage-account-name";
+  process.env.AZURE_STORAGE_ACCOUNT_NAME || "polyeats1901";
 const STORAGE_ACCESS_KEY = process.env.AZURE_STORAGE_ACCESS_KEY;
 const STORAGE_CONTAINER = "images"; // Name of your Azure Blob Storage container
 
