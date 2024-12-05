@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import multer from "multer";
+import { Storage } from "@google-cloud/storage"; // Google Cloud Storage
+import dotenv from "dotenv"; // To load environment variables
 import complexService from "./services/complex-service.js";
 import restaurantService from "./services/restaurant-service.js";
 import { authenticateUser, registerUser, loginUser } from "./auth.js";
@@ -9,7 +11,9 @@ import authRoutes from "./auth.js";
 import accountService from "./services/account-service.js";
 import reviewService from "./services/review-service.js";
 
-const { MONGO_CONNECTION_STRING } = process.env;
+dotenv.config(); // Load environment variables from .env
+
+const { MONGO_CONNECTION_STRING, GOOGLE_CLOUD_KEY } = process.env;
 
 mongoose.set("debug", true);
 mongoose.connect(MONGO_CONNECTION_STRING).catch((error) => console.log(error));
@@ -38,8 +42,20 @@ app.listen(process.env.PORT, () => {
 app.use("/uploads", express.static("../uploads"));
 
 // Configure multer storage
-const storage = multer.memoryStorage(); // Store files in memory
-const upload = multer({ storage });
+const storageMulter = multer.memoryStorage(); // Store files in memory
+const upload = multer({ storage: storageMulter });
+
+// Initialize Google Cloud Storage
+if (!GOOGLE_CLOUD_KEY) {
+  console.error("GOOGLE_CLOUD_KEY is not set in environment variables!");
+  process.exit(1);
+}
+const googleCloudKey = JSON.parse(
+  Buffer.from(GOOGLE_CLOUD_KEY, "base64").toString("utf-8")
+);
+const storage = new Storage({ credentials: googleCloudKey });
+const bucketName = "polyeats"; // Replace with your bucket name
+const bucket = storage.bucket(bucketName);
 
 //register auth routes
 app.use("/auth", authRoutes);
@@ -79,24 +95,6 @@ app.post(
   }
 );
 
-//delete a review
-app.delete("/review/:reviewId", authenticateUser, async (req, res) => {
-  const { reviewId } = req.params;
-  const userId = req.user._id;
-
-  try {
-    // Use helper function to handle review deletion and picture cleanup
-    await reviewService.deleteReview(reviewId, userId);
-
-    res
-      .status(200)
-      .send({ message: "Review and associated pictures deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting review:", error);
-    res.status(500).send({ error: "Error deleting review" });
-  }
-});
-
 //upload or update profile picture
 app.post(
   "/account/profile-pic",
@@ -110,19 +108,39 @@ app.post(
     }
 
     try {
-      // Use the helper function to handle the profile picture update
-      const updatedAccount = await accountService.updateProfilePicture(
-        userId,
-        req.file
-      );
+      console.log("Uploading file:", req.file.originalname);
 
-      res.status(200).send({
-        message: "Profile picture updated successfully",
-        profile_pic: updatedAccount.profile_pic
+      // Upload file to Google Cloud Storage
+      const blob = bucket.file(
+        `profile-pictures/${userId}-${req.file.originalname}`
+      );
+      const stream = blob.createWriteStream();
+
+      stream.on("error", (err) => {
+        console.error("Error uploading to GCS:", err);
+        res.status(500).json({ error: "Error uploading file to storage" });
       });
+
+      stream.on("finish", async () => {
+        const profilePicUrl = `https://storage.googleapis.com/${bucketName}/${blob.name}`;
+        console.log("File uploaded successfully to:", profilePicUrl);
+
+        // Save the profile picture URL in the database
+        const updatedAccount = await accountService.updateProfilePicture(
+          userId,
+          profilePicUrl
+        );
+
+        res.status(200).json({
+          message: "Profile picture updated successfully",
+          profile_pic: profilePicUrl
+        });
+      });
+
+      stream.end(req.file.buffer);
     } catch (error) {
       console.error("Error updating profile picture:", error);
-      res.status(500).send({ error: "Error updating profile picture" });
+      res.status(500).json({ error: "Error updating profile picture" });
     }
   }
 );
@@ -155,6 +173,7 @@ app.get("/account/details", authenticateUser, (req, res) => {
     );
 });
 
+// All other routes remain unchanged below this line
 //get reviews given by the account
 app.get("/account/reviews", authenticateUser, (req, res) => {
   accountService
@@ -247,27 +266,21 @@ app.get("/complexes/:complexId/restaurants", authenticateUser, (req, res) => {
 
   const filters = {};
   if (name) {
-    //e.g. ?name=Hearth or ?name=hearth (not case sensitive)
     filters.name = name;
   }
   if (minRating) {
-    //e.g. ?minRating=4
     filters.avg_rating = parseFloat(minRating);
   }
   if (cuisine) {
-    //e.g. ?cuisine=Mexican or ?name=mexican (not case sensitive)
     filters.cuisine = cuisine;
   }
   if (delivery) {
-    //e.g. ?delivery=true
     filters.delivery = delivery === "true";
   }
   if (price) {
-    //e.g. ?price=$
     filters.price = price;
   }
   if (accepted_payments) {
-    //JSON object, e.g., ?accepted_payments={"PolyCard": true, "CreditDebit": true}
     try {
       filters.accepted_payments = JSON.parse(accepted_payments);
     } catch (error) {
@@ -277,7 +290,6 @@ app.get("/complexes/:complexId/restaurants", authenticateUser, (req, res) => {
     }
   }
   if (nutrition_types) {
-    //JSON object, e.g., ?nutrition_types={"Vegan": true, "GlutenFree": true}
     try {
       filters.nutrition_types = JSON.parse(nutrition_types);
     } catch (error) {
@@ -287,7 +299,6 @@ app.get("/complexes/:complexId/restaurants", authenticateUser, (req, res) => {
     }
   }
   if (hours) {
-    //JSON object, e.g., ?hours={"M": true}
     try {
       filters.hours = JSON.parse(hours);
     } catch (error) {
@@ -306,6 +317,7 @@ app.get("/complexes/:complexId/restaurants", authenticateUser, (req, res) => {
       });
     });
 });
+
 /* For sorting:
   ?sortField=name&sortOrder=asc --> Name A-Z
   ?sortField=name&sortOrder=desc --> Name Z-A
