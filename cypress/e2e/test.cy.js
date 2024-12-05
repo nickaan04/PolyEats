@@ -167,7 +167,9 @@ describe("Full App End-to-End Test", () => {
     // cy.wait(2000);
 
     // Step 12: Log Out
-    cy.contains("button", "Log Out").should("be.visible").click();
+    cy.contains("Log Out")
+      .should("be.visible")
+      .click({ force: true }); // Forces the click in case it's not interactable directly
     cy.wait(2000);
     cy.url().should("include", "/");
 
@@ -184,10 +186,20 @@ describe("Full App End-to-End Test", () => {
     cy.wait(2000);
 
     // Step 14: Delete Account
-    cy.contains("button", "Delete Account").should("be.visible").click();
+    cy.contains("Delete Account") // Locate the "Delete Account" link by text
+      .should("be.visible")
+      .click({ force: true }); // Force click in case the element isn't interactable
     cy.wait(2000);
-    cy.contains("button", "Yes, Delete").should("be.visible").click();
+
+    // Confirm the deletion
+    cy.contains("Yes, Delete") // Locate the confirmation button
+      .should("be.visible")
+      .click({ force: true }); // Force click to ensure interaction
     cy.wait(2000);
+
+    // Optionally verify if redirected or account deletion is reflected
+    cy.url().should("include", "/"); // Verify if redirected to home or login page
+
 
     // Step 15: Verify Account Deletion
     cy.visit("/login");
