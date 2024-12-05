@@ -167,9 +167,7 @@ describe("Full App End-to-End Test", () => {
     // cy.wait(2000);
 
     // Step 12: Log Out
-    cy.contains("Log Out")
-      .should("be.visible")
-      .click({ force: true }); // Forces the click in case it's not interactable directly
+    cy.contains("Log Out").should("be.visible").click({ force: true }); // Forces the click in case it's not interactable directly
     cy.wait(2000);
     cy.url().should("include", "/");
 
@@ -199,7 +197,6 @@ describe("Full App End-to-End Test", () => {
 
     // Optionally verify if redirected or account deletion is reflected
     cy.url().should("include", "/"); // Verify if redirected to home or login page
-
 
     // Step 15: Verify Account Deletion
     cy.visit("/login");

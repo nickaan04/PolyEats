@@ -4,7 +4,6 @@ import { toast } from "react-toastify";
 import Reviews from "./Reviews";
 import "react-toastify/dist/ReactToastify.css";
 import "../Styles/AccountPage.scss";
-import { ListGroup } from "react-bootstrap";
 
 const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
   const [account, setAccount] = useState(null);
@@ -207,30 +206,18 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
             />
           </div>
 
-          <div className="list-group-container account-actions">
-            <label>Settings</label>
-            <ListGroup className="custom-list-group">
-              <ListGroup.Item className="custom-list-item">
-                <a href="#log-out" className="custom-link" onClick={logoutUser}>
-                  Log Out
-                </a>
-              </ListGroup.Item>
-              <ListGroup.Item className="custom-list-item">
-                <a
-                  href="#log-out"
-                  className="custom-link"
-                  onClick={() => setShowDeleteModal(true)}>
-                  Delete Account
-                </a>
-              </ListGroup.Item>
-            </ListGroup>
+          <div className="account-actions">
+            <button onClick={handleLogout}>Sign Out</button>
+            <button onClick={() => setShowDeleteModal(true)}>
+              Delete Account
+            </button>
           </div>
 
           {showDeleteModal && (
             <div className="modal">
               <div className="modal-content">
                 <p>Are you sure you want to delete your account?</p>
-                <button onClick={deleteAccount}>Yes, Delete</button>
+                <button onClick={deleteAccount}>Delete Account</button>
                 <button onClick={() => setShowDeleteModal(false)}>
                   Cancel
                 </button>
