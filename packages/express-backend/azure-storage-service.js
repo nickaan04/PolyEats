@@ -2,12 +2,15 @@ import { Readable } from "node:stream";
 import { BlobServiceClient } from "@azure/storage-blob";
 import { v4 as uuidv4 } from "uuid";
 
-const STORAGE_ACCOUNT = process.env.AZURE_STORAGE_ACCOUNT_NAME || "your-storage-account-name";
+const STORAGE_ACCOUNT =
+  process.env.AZURE_STORAGE_ACCOUNT_NAME || "your-storage-account-name";
 const STORAGE_ACCESS_KEY = process.env.AZURE_STORAGE_ACCESS_KEY;
 const STORAGE_CONTAINER = "images"; // Name of your Azure Blob Storage container
 
 if (!STORAGE_ACCOUNT || !STORAGE_ACCESS_KEY) {
-  throw new Error("Azure Storage Account credentials are not set in environment variables.");
+  throw new Error(
+    "Azure Storage Account credentials are not set in environment variables."
+  );
 }
 
 // Create the Blob Service Client
@@ -19,7 +22,9 @@ const blobServiceClient = BlobServiceClient.fromConnectionString(
 const containerClient = blobServiceClient.getContainerClient(STORAGE_CONTAINER);
 
 if (!containerClient.exists()) {
-  console.warn(`Container "${STORAGE_CONTAINER}" does not exist. Ensure it is created in your Azure account.`);
+  console.warn(
+    `Container "${STORAGE_CONTAINER}" does not exist. Ensure it is created in your Azure account.`
+  );
 }
 
 /**
@@ -28,24 +33,28 @@ if (!containerClient.exists()) {
  * @param {Response} res - The Express response object.
  * @returns {Promise<string>} The URL of the uploaded blob.
  */
-export async function uploadBlob(req, res) {
-  try {
-    const filename = (req.query.filename as string) || "upload";
-    const uuid = uuidv4();
-    const blobname = `${uuid}:${filename}`;
-    const blockBlobClient = containerClient.getBlockBlobClient(blobname);
-    const stream = Readable.from(req.body);
+export function uploadBlob(req, res) {
+  const filename = String(req.query.filename || "upload"); // Ensure it's a string
+  const uuid = uuidv4();
+  const blobname = `${uuid}:${filename}`;
+  const blockBlobClient = containerClient.getBlockBlobClient(blobname);
+  const stream = Readable.from(req.body);
 
-    await blockBlobClient.uploadStream(stream, undefined, undefined, {
-      blobHTTPHeaders: { blobContentType: req.headers["content-type"] || "application/octet-stream" },
+  blockBlobClient
+    .uploadStream(stream)
+    .then((blobResponse) => {
+      res.status(201).send({
+        url: `/images/${blobname}`,
+        md5: blobResponse.contentMD5
+      });
+    })
+    .catch((error) => {
+      console.log("Blob upload error:", error);
+      res.status(500).send({
+        message: "Failed to upload to blob storage",
+        error
+      });
     });
-
-    const url = blockBlobClient.url;
-    return url; // Return the URL for saving in the database
-  } catch (error) {
-    console.error("Error uploading blob:", error);
-    res.status(500).send({ message: "Failed to upload to Azure Blob Storage", error });
-  }
 }
 
 /**
@@ -53,16 +62,35 @@ export async function uploadBlob(req, res) {
  * @param {Request} req - The Express request object.
  * @param {Response} res - The Express response object.
  */
-export async function downloadBlob(req, res) {
-  try {
-    const { blob } = req.params; // Blob name passed as a route parameter
-    const blockBlobClient = containerClient.getBlockBlobClient(blob);
+export function downloadBlob(req, res) {
+  const { blob } = req.params; // Blob name passed as a route parameter
+  const blockBlobClient = containerClient.getBlockBlobClient(blob);
 
-    const exists = await blockBlobClient.exists();
-    if (!exists) {
-      return res.status(404).send({ message: "Blob not found" });
-    }
+  blockBlobClient
+    .exists()
+    .then((exists) => {
+      if (!exists) {
+        return res.status(404).send({ error: "Blob not found" });
+      }
 
-    const downloadBuffer = await blockBlobClient.downloadToBuffer();
-    res.setHeader("Content-Type", "application/octet-stream");
-    res.send(down
+      // Stream the blob content directly to the response
+      blockBlobClient
+        .download(0)
+        .then((downloadResponse) => {
+          res.setHeader("Content-Type", downloadResponse.contentType);
+          res.setHeader(
+            "Content-Disposition",
+            `attachment; filename="${blob}"`
+          );
+          downloadResponse.readableStreamBody.pipe(res);
+        })
+        .catch((error) => {
+          console.error("Error during blob download:", error);
+          res.status(500).send({ error: "Failed to download blob" });
+        });
+    })
+    .catch((error) => {
+      console.error("Blob existence check failed:", error);
+      res.status(500).send({ error: "Failed to download blob" });
+    });
+}
