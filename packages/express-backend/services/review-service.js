@@ -1,6 +1,6 @@
 import reviewModel from "../models/review.js";
 import restaurantModel from "../models/restaurant.js";
-import { uploadFileToAzure, deleteFileFromAzure } from "./azureBlobStorage.js";
+import { uploadFileToAzure, deleteFileFromAzure } from "../azureBlobStorage.js";
 
 //post a new review
 async function postReview(reviewData) {

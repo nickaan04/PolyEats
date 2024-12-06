@@ -1,7 +1,7 @@
 import accountModel from "../models/account.js";
 import reviewModel from "../models/review.js";
 import restaurantModel from "../models/restaurant.js";
-import { uploadFileToAzure, deleteFileFromAzure } from "./azureBlobStorage.js";
+import { uploadFileToAzure, deleteFileFromAzure } from "../azureBlobStorage.js";
 
 //fetch account details by ID (excluding password)
 async function getAccountDetails(accountId) {
