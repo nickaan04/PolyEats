@@ -1,0 +1,32 @@
+/* Toast Container Styles */
+.custom-toast-container {
+  /* Adjust placement of the toast container if needed */
+}
+
+/* Toast Alert Styles */
+.custom-toast {
+  background-color: #eaf7e5 !important; /* Match input field green */
+  color: #000 !important; /* Black text */
+  font-size: 16px !important; /* Optional: adjust text size */
+  border: 1px solid #45a65b; /* Optional: add a border */
+  border-radius: 5px !important; /* Optional: add rounded corners */
+  padding: 10px !important; /* Optional: adjust padding */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Close Button Styles */
+.custom-close-button {
+  background-color: transparent;
+  border: none;
+  color: #dc3545; /* Red X */
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+
+  &:hover {
+    color: #c82333; /* Darker red on hover */
+  }
+}

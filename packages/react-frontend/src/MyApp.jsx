@@ -8,6 +8,7 @@ import {
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./Styles/App.scss";
+import "./Styles/ToastStyles.scss";
 import { FiltersProvider } from "./Components/Restaurant/FiltersContext.jsx";
 import Login from "./Login.jsx";
 import VerifyEmail from "./VerifyEmail.jsx";
@@ -223,7 +224,15 @@ function MyApp() {
           </div>
         </Router>
       </FiltersProvider>
-      <ToastContainer />
+      <ToastContainer
+        className="custom-toast-container"
+        toastClassName="custom-toast"
+        closeButton={({ closeToast }) => (
+          <button className="custom-close-button" onClick={closeToast}>
+            &times;
+          </button>
+        )}
+      />
     </div>
   );
 }
