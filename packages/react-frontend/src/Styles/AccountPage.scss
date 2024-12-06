@@ -109,24 +109,24 @@
         transition: background-color 0.3s ease, transform 0.3s ease;
       }
 
-      /* Change Profile Picture: F8E08E (Yellow) */
+      /* Change Profile Picture: */
       button:first-of-type {
-        background-color: #f8e08e; /* Yellow background */
-        color: #000; /* Black text */
-      }
-
-      button:first-of-type:hover {
-        background-color: #e6d078; /* Slightly darker yellow on hover */
-      }
-
-      /* Remove Profile Picture: Red */
-      button:nth-of-type(2) {
         background-color: #dc3545; /* Red background */
         color: #fff; /* White text */
       }
 
-      button:nth-of-type(2):hover {
+      button:first-of-type:hover {
         background-color: #c82333; /* Darker red on hover */
+      }
+
+      /* Remove Profile Picture */
+      button:nth-of-type(2) {
+        background-color: #f8e08e; /* Yellow background */
+        color: #000; /* Black text */
+      }
+
+      button:nth-of-type(2):hover {
+        background-color: #e6d078; /* Slightly darker yellow on hover */
       }
 
       /* Cancel: Green */

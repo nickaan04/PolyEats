@@ -179,16 +179,18 @@ const Reviews = ({
             <div className="review-body">{review.review}</div>
             {review.pictures && review.pictures.length > 0 && (
               <div
-                className="review-pictures"
+                className="review-pictures-container"
                 onClick={() => handleImageClick(review.pictures)}>
-                {review.pictures.map((pic, i) => (
-                  <img
-                    key={i}
-                    src={pic}
-                    alt={`Review Pic ${i + 1}`}
-                    className="review-pic"
-                  />
-                ))}
+                <img
+                  src={review.pictures[0]} // Display the first picture
+                  alt="Review Thumbnail"
+                  className="review-thumbnail"
+                />
+                {review.pictures.length > 1 && (
+                  <div className="overlay">
+                    <span>See More</span>
+                  </div>
+                )}
               </div>
             )}
           </div>

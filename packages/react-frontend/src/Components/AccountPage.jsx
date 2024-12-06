@@ -184,16 +184,16 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
                 <div className="modal-content">
                   <p>Edit Profile Picture</p>
                   <button
-                    onClick={() =>
-                      document.getElementById("profile-pic-upload").click()
-                    }>
-                    Change Profile Picture
-                  </button>
-                  <button
                     onClick={() => {
                       removeProfilePicture();
                     }}>
                     Remove Profile Picture
+                  </button>
+                  <button
+                    onClick={() =>
+                      document.getElementById("profile-pic-upload").click()
+                    }>
+                    Change Profile Picture
                   </button>
                   <button onClick={() => setShowProfilePicOptions(false)}>
                     Cancel
