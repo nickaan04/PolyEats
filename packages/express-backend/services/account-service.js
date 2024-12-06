@@ -95,10 +95,41 @@ async function removeFavoriteRestaurant(accountId, restaurantId) {
 }
 
 async function deleteAccount(accountId) {
+  // Find the account to get the profile picture
+  const account = await accountModel.findById(accountId);
+  if (!account) {
+    throw new Error("Account not found");
+  }
+
+  const DEFAULT_PROFILE_PIC =
+    "https://polyeats1901.blob.core.windows.net/images/profile-pictures/defaultprofilepic.jpeg";
+
+  // Delete the profile picture if it is not the default one
+  if (account.profile_pic !== DEFAULT_PROFILE_PIC) {
+    const blobName = account.profile_pic.split("/").pop(); // Extract blob name
+    await deleteFileFromAzure("images", blobName, "profile-pictures");
+  }
+
+  // Fetch all reviews by the account
+  const reviews = await reviewModel.find({ author: accountId });
+
+  // Delete review images from Azure Storage
+  for (const review of reviews) {
+    if (review.pictures && review.pictures.length > 0) {
+      for (const pictureUrl of review.pictures) {
+        const blobName = pictureUrl.split("/").pop(); // Extract blob name
+        await deleteFileFromAzure("images", blobName, "review-pictures");
+      }
+    }
+  }
+
+  // Delete the account from the database
   await accountModel.findByIdAndDelete(accountId);
+
+  // Delete all reviews by the account
   await reviewModel.deleteMany({ author: accountId });
-  //any additional cleanup goes here
-  return { message: "Account successfully deleted" };
+
+  return { message: "Account and associated data successfully deleted" };
 }
 
 export default {

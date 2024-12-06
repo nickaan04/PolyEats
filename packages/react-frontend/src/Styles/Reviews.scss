@@ -22,6 +22,7 @@
       font-size: 16px; /* Standard button font size */
       font-weight: bold;
       cursor: pointer;
+
     }
   }
 
@@ -50,58 +51,59 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
+
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+
+    .review-author-pic {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 10px;
     }
 
-    .header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-
-      .review-author-pic {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-right: 10px;
-      }
-
-      .author-info {
-        font-size: 16px;
-        font-weight: bold;
-        color: rgb(0, 0, 0);
-      }
-    }
-
-    .top-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-
-      .item-name {
-        font-size: 18px;
-        font-weight: bold;
-        color: rgb(0, 0, 0);
-      }
-
-      .review-date {
-        font-size: 14px;
-        color: rgb(67, 67, 67);
-        white-space: nowrap;
-      }
-    }
-
-    .stars {
-      margin-bottom: 10px;
-      color: #ffcc00;
-      text-align: right;
-    }
-
-    .review-body {
+    .author-info {
       font-size: 16px;
+      font-weight: bold;
       color: rgb(0, 0, 0);
-      padding-bottom: 10px;
     }
   }
+
+  .top-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+
+    .item-name {
+      font-size: 18px;
+      font-weight: bold;
+      color: rgb(0, 0, 0);
+    }
+
+    .review-date {
+      font-size: 14px;
+      color: rgb(67, 67, 67);
+      white-space: nowrap;
+    }
+  }
+
+  .stars {
+    margin-bottom: 10px;
+    color: #ffcc00;
+    text-align: right;
+  }
+
+  .review-body {
+    font-size: 16px;
+    color: rgb(0, 0, 0);
+    padding-bottom: 10px;
+  }
+}
 
   .modal {
     position: fixed;
@@ -164,9 +166,7 @@
   font-size: 16px; /* Font size for readability */
   background-color: #eaf7e5; /* Light green background */
   color: #000; /* Black text for contrast */
-  transition:
-    border-color 0.2s ease,
-    background-color 0.2s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 .modal-content input[type="text"]:focus,
 .modal-content textarea:focus,
@@ -210,10 +210,8 @@
     color: white;
     font-size: 16px;
     font-weight: bold;
-    visibility: visible; /* Initially hidden */
-    opacity: 0;
-    transition:
-      opacity 0.3s ease,
-      visibility 0.3s ease;
+    visibility: visible; /* Always visible */
+    opacity: 1; /* Always opaque */
+    transition: opacity 0.3s ease, visibility 0.3s ease;
   }
 }
