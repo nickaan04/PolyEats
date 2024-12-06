@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "root-micron-442101-d2",
+  "private_key_id": "81d59421adad095f9125f4b2a0c6b44b40f757dc",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDHSxO6awLnQGJG\nT+CJ/PBKcl7OyV2letTy5zhdVfSCI0SiLl28AQhe3a9dtOgH4tO7cX3BZJNYfThX\nx1qGmakM1dMWUM76O+kggXjv4QjQy7tCHzo8aA6IofhgDvlcTVzGnern7WonOSON\nDxuifXPHqV7Q8++COnFfGTkAbUp9//WpEqqJhlq1h9ctH6vSHON7fMUUWP7eyXgV\n4XibFVvQke6MLXwTIZtg2xO2c5JB+11/FpTNSkc9zPgMQ2tvq20y9NrboY+AQA5X\nch1ONaI2L62ZOGUUbxp7KtQyKXTBd5RMnIgMJR8pNVshHEPNNTzU4MrbMxnuGXry\nbWTxc1EhAgMBAAECggEAD3X5WJW7Mq4JwbsqKAJVsOzZApFYIMGb+iEqfAEyWBM8\n3Jkcv/xThiqME4i4lH4KH4lRMHrpPGzwfUzTrswGc562As3vlLWnoxQwSenLGYmo\npBtQlQWclQh9wJQAz+KXjzgKlIYUXWkfIy8YHX2+iO+QkcTO4KtAhthp1ejkpcwd\n1FM3o18FQL0hM2RpuZMi7ANaAWgmbXlyS/EinhQt/2Ec+yzIZG2aA/rqq8u2VCvU\n2U5QYHyyxxiN9SUJFVXgebfGtULpTgPb3vHFDdKnBucQoKigIJO3Ra0Z+Q0G2TqL\nuXSuGiV/5RP0lwEHDJXaVhHkT0SeMcGkZZgrrQy67QKBgQDqhhYxStOC/h76kgG2\n9fSQZHXfWTHGmzcBaYqv77578Ga0eyeWGUT1xtSSzMrhfUtktjx2+THhJFl/jmz9\nnqMqwPBPb5A43DabG4d4spe/DzdS8PR5egSiRT9fMggyAhIJc5bdUF0KfXfJnZgJ\n92sj99vvXnDzKjTIsWTzyjsdpQKBgQDZixX0D3+kNNDtzMVBm+c+zaajBwM6C4/1\nH8xwnmjCEIalqngBFGj6xGmJmaszqcD6H+OcdcusxAATIupk/IARbGDXwNQexE3V\nVC3P5JqCPDn5KlX7bbYrDWFpIpIHNOW6LZrhgx5LC/HZnoYzFRLfJtkboI/glNkY\nWukIwC4EzQKBgQDHlkGAxatnyZjXqjZnXL47vCNMZv4jhai0PPvYavHzTE47vqub\n4/l6KTJzlHH8oMLu/OBMaBr4/hRkp/M9jCpUkkpxcAKPQWn/athJ8cOOyAZPQdzt\nHNiguMoL2+p5lKWBAawcwO3NpaWyIbpokPXPcHruJbN+Xib5vW6qwyq4OQKBgEyO\n/jLeIXWQgNavcdwdGcyoYzSMiz4qQ4dooXIgzY0+c6Rp0cHPhQJ7jQi34+BSpW9h\nOaEec4dhkwUpDIRtuERpd8t2OTB6tUmWTmkTcqzStTRTCd9qROnx045EdE/E9fQH\niLJEiqyuj3aeq2vexr1x1oY6g2ft+ljv5YMG3yshAoGAXw+Y3R5NCj0E6dl+ys0g\nzJVvO210ziQ18AlenN92wmCV0P5arjeX2JDeX4GAurd8W+RnSpMcS2KShGEYmC8/\npxx53cF4O6QXFqRyoGXs0UoFE7V2w4NILaPbl+bjIl+YpDC0+zYnu78i3pDbl9WC\n69+21d0JpQypI41ho4/Caek=\n-----END PRIVATE KEY-----\n",
+  "client_email": "image-uploader-service@root-micron-442101-d2.iam.gserviceaccount.com",
+  "client_id": "100697834794106154458",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/image-uploader-service%40root-micron-442101-d2.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

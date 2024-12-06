@@ -105,11 +105,18 @@ describe("Full App End-to-End Test", () => {
     cy.get(".close-overlay-button").should("be.visible").click();
     cy.wait(2000);
 
+    // Step 8.5: View Photos and Close
+    cy.contains("button", "See Photos").should("be.visible").click();
+    cy.wait(2000);
+    cy.get("button.close-button").should("be.visible").click();
+    cy.wait(2000);
+
     // Step 9: Add to Favorites
     cy.get(".bookmark").should("be.visible").click();
     cy.wait(3000);
     cy.contains("Restaurant added to favorites").should("be.visible");
     cy.wait(300);
+
 
     // Add a review
     cy.contains("Add Review").should("be.visible").click();
@@ -120,9 +127,9 @@ describe("Full App End-to-End Test", () => {
     cy.wait(2000);
     cy.get('input[name="rating"]').type("5");
     cy.wait(2000);
-    // const imagePath = "Orangechicken.jpg"; // File located in "cypress/fixtures"
-    // cy.get('input[type="file"]').attachFile(imagePath);
-    // cy.wait(2000);
+    const imagePath = "panda-express-broccoli-beef.webp"; // File located in "cypress/fixtures"
+    cy.get('input[type="file"]').attachFile(imagePath);
+    cy.wait(2000);
     cy.get('button[type="submit"]')
       .contains("Submit Review")
       .should("be.visible")
@@ -146,28 +153,31 @@ describe("Full App End-to-End Test", () => {
     // Step 10: Verify Favorites Page
     cy.contains("a", "Favorite").should("be.visible").click();
     cy.wait(2000);
+
     cy.contains(".card", "Panda Express")
       .should("be.visible")
       .within(() => {
-        cy.get("button.btn.btn-danger").should("be.visible").click();
+        cy.get("button.remove-favorite").should("be.visible").click();
       });
     cy.wait(2000);
+
     cy.contains(".card", "Panda Express").should("not.exist");
     cy.wait(2000);
+
 
     // Step 11: Verify Account Page
     cy.contains("a", "Account").should("be.visible").click();
     cy.wait(2000);
 
-    // // Step 11.5: Change Profile Picture
-    // const profileImagePath = "hanjosi-fragment3.jpg"; // File located in "cypress/fixtures"
-    // cy.get("input#profile-pic-upload")
-    //   .should("exist")
-    //   .attachFile(profileImagePath);
-    // cy.wait(2000);
+    // Step 11.5: Change Profile Picture
+    const profileImagePath = "hanjosi-fragment3.jpg"; // File located in "cypress/fixtures"
+    cy.get("input#profile-pic-upload")
+      .should("exist")
+      .attachFile(profileImagePath);
+    cy.wait(2000);
 
     // Step 12: Log Out
-    cy.contains("Log Out").should("be.visible").click({ force: true }); // Forces the click in case it's not interactable directly
+    cy.contains("button", "Sign Out").should("be.visible").click();
     cy.wait(2000);
     cy.url().should("include", "/");
 
@@ -184,19 +194,20 @@ describe("Full App End-to-End Test", () => {
     cy.wait(2000);
 
     // Step 14: Delete Account
-    cy.contains("Delete Account") // Locate the "Delete Account" link by text
+    cy.contains("button", "Delete Account")
       .should("be.visible")
-      .click({ force: true }); // Force click in case the element isn't interactable
+      .click({ force: true }); // Forcing the click
     cy.wait(2000);
 
-    // Confirm the deletion
-    cy.contains("Yes, Delete") // Locate the confirmation button
+    // Confirm the deletion in the modal
+    cy.contains("button", "Yes, Delete")
       .should("be.visible")
-      .click({ force: true }); // Force click to ensure interaction
+      .click({ force: true }); // Forcing the click
     cy.wait(2000);
 
-    // Optionally verify if redirected or account deletion is reflected
-    cy.url().should("include", "/"); // Verify if redirected to home or login page
+    // Optionally verify if redirected or account deletion is confirmed
+    cy.url().should("include", "/");
+
 
     // Step 15: Verify Account Deletion
     cy.visit("/login");
