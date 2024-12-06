@@ -6,6 +6,7 @@ import logo from "../Assets/logo.png";
 import "../Styles/App.scss";
 import Cards from "./Cards";
 
+// list all of the user's favorite restaurants on a page
 const FavoritesPage = ({ API_PREFIX, addAuthHeader }) => {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true); // State to track loading status
@@ -37,6 +38,7 @@ const FavoritesPage = ({ API_PREFIX, addAuthHeader }) => {
         }
       );
 
+      // set favorites with all but removed restaurant
       if (response.ok) {
         setFavorites((prevFavorites) =>
           prevFavorites.filter((restaurant) => restaurant._id !== restaurantId)
@@ -54,6 +56,7 @@ const FavoritesPage = ({ API_PREFIX, addAuthHeader }) => {
   return (
     <div className="favorites-page">
       <div className="top-image">
+        {/* display logo at top of page */}
         <img src={logo} alt="Top Banner" />
       </div>
       <h2 className="heading">Favorites</h2>
@@ -61,6 +64,7 @@ const FavoritesPage = ({ API_PREFIX, addAuthHeader }) => {
         {loading ? (
           <p>Loading favorites...</p>
         ) : favorites.length > 0 ? (
+          // iterate through favorite restaurants and display card for each
           favorites.map((restaurant) => (
             <Cards
               key={restaurant._id}

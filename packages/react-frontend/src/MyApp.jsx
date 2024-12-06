@@ -22,6 +22,7 @@ import FavoritesPage from "./Components/FavoritesPage.jsx";
 import WelcomePage from "./Components/WelcomePage.jsx";
 
 function MyApp() {
+  // backend request prefix
   const API_PREFIX =
     "https://polyeats1901-awh8hmbsa9a4hsdf.westus-01.azurewebsites.net";
   const INVALID_TOKEN = "INVALID_TOKEN";
@@ -39,12 +40,14 @@ function MyApp() {
     }
   }, [token]);
 
+  // add authentication header with user's bearer token
   function addAuthHeader(otherHeaders = {}) {
     return token === INVALID_TOKEN
       ? otherHeaders
       : { ...otherHeaders, Authorization: `Bearer ${token}` };
   }
 
+  // fetch complex data to display on home page
   function fetchComplexes() {
     const promise = fetch(`${API_PREFIX}/complexes`, {
       headers: addAuthHeader()
@@ -55,6 +58,7 @@ function MyApp() {
 
   useEffect(() => {
     if (token !== INVALID_TOKEN) {
+      // save complex data into complexes state
       fetchComplexes()
         .then((res) => (res.status === 200 ? res.json() : undefined))
         .then((json) => setComplexes(json ? json.complexes_list : null))
@@ -64,7 +68,9 @@ function MyApp() {
     }
   }, [token]);
 
+  // give user access to website with user credentials
   function loginUser(creds) {
+    // attempt login with authentication
     const promise = fetch(`${API_PREFIX}/login`, {
       method: "POST",
       headers: {
@@ -91,7 +97,9 @@ function MyApp() {
     return promise;
   }
 
+  // add user to database with authentication
   function signupUser(creds) {
+    // attempt signup request
     const promise = fetch(`${API_PREFIX}/signup`, {
       method: "POST",
       headers: {
@@ -101,6 +109,7 @@ function MyApp() {
     })
       .then((response) => {
         if (response.status === 201) {
+          // add token to token var
           response.json().then((payload) => setToken(payload.token));
           toast.success(
             "Signup successful. Email verification sent. Check spam if not in inbox"
@@ -118,6 +127,7 @@ function MyApp() {
     return promise;
   }
 
+  // remove user access until next login
   function logoutUser(showLogoutMessage = true) {
     setToken(INVALID_TOKEN);
     if (showLogoutMessage) {
@@ -125,12 +135,14 @@ function MyApp() {
     }
   }
 
+  // define page navigation and send appropriate paramaters into function
   return (
     <div className="container">
       <FiltersProvider>
         <Router>
           <div
             style={{ paddingBottom: token !== INVALID_TOKEN ? "85px" : "0" }}>
+            {/* start all entry with welcome page */}
             <Routes>
               <Route path="/" element={<WelcomePage />} />
               <Route
@@ -153,6 +165,7 @@ function MyApp() {
                   )
                 }
               />
+              {/* enter into "home"/ list of complexes when granted access */}
               <Route
                 path="/complexes"
                 element={

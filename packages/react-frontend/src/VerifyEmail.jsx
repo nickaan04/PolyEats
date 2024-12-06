@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+// check email credentials and send user an email
 export function VerifyEmail({ API_PREFIX }) {
   const [message, setMessage] = useState("Verifying your email...");
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ export function VerifyEmail({ API_PREFIX }) {
     const token = params.get("token");
 
     if (token) {
+      // check verification status and display appropriate response
       fetch(`${API_PREFIX}/auth/verify-email?token=${token}`)
         .then((response) => {
           if (response.ok) {

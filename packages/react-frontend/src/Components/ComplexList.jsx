@@ -5,6 +5,7 @@ import logo from "../Assets/logo.png";
 import "../Styles/App.scss";
 import { useFilters } from "./Restaurant/FiltersContext";
 
+// list complexes as cards and set order with no filters
 const ComplexList = ({ complexes }) => {
   const { setFilters } = useFilters();
 
@@ -26,10 +27,12 @@ const ComplexList = ({ complexes }) => {
   return (
     <div>
       <div className="top-image">
+        {/* display logo at top of page */}
         <img src={logo} alt="Top Banner" />
       </div>
       <h2 className="heading">Dining Complexes</h2>
       <div className="card-container">
+        {/* iterate through complexes in database and define a card with info */}
         {complexes.map((complex, index) => (
           <Cards
             key={index}

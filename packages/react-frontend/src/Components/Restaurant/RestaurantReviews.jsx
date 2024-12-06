@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ImageList from "./ImageList";
 
+// display restaurant info with custom labels
 const LABEL_MAP = {
   CreditDebit: "Credit/Debit",
   GlutenFree: "Gluten-Free",
@@ -19,6 +20,7 @@ const LABEL_MAP = {
   SUN: "Sunday"
 };
 
+// display all restaurant information, images, and user reviews
 function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
   const { id } = useParams(); // Get restaurant ID from URL
   const [restaurant, setRestaurant] = useState(null); // Restaurant object
@@ -30,6 +32,7 @@ function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
   const [reviewImages, setReviewImages] = useState([]);
 
   useEffect(() => {
+    // fetch restaurant info
     fetch(`${API_PREFIX}/restaurant/${id}`, {
       headers: addAuthHeader()
     })
@@ -116,6 +119,7 @@ function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
   return (
     <div>
       <div className="restaurant-top-banner">
+        {/* display restaurant image with info on overlay */}
         <img
           src={restaurant.image}
           alt={restaurant.name}
@@ -142,6 +146,7 @@ function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
         {/* Overlay that appears when button is clicked */}
         {showOverlay && (
           <div className="overlay-frame">
+            {/* display extra restaurant info on overlay */}
             <div className="overlay-content">
               <p>
                 <strong>Accepted Payments: </strong>
@@ -202,6 +207,7 @@ function RestaurantReviews({ API_PREFIX, addAuthHeader }) {
         </button>
       </div>
 
+      {/* submit new review and list all existing reviews */}
       <Reviews
         reviews={reviews}
         setReviews={setReviews}

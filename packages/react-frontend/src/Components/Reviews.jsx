@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "../Styles/Reviews.scss";
 import ImageList from "./Restaurant/ImageList.jsx";
 
+// display all existing reviews on restaurant's page
 const Reviews = ({
   reviews,
   setReviews,
@@ -26,23 +27,28 @@ const Reviews = ({
   const [currentImages, setCurrentImages] = useState([]);
   const navigate = useNavigate();
 
+  // adjust reviewData with review submissions details
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setReviewData({ ...reviewData, [name]: value });
   };
 
+  // adjust reviewData with uploaded images
   const handlePicturesChange = (e) => {
     setReviewData({ ...reviewData, pictures: Array.from(e.target.files) });
   };
 
+  // display clicked scope of images
   const handleImageClick = (pictures) => {
     setCurrentImages(pictures);
     setShowImageList(true);
   };
 
+  // handle review submission
   const handleSubmitReview = async (e) => {
     e.preventDefault();
 
+    // define formdata and add new review info
     const formData = new FormData();
     formData.append("item", reviewData.item);
     formData.append("review", reviewData.review);
@@ -55,12 +61,14 @@ const Reviews = ({
     }
 
     try {
+      // post new review info with formData
       const response = await fetch(`${API_PREFIX}/review`, {
         method: "POST",
         headers: addAuthHeader(),
         body: formData
       });
 
+      // set reviewData with new review info
       if (response.ok) {
         const newReview = await response.json();
         setReviews((prevReviews) => [newReview, ...prevReviews]);
@@ -92,11 +100,13 @@ const Reviews = ({
   // Handle deleting a review
   const handleDeleteReview = async (reviewId) => {
     try {
+      // try to remove review from database
       const response = await fetch(`${API_PREFIX}/review/${reviewId}`, {
         method: "DELETE",
         headers: addAuthHeader()
       });
 
+      // update reviewData without the deleted review
       if (response.ok) {
         setReviews((prevReviews) =>
           prevReviews.filter((review) => review._id !== reviewId)
@@ -128,6 +138,7 @@ const Reviews = ({
     <div className="reviews-section">
       <div className="reviews-header">
         <h2>Reviews</h2>
+        {/* display button to add new reviews */}
         {editable && (
           <button
             className="add-review-button"
@@ -137,11 +148,13 @@ const Reviews = ({
         )}
       </div>
       {reviews.length > 0 ? (
+        // iterate through all reviews and display each review
         reviews.map((review) => (
           <div
             key={review._id}
             className="review-card"
             onClick={() => navigate(`/restaurant/${review.restaurant}`)}>
+              {/* delete button for review author */}
             {review.author._id === loggedInUserId && (
               <button
                 className="delete-review-button"
@@ -152,6 +165,7 @@ const Reviews = ({
                 &times;
               </button>
             )}
+            {/* display review author information */}
             <div className="header">
               <img
                 src={`${review.author?.profile_pic}`}
@@ -162,6 +176,7 @@ const Reviews = ({
                 {review.author?.firstname} {review.author?.lastname}
               </div>
             </div>
+            {/* display reviewed item's info */}
             <div className="top-row">
               <div className="item-name">{review.item}</div>
               <div className="review-date">
@@ -173,9 +188,11 @@ const Reviews = ({
               </div>
             </div>
             <div className="stars">
+              {/* fill stars with rating value, leave rest empty*/}
               {"★".repeat(review.rating)}
               {"☆".repeat(5 - review.rating)}
             </div>
+            {/* display review and images */}
             <div className="review-body">{review.review}</div>
             {review.pictures && review.pictures.length > 0 && (
               <div
@@ -199,9 +216,11 @@ const Reviews = ({
         <p>No reviews yet</p>
       )}
 
+      {/* display review form and handle review submission */}
       {editable && showReviewForm && (
         <div className="modal">
           <div className="modal-content">
+            {/* save item info */}
             <form onSubmit={handleSubmitReview}>
               <label>
                 Item:
@@ -213,6 +232,7 @@ const Reviews = ({
                   required
                 />
               </label>
+              {/* save review info */}
               <label>
                 Review:
                 <textarea
@@ -221,6 +241,7 @@ const Reviews = ({
                   onChange={handleInputChange}
                   required></textarea>
               </label>
+              {/* save rating value */}
               <label>
                 Rating:
                 <input
@@ -233,6 +254,7 @@ const Reviews = ({
                   required
                 />
               </label>
+              {/* save images */}
               <label>
                 Pictures:
                 <input
@@ -252,6 +274,7 @@ const Reviews = ({
       )}
 
       {showImageList && (
+        // display images within review card
         <ImageList
           photos={currentImages}
           onClose={() => setShowImageList(false)}

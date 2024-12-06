@@ -7,6 +7,7 @@ import "../../Styles/App.scss";
 import campusMarketImage from "../../Assets/campus_market.jpg";
 import logo from "../../Assets/logo.png";
 
+// list all restaurant cards with ability to sort order and filter 
 const RestaurantList = ({ API_PREFIX, addAuthHeader }) => {
   const { complexId } = useParams();
   const { filters, setFilters } = useFilters();
@@ -63,11 +64,13 @@ const RestaurantList = ({ API_PREFIX, addAuthHeader }) => {
   return (
     <div>
       <div className="top-image">
+        {/* display logo at top of page */}
         <img src={logo} alt="Top Banner" />
       </div>
       <h2 className="heading">Restaurants</h2>
       <div className="card-container">
         <RestaurantFilter setFilters={setFilters} />
+        {/* iterate through all restaurants in database and display cards */}
         {restaurants.map((restaurant, index) => (
           <Cards
             key={index}

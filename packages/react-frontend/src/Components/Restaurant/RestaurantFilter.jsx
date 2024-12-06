@@ -3,6 +3,7 @@ import { Button, Modal, Form, Dropdown } from "react-bootstrap";
 import { useFilters } from "./FiltersContext";
 import "../../Styles/RestaurantFilter.scss";
 
+// define new values for filter labels
 const LABEL_MAP = {
   CreditDebit: "Credit/Debit",
   GlutenFree: "Gluten-Free",
@@ -15,6 +16,7 @@ const LABEL_MAP = {
   SUN: "Sunday"
 };
 
+// filter restaurants using button and form
 const RestaurantFilter = () => {
   const { filters, setFilters } = useFilters();
   const [showModal, setShowModal] = useState(false);
@@ -34,11 +36,13 @@ const RestaurantFilter = () => {
     sortOrder: filters.sortOrder || ""
   });
 
+  // change filter based on user clicks
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFilterValues((prev) => ({ ...prev, [name]: value }));
   };
 
+  // change filter based on boxes checked by user
   const handleCheckboxChange = (e, category) => {
     const { name, checked } = e.target;
     setFilterValues((prev) => ({
@@ -47,6 +51,7 @@ const RestaurantFilter = () => {
     }));
   };
 
+  // remove all checks on form
   const cleanCheckboxFilters = (checkboxFilters) => {
     return Object.fromEntries(
       // eslint-disable-next-line no-unused-vars
@@ -54,6 +59,7 @@ const RestaurantFilter = () => {
     );
   };
 
+  // set filter using options defined by user and reset filter form
   const applyFilters = () => {
     const cleanedFilters = {
       ...filterValues,
@@ -66,6 +72,7 @@ const RestaurantFilter = () => {
     setShowModal(false);
   };
 
+  // reset filter to empty values
   const clearFilters = () => {
     const clearedFilters = {
       name: "",
@@ -101,8 +108,10 @@ const RestaurantFilter = () => {
     <>
       <div className="filter-sort-buttons">
         <Button className="btn" onClick={() => setShowModal(true)}>
+          {/* display filter button */}
           Filter
         </Button>
+        {/* display all filter options when clicking filter button */}
         <Dropdown>
           <Dropdown.Toggle className="btn" id="dropdown-sort">
             Sort
@@ -133,6 +142,7 @@ const RestaurantFilter = () => {
       </div>
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>
+        {/* display form containing filter options and respond to clicks */}
         <Modal.Header>
           <Modal.Title>Filter Restaurants</Modal.Title>
           <button
@@ -242,9 +252,11 @@ const RestaurantFilter = () => {
           </Form>
         </Modal.Body>
         <Modal.Footer>
+          {/* clear all filters on click */}
           <Button variant="secondary" onClick={clearFilters}>
             Clear Filters
           </Button>
+          {/* filter all restaurant on click */}
           <Button variant="primary" onClick={applyFilters}>
             Apply Filters
           </Button>
