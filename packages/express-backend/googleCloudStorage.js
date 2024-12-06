@@ -1,8 +1,4 @@
 import { Storage } from "@google-cloud/storage";
-import dotenv from "dotenv";
-
-//load environment variables
-dotenv.config();
 
 // Initialize Google Cloud Storage
 const storage = new Storage();

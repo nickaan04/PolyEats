@@ -14,7 +14,7 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
   const [showProfilePicOptions, setShowProfilePicOptions] = useState(false);
   const navigate = useNavigate();
   const DEFAULT_PROFILE_PIC =
-    "https://storage.googleapis.com/polyeats/profile-pictures/defaultprofilepic.jpeg";
+    "https://polyeats1901.blob.core.windows.net/images/profile-pictures/defaultprofilepic.jpeg";
 
   useEffect(() => {
     fetch(`${API_PREFIX}/account/details`, {
@@ -147,7 +147,7 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
       toast.error("Error deleting account");
     }
   };
-  
+
   return (
     <div>
       <div className="top-image">

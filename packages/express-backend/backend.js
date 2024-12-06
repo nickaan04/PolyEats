@@ -2,25 +2,22 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import multer from "multer";
+import dotenv from "dotenv";
 import complexService from "./services/complex-service.js";
 import restaurantService from "./services/restaurant-service.js";
 import { authenticateUser, registerUser, loginUser } from "./auth.js";
 import authRoutes from "./auth.js";
 import accountService from "./services/account-service.js";
 import reviewService from "./services/review-service.js";
-import { BlobServiceClient } from "@azure/storage-blob";
 
-const {
-  MONGO_CONNECTION_STRING,
-  AZURE_STORAGE_CONNECTION_STRING, // Full connection string from the .env file
-  AZURE_CONTAINER_NAME // Container name from the .env file
-} = process.env;
+//load environment variables
+dotenv.config();
 
-// Connect to MongoDB
+const { MONGO_CONNECTION_STRING } = process.env;
+
 mongoose.set("debug", true);
 mongoose.connect(MONGO_CONNECTION_STRING).catch((error) => console.log(error));
 
-// Initialize Express
 const app = express();
 app.use(
   cors({
@@ -34,134 +31,48 @@ app.use(
     ]
   })
 );
+
 app.options("*", cors());
 app.use(express.json());
 
-// Multer configuration for in-memory file storage
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
-
-// Azure Blob Storage setup
-const blobServiceClient = BlobServiceClient.fromConnectionString(
-  AZURE_STORAGE_CONNECTION_STRING
-);
-const containerClient =
-  blobServiceClient.getContainerClient(AZURE_CONTAINER_NAME);
-
-// Helper function to upload a file to Azure Blob Storage
-async function uploadFileToAzure(file) {
-  const blobName = `${Date.now()}-${file.originalname}`;
-  const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-  await blockBlobClient.uploadData(file.buffer, {
-    blobHTTPHeaders: { blobContentType: file.mimetype }
-  });
-  return blockBlobClient.url; // Return the URL of the uploaded blob
-}
-
-// Helper function to delete a file from Azure Blob Storage
-async function deleteFileFromAzure(blobName) {
-  const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-  const response = await blockBlobClient.deleteIfExists();
-  return response.succeeded;
-}
-
-// Start Express server
 app.listen(process.env.PORT, () => {
   console.log("REST API is listening.");
 });
 
-// Routes
-// Welcome route
+app.use("/uploads", express.static("../uploads"));
+
+// Configure multer storage
+const storage = multer.memoryStorage(); // Store files in memory
+const upload = multer({ storage });
+
+//register auth routes
+app.use("/auth", authRoutes);
+
 app.get("/", (req, res) => {
   res.status(200).send({ message: "Welcome to PolyEats!" });
 });
 
-// Authentication routes
-app.use("/auth", authRoutes);
 app.post("/signup", registerUser);
 app.post("/login", loginUser);
 
-// Upload a file to Azure Blob Storage
-app.post("/upload", upload.single("file"), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).send({ error: "No file uploaded" });
-    }
-
-    const fileUrl = await uploadFileToAzure(req.file);
-    res
-      .status(201)
-      .send({ message: "File uploaded successfully", url: fileUrl });
-  } catch (error) {
-    console.error("Error uploading file:", error);
-    res.status(500).send({ error: "Error uploading file" });
-  }
-});
-
-// Download a file from Azure Blob Storage
-app.get("/download/:blobName", async (req, res) => {
-  try {
-    const { blobName } = req.params;
-    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-
-    const exists = await blockBlobClient.exists();
-    if (!exists) {
-      return res.status(404).send({ error: "File not found" });
-    }
-
-    const downloadBlockBlobResponse = await blockBlobClient.download(0);
-    const stream = downloadBlockBlobResponse.readableStreamBody;
-
-    res.setHeader("Content-Disposition", `attachment; filename="${blobName}"`);
-    res.setHeader("Content-Type", downloadBlockBlobResponse.contentType);
-
-    stream.pipe(res);
-  } catch (error) {
-    console.error("Error downloading file:", error);
-    res.status(500).send({ error: "Error downloading file" });
-  }
-});
-
-// Delete a file from Azure Blob Storage
-app.delete("/delete/:blobName", async (req, res) => {
-  try {
-    const { blobName } = req.params;
-
-    const deleted = await deleteFileFromAzure(blobName);
-    if (deleted) {
-      res.status(200).send({ message: "File deleted successfully" });
-    } else {
-      res.status(404).send({ error: "File not found" });
-    }
-  } catch (error) {
-    console.error("Error deleting file:", error);
-    res.status(500).send({ error: "Error deleting file" });
-  }
-});
-
-// Post a review for a specific restaurant
+//post a review for a specific restaurant
 app.post(
   "/review",
   authenticateUser,
-  upload.array("pictures", 10),
+  upload.array("pictures", 10), // Accept up to 10 images
   async (req, res) => {
     try {
       const { item, review, rating, restaurant } = req.body;
       const userId = req.user._id;
 
-      // Upload files to Azure Blob Storage
-      const uploadedFiles = await Promise.all(
-        req.files.map(async (file) => await uploadFileToAzure(file))
-      );
-
-      // Use helper function to handle review creation
+      // Use helper function to handle review creation and picture uploads
       const newReview = await reviewService.postReview({
         item,
         review,
         rating,
         restaurant,
         author: userId,
-        pictures: uploadedFiles
+        pictures: req.files // Pass the files directly to the helper
       });
 
       res.status(201).send(newReview);
@@ -172,7 +83,25 @@ app.post(
   }
 );
 
-// Upload or update profile picture
+//delete a review
+app.delete("/review/:reviewId", authenticateUser, async (req, res) => {
+  const { reviewId } = req.params;
+  const userId = req.user._id;
+
+  try {
+    // Use helper function to handle review deletion and picture cleanup
+    await reviewService.deleteReview(reviewId, userId);
+
+    res
+      .status(200)
+      .send({ message: "Review and associated pictures deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting review:", error);
+    res.status(500).send({ error: "Error deleting review" });
+  }
+});
+
+//upload or update profile picture
 app.post(
   "/account/profile-pic",
   authenticateUser,
@@ -185,11 +114,10 @@ app.post(
     }
 
     try {
-      const profilePicUrl = await uploadFileToAzure(req.file);
-
+      // Use the helper function to handle file upload and database update
       const updatedAccount = await accountService.updateProfilePicture(
         userId,
-        profilePicUrl
+        req.file
       );
 
       res.status(200).send({
@@ -203,7 +131,7 @@ app.post(
   }
 );
 
-// Delete profile picture
+//delete profile picture
 app.post("/account/profile-pic/remove", authenticateUser, async (req, res) => {
   const userId = req.user._id;
 

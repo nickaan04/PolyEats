@@ -31,7 +31,7 @@ const AccountSchema = new mongoose.Schema(
       type: String,
       trim: true,
       default:
-        "https://storage.googleapis.com/polyeats/profile-pictures/defaultprofilepic.jpeg"
+        "https://polyeats1901.blob.core.windows.net/images/profile-pictures/defaultprofilepic.jpeg"
     },
     favorites: [
       {
