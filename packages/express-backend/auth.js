@@ -6,6 +6,7 @@ import { sendVerificationMail } from "./sendVerifEmail.js";
 
 const router = express.Router();
 
+//delete account if not verified within 5 minutes
 function scheduleAccountDeletion(accountId) {
   setTimeout(
     async () => {
@@ -20,9 +21,10 @@ function scheduleAccountDeletion(accountId) {
       }
     },
     5 * 60 * 1000
-  ); // 5 minutes in milliseconds
+  );
 }
 
+//generate access token for email
 function generateAccessToken(calpoly_email) {
   return new Promise((resolve, reject) => {
     jwt.sign(
@@ -40,12 +42,13 @@ function generateAccessToken(calpoly_email) {
   });
 }
 
+//middleware function for backend endpoints
 export function authenticateUser(req, res, next) {
   if (req.method === "OPTIONS") {
     return next();
   }
   const authHeader = req.headers["authorization"];
-  // Getting the 2nd part of the auth header (the token)
+  //getting the 2nd part of the auth header (the token)
   const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
@@ -76,6 +79,7 @@ export function authenticateUser(req, res, next) {
   }
 }
 
+//register user based on inputted information
 export function registerUser(req, res) {
   const { firstname, lastname, calpoly_email, password } = req.body;
 
@@ -91,6 +95,7 @@ export function registerUser(req, res) {
       .send("Invalid email domain. Only @calpoly.edu emails are allowed");
   }
 
+  //hash password and create user if user doesnt already exist
   Account.findOne({ calpoly_email }).then((existingUser) => {
     if (existingUser) {
       return res.status(409).send("Email already in use");
@@ -114,7 +119,6 @@ export function registerUser(req, res) {
               process.env.TOKEN_SECRET,
               { expiresIn: "1h" }
             );
-
             //send the verification email
             sendVerificationMail({
               email: calpoly_email,
@@ -141,6 +145,7 @@ export function registerUser(req, res) {
   });
 }
 
+//login user based on inputted information
 export function loginUser(req, res) {
   const { calpoly_email, password } = req.body;
 
@@ -148,16 +153,11 @@ export function loginUser(req, res) {
     return res.status(400).send("Please fill out the required fields");
   }
 
+  //compare inputted password to hashed password
   Account.findOne({ calpoly_email }).then((user) => {
     if (!user) {
       return res.status(401).send("User does not exist");
     }
-
-    // Check if the user's email has been verified
-    // if (!user.isVerified) {
-    //   return res.status(403).send("Email not verified");
-    // }
-
     bcrypt.compare(password, user.password).then((matched) => {
       if (matched) {
         generateAccessToken(calpoly_email).then((token) => {

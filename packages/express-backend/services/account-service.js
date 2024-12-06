@@ -3,6 +3,9 @@ import reviewModel from "../models/review.js";
 import restaurantModel from "../models/restaurant.js";
 import { uploadFileToAzure, deleteFileFromAzure } from "../azureBlobStorage.js";
 
+const DEFAULT_PROFILE_PIC =
+  "https://polyeats1901.blob.core.windows.net/images/profile-pictures/defaultprofilepic.jpeg";
+
 //fetch account details by ID (excluding password)
 async function getAccountDetails(accountId) {
   return accountModel
@@ -18,18 +21,16 @@ async function updateProfilePicture(accountId, file) {
     throw new Error("Account not found");
   }
 
-  const DEFAULT_PROFILE_PIC =
-    "https://polyeats1901.blob.core.windows.net/images/profile-pictures/defaultprofilepic.jpeg";
-
-  // Delete old profile picture if it exists and is not the default
+  //delete old profile picture if it exists and is not the default
   if (account.profile_pic !== DEFAULT_PROFILE_PIC) {
-    const oldBlobName = account.profile_pic.split("/").pop(); // Extract blob name from URL
+    const oldBlobName = account.profile_pic.split("/").pop(); //extract blob name from URL
     await deleteFileFromAzure("images", oldBlobName, "profile-pictures");
   }
 
-  // Upload the new profile picture to Azure
+  //upload the new profile picture to Azure
   const publicUrl = await uploadFileToAzure("images", file, "profile-pictures");
 
+  //set profile pic to new path
   account.profile_pic = publicUrl;
   await account.save();
   return account;
@@ -42,16 +43,13 @@ async function removeProfilePicture(accountId) {
     throw new Error("Account not found");
   }
 
-  const DEFAULT_PROFILE_PIC =
-    "https://polyeats1901.blob.core.windows.net/images/profile-pictures/defaultprofilepic.jpeg";
-
-  // Delete the custom profile picture if it exists
+  //delete the custom profile picture if it exists
   if (account.profile_pic !== DEFAULT_PROFILE_PIC) {
-    const blobName = account.profile_pic.split("/").pop(); // Extract blob name from URL
+    const blobName = account.profile_pic.split("/").pop(); //extract blob name from URL
     await deleteFileFromAzure("images", blobName, "profile-pictures");
   }
 
-  // Set the profile picture back to the default
+  //set the profile picture back to the default
   account.profile_pic = DEFAULT_PROFILE_PIC;
   await account.save();
   return account;
@@ -61,7 +59,7 @@ async function removeProfilePicture(accountId) {
 async function getAccountReviews(accountId) {
   return reviewModel
     .find({ author: accountId })
-    .populate("author", "firstname lastname profile_pic") // Ensure profile_pic is included
+    .populate("author", "firstname lastname profile_pic")
     .exec();
 }
 
@@ -94,39 +92,37 @@ async function removeFavoriteRestaurant(accountId, restaurantId) {
   return account;
 }
 
+//delete account
 async function deleteAccount(accountId) {
-  // Find the account to get the profile picture
+  //find the account to get the profile picture
   const account = await accountModel.findById(accountId);
   if (!account) {
     throw new Error("Account not found");
   }
 
-  const DEFAULT_PROFILE_PIC =
-    "https://polyeats1901.blob.core.windows.net/images/profile-pictures/defaultprofilepic.jpeg";
-
-  // Delete the profile picture if it is not the default one
+  //delete the profile picture if it is not the default one
   if (account.profile_pic !== DEFAULT_PROFILE_PIC) {
-    const blobName = account.profile_pic.split("/").pop(); // Extract blob name
+    const blobName = account.profile_pic.split("/").pop(); //extract blob name
     await deleteFileFromAzure("images", blobName, "profile-pictures");
   }
 
-  // Fetch all reviews by the account
+  //fetch all reviews by the account
   const reviews = await reviewModel.find({ author: accountId });
 
-  // Delete review images from Azure Storage
+  //delete review images from Azure Storage
   for (const review of reviews) {
     if (review.pictures && review.pictures.length > 0) {
       for (const pictureUrl of review.pictures) {
-        const blobName = pictureUrl.split("/").pop(); // Extract blob name
+        const blobName = pictureUrl.split("/").pop(); //extract blob name
         await deleteFileFromAzure("images", blobName, "review-pictures");
       }
     }
   }
 
-  // Delete the account from the database
+  //delete the account from the database
   await accountModel.findByIdAndDelete(accountId);
 
-  // Delete all reviews by the account
+  //delete all reviews by the account
   await reviewModel.deleteMany({ author: accountId });
 
   return { message: "Account and associated data successfully deleted" };

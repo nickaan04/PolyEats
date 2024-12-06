@@ -1,8 +1,10 @@
 import { createMailTransporter } from "./createMailTransporter.js";
 
+//send verification email
 export const sendVerificationMail = (user) => {
   const transporter = createMailTransporter();
 
+  //email body
   const mailOptions = {
     from: "Poly Eats <polyeats1901@gmail.com>", //sender email
     to: user.email,

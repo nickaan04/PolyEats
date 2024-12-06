@@ -13,12 +13,16 @@ import reviewService from "./services/review-service.js";
 //load environment variables
 dotenv.config();
 
+//destructure connection string from environment variables
 const { MONGO_CONNECTION_STRING } = process.env;
 
 mongoose.set("debug", true);
+//connect to MongoDB using the connection string
 mongoose.connect(MONGO_CONNECTION_STRING).catch((error) => console.log(error));
 
+//create Express application instance
 const app = express();
+//configure CORS to allow requests from the specified origin and methods
 app.use(
   cors({
     origin: "https://black-meadow-0048ebf1e.4.azurestaticapps.net",
@@ -32,26 +36,28 @@ app.use(
   })
 );
 
+//enable CORS pre-flight for all routes
 app.options("*", cors());
+//parse incoming JSON requests
 app.use(express.json());
 
 app.listen(process.env.PORT, () => {
   console.log("REST API is listening.");
 });
 
-app.use("/uploads", express.static("../uploads"));
-
-// Configure multer storage
-const storage = multer.memoryStorage(); // Store files in memory
+//configure multer storage
+const storage = multer.memoryStorage(); //store files in memory
 const upload = multer({ storage });
 
 //register auth routes
 app.use("/auth", authRoutes);
 
+//default route
 app.get("/", (req, res) => {
   res.status(200).send({ message: "Welcome to PolyEats!" });
 });
 
+//user signup and login route
 app.post("/signup", registerUser);
 app.post("/login", loginUser);
 
@@ -59,20 +65,20 @@ app.post("/login", loginUser);
 app.post(
   "/review",
   authenticateUser,
-  upload.array("pictures", 10), // Accept up to 10 images
+  upload.array("pictures", 10), //accept up to 10 images
   async (req, res) => {
     try {
       const { item, review, rating, restaurant } = req.body;
       const userId = req.user._id;
 
-      // Use helper function to handle review creation and picture uploads
+      //use helper function to handle review creation and picture uploads
       const newReview = await reviewService.postReview({
         item,
         review,
         rating,
         restaurant,
         author: userId,
-        pictures: req.files // Pass the files directly to the helper
+        pictures: req.files //pass the files directly to the helper
       });
 
       res.status(201).send(newReview);
@@ -89,7 +95,7 @@ app.delete("/review/:reviewId", authenticateUser, async (req, res) => {
   const userId = req.user._id;
 
   try {
-    // Use helper function to handle review deletion and picture cleanup
+    //use helper function to handle review deletion and picture cleanup
     await reviewService.deleteReview(reviewId, userId);
 
     res
@@ -116,7 +122,7 @@ app.post(
     console.log("Uploaded file:", req.file);
 
     try {
-      // Use the helper function to handle file upload and database update
+      //use the helper function to handle file upload and database update
       const updatedAccount = await accountService.updateProfilePicture(
         userId,
         req.file
@@ -138,6 +144,7 @@ app.post("/account/profile-pic/remove", authenticateUser, async (req, res) => {
   const userId = req.user._id;
 
   try {
+    //use helper function to handle profile picture deletion
     const updatedAccount = await accountService.removeProfilePicture(userId);
     res.status(200).send({
       message: "Profile picture removed successfully",
@@ -151,6 +158,7 @@ app.post("/account/profile-pic/remove", authenticateUser, async (req, res) => {
 
 //get account details
 app.get("/account/details", authenticateUser, (req, res) => {
+  //use helper function to return account details of logged in user
   accountService
     .getAccountDetails(req.user._id)
     .then((account) => res.status(200).send({ account }))
@@ -161,6 +169,7 @@ app.get("/account/details", authenticateUser, (req, res) => {
 
 //get reviews given by the account
 app.get("/account/reviews", authenticateUser, (req, res) => {
+  //use helper function to return reviews of logged in user
   accountService
     .getAccountReviews(req.user._id)
     .then((reviews) => res.status(200).send({ reviews }))
@@ -171,6 +180,7 @@ app.get("/account/reviews", authenticateUser, (req, res) => {
 
 //get favorite restaurants for the account
 app.get("/account/favorites", authenticateUser, (req, res) => {
+  //use helper function to get favorite restaurants of logged in user
   accountService
     .getFavoriteRestaurants(req.user._id)
     .then((favorites) => res.status(200).send({ favorites }))
@@ -181,6 +191,7 @@ app.get("/account/favorites", authenticateUser, (req, res) => {
 
 //add a restaurant to favorites
 app.post("/account/favorites/:restaurantId", authenticateUser, (req, res) => {
+  //use helper function to add favorite restaurant to logged in user
   accountService
     .addFavoriteRestaurant(req.user._id, req.params.restaurantId)
     .then((account) =>
@@ -195,6 +206,7 @@ app.post("/account/favorites/:restaurantId", authenticateUser, (req, res) => {
 
 //remove a restaurant from favorites
 app.delete("/account/favorites/:restaurantId", authenticateUser, (req, res) => {
+  //use helper function to remove favorite restaurant of logged in user
   accountService
     .removeFavoriteRestaurant(req.user._id, req.params.restaurantId)
     .then((account) =>
@@ -211,6 +223,7 @@ app.delete("/account/favorites/:restaurantId", authenticateUser, (req, res) => {
 
 //delete account route
 app.delete("/account/delete", authenticateUser, (req, res) => {
+  //use helper function to delete account of logged in user
   accountService
     .deleteAccount(req.user._id)
     .then((response) => res.status(204).send(response))
@@ -222,7 +235,7 @@ app.delete("/account/delete", authenticateUser, (req, res) => {
 //get list of complexes
 app.get("/complexes", authenticateUser, (req, res) => {
   const name = req.query.name;
-
+  //use helper function to get all complexes or a specific complex
   complexService
     .getComplexes(name)
     .then((complexes) => {
@@ -299,6 +312,7 @@ app.get("/complexes/:complexId/restaurants", authenticateUser, (req, res) => {
     }
   }
 
+  //use helper function to get all restaurants that satisfy filters and sorting
   restaurantService
     .getRestaurants(filters, sortField, sortOrder || "asc", complexId)
     .then((restaurants) => {
@@ -323,6 +337,7 @@ app.get("/complexes/:complexId/restaurants", authenticateUser, (req, res) => {
 app.get("/restaurant/:id", authenticateUser, (req, res) => {
   const restaurantId = req.params.id;
 
+  //use helped function to fetch restaurant details
   restaurantService
     .getRestaurantWithReviews(restaurantId)
     .then(({ restaurant, reviews }) => {
