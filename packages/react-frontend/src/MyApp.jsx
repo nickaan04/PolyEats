@@ -102,7 +102,7 @@ function MyApp() {
       .then((response) => {
         if (response.status === 201) {
           response.json().then((payload) => setToken(payload.token));
-          toast.success("Signup successful. Email verification sent");
+          toast.success("Signup successful. Email verification sent. Check spam if not in inbox");
         } else {
           response.text().then((text) => {
             toast.error(`${text}`);
