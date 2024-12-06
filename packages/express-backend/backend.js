@@ -113,6 +113,8 @@ app.post(
       return res.status(400).send({ error: "No file uploaded" });
     }
 
+    console.log("Uploaded file:", req.file);
+
     try {
       // Use the helper function to handle file upload and database update
       const updatedAccount = await accountService.updateProfilePicture(

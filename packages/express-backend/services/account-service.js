@@ -24,11 +24,11 @@ async function updateProfilePicture(accountId, file) {
   // Delete old profile picture if it exists and is not the default
   if (account.profile_pic !== DEFAULT_PROFILE_PIC) {
     const oldBlobName = account.profile_pic.split("/").pop(); // Extract blob name from URL
-    await deleteFileFromAzure("profile-pictures", oldBlobName);
+    await deleteFileFromAzure("images", oldBlobName, "profile-pictures");
   }
 
   // Upload the new profile picture to Azure
-  const publicUrl = await uploadFileToAzure("profile-pictures", file);
+  const publicUrl = await uploadFileToAzure("images", file, "profile-pictures");
 
   account.profile_pic = publicUrl;
   await account.save();
@@ -48,7 +48,7 @@ async function removeProfilePicture(accountId) {
   // Delete the custom profile picture if it exists
   if (account.profile_pic !== DEFAULT_PROFILE_PIC) {
     const blobName = account.profile_pic.split("/").pop(); // Extract blob name from URL
-    await deleteFileFromAzure("profile-pictures", blobName);
+    await deleteFileFromAzure("images", blobName, "profile-pictures");
   }
 
   // Set the profile picture back to the default

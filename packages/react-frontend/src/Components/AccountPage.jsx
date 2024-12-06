@@ -72,7 +72,7 @@ const AccountPage = ({ API_PREFIX, addAuthHeader, logoutUser }) => {
         toast.success("Profile picture updated successfully");
         setShowProfilePicOptions(false);
       } else {
-        toast.error(`Error updating profile picture: ${data.error}`);
+        toast.error(data.error);
       }
     } catch (error) {
       console.error("Error uploading file:", error);

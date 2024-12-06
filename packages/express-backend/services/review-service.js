@@ -9,7 +9,11 @@ async function postReview(reviewData) {
 
   if (pictures && pictures.length > 0) {
     for (const file of pictures) {
-      const publicUrl = await uploadFileToAzure("review-pictures", file);
+      const publicUrl = await uploadFileToAzure(
+        "images",
+        file,
+        "review-pictures"
+      );
       pictureUrls.push(publicUrl);
     }
   }
@@ -36,7 +40,7 @@ async function deleteReview(reviewId, accountId) {
   if (review.pictures && review.pictures.length > 0) {
     const deletePromises = review.pictures.map((url) => {
       const blobName = url.split("/").pop(); // Extract blob name from URL
-      return deleteFileFromAzure("review-pictures", blobName);
+      return deleteFileFromAzure("images", blobName, "review-pictures");
     });
 
     await Promise.all(deletePromises);
